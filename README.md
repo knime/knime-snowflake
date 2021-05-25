@@ -1,6 +1,6 @@
-# KNIME database and big data modules
+# KNIME Snowflake modules
 
-## KNIME database
+## KNIME Snowflake
 
 ### Maven build 
 
