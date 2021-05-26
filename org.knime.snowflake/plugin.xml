@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+    <!--************************** DB Extensions **************************-->
+
+   <extension point="org.knime.database.DBType">
+      <DBType
+            defaultAttributeDefinitionSupplier="org.knime.database.extension.snowflake.SnowflakeDefaultAttributeSupplier"
+            id="snowflake"
+            name="Snowflake"
+            urlTemplateValidator="org.knime.database.extension.snowflake.SnowflakeUrlTemplateValidator">
+          <UrlTemplateExamples>
+             <UrlTemplateExample 
+                template="jdbc:snowflake://&lt;account_name&gt;.snowflakecomputing.com/?warehouse=&lt;warehouse&gt;&amp;role=[role]&amp;db=[database]&amp;schema=[schema]"/>
+          </UrlTemplateExamples>
+      </DBType>
+   </extension>
+
+    <extension point="org.knime.database.Agent">
+      <Agent
+            dbTypes="snowflake"
+            factory="org.knime.database.extension.snowflake.SnowflakeAgentFactory"
+            interface="org.knime.database.agent.metadata.DBMetadataReader"/>
+      <Agent
+            dbTypes="snowflake"
+            factory="org.knime.database.extension.snowflake.SnowflakeAgentFactory"
+            interface="org.knime.database.agent.sampling.DBSampling"/>
+    </extension>
+
+   <!-- ********************************** DB Aggregation Functions ********************************** -->
+
+   <extension point="org.knime.database.AggregationFunction">
+
+      <!-- ************************** Common ************************** -->
+      <!-- https://docs.snowflake.com/en/sql-reference/functions-aggregation.html -->
+<!-- General Aggregation -->
+      <AggregationFunction
+            factory="org.knime.database.extension.snowflake.functions.AnyValueDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.AvgDistinctDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.CorrDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.CountDistinctDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.presto.CountIfDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.CovarPopDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.CovarSampDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+<!-- LISTAGG -->
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.MaxDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.MedianDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.MinDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.ModeDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.extension.snowflake.functions.PercentileContDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.extension.snowflake.functions.PercentileDiscDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.StdDevDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.StdDevPopDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.StdDevSampDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.SumDistinctDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.VarPopDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.VarSampDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.VarianceDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.VariancePopDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.VarianceSampDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+
+<!-- Bitwise Aggregation -->
+      <AggregationFunction
+            factory="org.knime.database.extension.snowflake.functions.bit.BitAndDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.extension.snowflake.functions.bit.BitOrDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.extension.snowflake.functions.bit.BitXorDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+
+<!-- Boolean Aggregation -->
+      <AggregationFunction
+            factory="org.knime.database.extension.snowflake.functions.bool.BoolAndDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.extension.snowflake.functions.bool.BoolOrDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.extension.snowflake.functions.bool.BoolXorDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+
+<!-- Hash -->
+    <!-- HASH_AGG -->
+
+<!-- Semi-structure Data Aggregation -->
+    <!-- ARRAY_AGG -->
+      <AggregationFunction
+            factory="org.knime.database.extension.snowflake.functions.ObjectAggDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+
+<!-- Linear Regression -->
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.RegrAvgXDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.RegrAvgYDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.RegrCountDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.RegrInterceptDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.RegrR2DBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.RegrSlopeDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.RegrSXXDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.RegrSXYDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.function.aggregation.impl.functions.RegrSYYDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+
+<!-- Statistics and Probability -->
+      <AggregationFunction
+            factory="org.knime.database.extension.snowflake.functions.stats.KurtosisDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+      <AggregationFunction
+            factory="org.knime.database.extension.snowflake.functions.stats.SkewDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+
+<!-- Cardinality Estimation -->
+      <AggregationFunction
+            factory="org.knime.database.extension.snowflake.functions.est.ApproxCountDistinctDBAggregationFunction$Factory"
+            dbTypes="snowflake"/>
+    <!-- HLL -->
+    <!-- HLL_ACCUMULATE -->
+    <!-- HLL_COMBINE -->
+    <!-- HLL_ESTIMATE -->
+    <!-- HLL_EXPORT -->
+    <!-- HLL_IMPORT -->
+
+<!-- Similarity Estimation-->
+    <!-- APPROXIMATE_JACCARD_INDEX -->
+    <!-- APPROXIMATE_SIMILARITY -->
+    <!-- MINHASH -->
+    <!-- MINHASH_COMBINE -->
+    
+<!-- Frequency Estimation-->
+      <!-- Approx top k not supported in group by -->      
+    
+<!-- Frequency Estimation-->
+      <!-- Approx_Percentile etc are not supported in group by -->
+
+<!-- Aggregation Utilities-->
+    <!-- GROUPING-->
+
+   </extension>
+   <extension point="org.knime.database.SQLDialect">
+      <SQLDialect dbTypes="snowflake" factory="org.knime.database.extension.snowflake.dialect.SnowflakeDBSQLDialect$Factory"/>
+   </extension>
+   <extension
+         point="org.knime.workbench.repository.nodes">
+      <node
+            category-path="/db/connector"
+            deprecated="false"
+            factory-class="org.knime.database.extension.snowflake.node.connector.SnowflakeDBConnectorNodeFactory">
+      </node>
+   </extension>
+   <extension
+         point="org.knime.database.DBTypeMappingService">
+      <DBTypeMappingService
+            dbTypeId="snowflake"
+            supplier="org.knime.database.extension.snowflake.SnowflakeTypeMappingServiceSupplier">
+      </DBTypeMappingService>
+   </extension>
+
+   <extension
+         point="org.knime.database.Driver">
+      <Driver
+            locator="org.knime.database.extension.snowflake.SnowflakeDriverLocator">
+      </Driver>
+   </extension>
+</plugin>
+
+

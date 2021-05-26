@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Snowflake database provider for unit-tests.
+Bundle-SymbolicName: org.knime.snowflake.tests;singleton:=true
+Bundle-Version: 4.4.0.qualifier
+Bundle-Vendor: KNIME AG, Zurich, Switzerland
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.knime.database;bundle-version="[4.4.0,5.0.0)",
+ org.knime.snowflake;bundle-version="[4.4.0,5.0.0)",
+ org.knime.database.tests.collector;bundle-version="[4.4.0,5.0.0)"
+Automatic-Module-Name: org.knime.snowflake.tests

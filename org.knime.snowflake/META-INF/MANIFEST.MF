@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: KNIME Snowflake database extension
+Bundle-SymbolicName: org.knime.snowflake;singleton:=true
+Bundle-Version: 4.4.0.qualifier
+Bundle-Activator: org.knime.database.extension.snowflake.SnowflakePlugin
+Bundle-Vendor: KNIME AG, Zurich, Switzerland
+Require-Bundle: org.knime.database;bundle-version="[4.1.0,5.0.0)",
+ org.knime.database.nodes;bundle-version="[4.1.0,5.0.0)",
+ org.knime.core;bundle-version="[4.0.0,5.0.0)",
+ org.knime.time;bundle-version="[4.0.0,5.0.0)",
+ org.apache.commons.lang3;bundle-version="[3.3.1,4.0.0)",
+ org.knime.base;bundle-version="[4.0.0,5.0.0)",
+ org.knime.workflow.migration;bundle-version="[4.1.0,5.0.0)"
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: org.knime.snowflake
+Export-Package: org.knime.database.extension.snowflake.dialect,
+ org.knime.database.extension.snowflake.type
+Bundle-ClassPath: knime-snowflake.jar

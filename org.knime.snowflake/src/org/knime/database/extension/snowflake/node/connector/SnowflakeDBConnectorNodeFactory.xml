@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knimeNode type="Source" icon="snowflake_connector.png"
+xmlns="http://knime.org/node/v3.6" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://knime.org/node/v3.6 http://knime.org/node/v3.6.xsd">
+    <name>Snowflake Connector</name>
+    <shortDescription>Create a database connection to Snowflake.</shortDescription>
+    <fullDescription>
+        <intro>
+            This node creates a connection to a Snowflake server via a Snowflake JDBC driver. Due to license restrictions
+            the Snowflake JDBC driver is not part of the KNIME Analytics Platform and needs to be downloaded and 
+            registered separately. For more details on where to download and how to register the Snowflake driver see the
+            <a href="https://docs.knime.com/latest/db_extension_guide/index.html#register_jdbc">database documentation</a>. 
+            <br/>
+            You need to provide the server's
+            hostname (or IP address), the port, and a database name. Login credentials can either be provided directly 
+            in the configuration or via credential variables.
+            <p>
+            This node uses the selected driver's 
+            <a href="https://docs.knime.com/latest/db_extension_guide/index.html#url_template">JDBC URL template</a> 
+            to create the concrete database URL. Field validation in the dialog depends on whether the (included) 
+            tokens referencing them are mandatory or optional in the template.
+            </p>
+        </intro>
+        <tab name="Connection settings">
+            <description>
+                This tab contains the main setting to connect to a Snowflake database. For more details about
+                the different connection parameters see the 
+                <a href="https://docs.snowflake.com/en/user-guide/jdbc-configure.html#connection-parameters">Snowflake documentation</a>.
+            </description>
+            <option name="Database Dialect">
+                Choose the registered database dialect here.
+            </option>
+            <option name="Driver Name">
+                Choose the registered database driver here.
+                Additional drivers can be registered via KNIME's preference page "KNIME -> Databases".
+                For more details on how to register your own Snowflake driver see the 
+                <a href="https://docs.knime.com/latest/db_extension_guide/index.html#register_jdbc">database documentation</a>.
+            </option>
+            <option name="Full account name">
+                Specifies the full name of your account (provided by Snowflake). Note that your full account name 
+                might include <b>additional</b> segments that identify the region and cloud platform where your account 
+                is hosted e.g. xy12345.us-east-2.aws, xy12345.us-central1.gcp or xy12345.west-us-2.azure.
+                <br />
+                The domain <i>.snowflakecomputing.com</i> will be appended automatically to the full account name.
+            </option>
+            <option name="Virtual warehouse">
+                Specifies the virtual warehouse to use once connected, or an empty string. The specified warehouse 
+                should be an existing warehouse for which the specified default role has privileges.
+                <br />
+                After connecting, the 
+                <a href="https://docs.snowflake.com/en/sql-reference/sql/use-warehouse.html">USE WAREHOUSE</a> command 
+                can be executed with the <a href="https://kni.me/n/eh-RgddvYOj-B0uz">DB SQL Executor</a> node to set 
+                a different database for the session.
+            </option>
+            <option name="Default access control role (optional)">
+                Specifies the default access control role to use in the Snowflake session initiated by the driver. 
+                The specified role should be an existing role that has already been assigned to the specified user 
+                for the driver. If the specified role has not already been assigned to the user, the role is not 
+                used when the session is initiated by the driver.
+                <br />
+                For more information about roles and access control, see 
+                <a href="https://docs.snowflake.com/en/user-guide/security-access-control.html">Access Control in Snowflake</a>.
+            </option>
+            <option name="Default database (optional)">
+                Specifies the default database to use once connected, or an empty string. The specified database 
+                should be an existing database for which the specified default role has privileges.
+                <br />
+                After connecting, the 
+                <a href="https://docs.snowflake.com/en/sql-reference/sql/use-database.html">USE DATABASE</a> command 
+                can be executed with the <a href="https://kni.me/n/eh-RgddvYOj-B0uz">DB SQL Executor</a> node to set 
+                a different database for the session.
+            </option>
+            <option name="Default schema (optional)">
+                Specifies the default schema to use for the specified database once connected, or an empty string. 
+                The specified schema should be an existing schema for which the specified default role has privileges.
+                <br />
+                After connecting, the 
+                <a href="https://docs.snowflake.com/en/sql-reference/sql/use-schema.html">USE SCHEMA</a> command 
+                can be executed with the <a href="https://kni.me/n/eh-RgddvYOj-B0uz">DB SQL Executor</a> node to set 
+                a different schema for the session.
+            </option>
+            <option name="None">
+                Sending no credentials is required for some Snowflake specific logins such as SSO. 
+                Please refer to the 
+                <a href="https://docs.snowflake.com/en/user-guide/admin-security-fed-auth-use.html#label-sso-with-command-line-clients">Snowflake documentation</a>
+                for any further setup steps that might be required.
+            </option>
+            <option name="Username">
+                Sending only the user name is required for some Snowflake specific logins such as key pair authentication.
+                Please refer to the 
+                <a href="https://docs.snowflake.com/en/user-guide/jdbc-configure.html#using-key-pair-authentication-key-rotation">Snowflake documentation</a>
+                for any further setup steps that might be required.
+            </option>
+            <option name="Credentials">
+                If checked, the credentials (user and password) are used as defined on
+                the workflow. The credential name links to the specified user and password.
+            </option>
+            <option name="Username &amp; password">
+                Your log-in user name and password for the database. Note that the password 
+                is encrypted before storage and decrypted afterwards for being used internally.
+            </option>
+        </tab>
+        <tab name="JDBC Parameters">
+            <description>
+                This tab allows you to define JDBC driver connection parameter. The value of a parameter can be a 
+                constant, variable, credential user, credential password or KNIME URL.
+                For more information about the supported driver properties see the 
+                <a href="https://docs.snowflake.com/en/user-guide/jdbc-configure.html">Snowflake documentation</a>.
+                <br/>
+                The <i>application</i>i> parameter is added as default to all Snowflake connections to track the usage 
+                of KNIME Analytics Platform as Snowflake client (for details go 
+                <a href="https://docs.snowflake.com/en/user-guide/jdbc-configure.html#connection-parameters">here</a>).
+                If you are not comfortable sharing this information with Snowflake you can simply remove the parameter.
+                However, if you want to promote KNIME as a client with Snowflake leave the parameter as is.
+             </description>
+            <option name=""></option>
+        </tab>
+        <tab name="Advanced">
+            <description>
+                This tab allows you to define KNIME framework properties such as connection handling,
+                advanced SQL dialect settings or logging options.
+            </description>
+            <option name=""></option>
+        </tab>
+        <tab name="Input Type Mapping">
+            <description>
+                This tab allows you to define rules to map from database types to KNIME types.
+            </description>
+            <option name="Mapping by Name">
+                Columns that match the given name (or regular expression) and database type will be mapped
+                to the specified KNIME type.
+            </option>
+            <option name="Mapping by Type">
+                Columns that match the given database type will be mapped to the specified KNIME type.
+            </option>
+        </tab>
+        <tab name="Output Type Mapping">
+            <description>
+                This tab allows you to define rules to map from KNIME types to database types.
+            </description>
+            <option name="Mapping by Name">
+                Columns that match the given name (or regular expression) and KNIME type will be mapped
+                to the specified database type.
+            </option>
+            <option name="Mapping by Type">
+                Columns that match the given KNIME type will be mapped to the specified database type.
+            </option>
+        </tab>
+    </fullDescription>
+
+    <ports>
+        <outPort index="0" name="DB Connection">Snowflake DB Connection.</outPort>
+    </ports>
+</knimeNode>

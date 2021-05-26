@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension point="org.knime.database.tests.collector.Database">
+      <Database builder="org.knime.snowflake.tests.collector.SnowflakeDatabase$SnowflakeBuilderFactory" />
+   </extension>>
+</plugin>

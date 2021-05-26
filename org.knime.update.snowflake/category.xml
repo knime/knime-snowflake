@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature id="org.knime.features.snowflake" version="0.0.0">
+      <category name="knime-snowflake"/>
+   </feature>
+   <feature id="org.knime.features.snowflake.source" version="0.0.0">
+      <category name="knime-snowflake"/>
+   </feature>
+   <category-def name="knime-snowflake" label="Build artifacts from knime-snowflake">
+      <description>
+         Build artifacts from knime-snowflake
+      </description>
+   </category-def>
+</site>
