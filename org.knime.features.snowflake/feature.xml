@@ -6,7 +6,7 @@
       provider-name="KNIME AG, Zurich, Switzerland">
 
    <description>
-      This feature contains nodes for accessing Snowflake from KNIME.
+      This feature contains nodes for accessing Snowflake from KNIME. Together with the KNIME Database extension you can visually assemble database queries and manipulate your data within Snowflake.
    </description>
 
    <copyright>
@@ -726,6 +726,12 @@ interoperation with KNIME.  The owner of a Node may freely choose the
 license terms applicable to such Node, including when such Node is
 propagated with or for interoperation with KNIME.
    </license>
+
+   <url>
+      <discovery label="KNIME Database Extension" url="https://kni.me/e/0mIkLShcIfCXS7Y-"/>
+      <discovery label="KNIME Database Extension Guide" url="https://docs.knime.com/latest/db_extension_guide/index.html"/>
+      <discovery label="Snowflake" url="https://www.snowflake.com/"/>
+   </url>
 
    <plugin
          id="org.knime.snowflake"
