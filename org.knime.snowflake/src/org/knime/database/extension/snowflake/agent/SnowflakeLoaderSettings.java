@@ -42,53 +42,81 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ------------------------------------------------------------------------
  */
+package org.knime.database.extension.snowflake.agent;
 
-package org.knime.database.extension.snowflake;
+import static java.util.Objects.requireNonNull;
 
-import org.knime.database.agent.AbstractDBAgentFactory;
-import org.knime.database.agent.DBAgentFactory;
-import org.knime.database.agent.loader.DBLoader;
-import org.knime.database.agent.metadata.DBMetadataReader;
-import org.knime.database.agent.metadata.impl.DefaultDBMetadataReader;
-import org.knime.database.agent.sampling.DBSampling;
-import org.knime.database.agent.sampling.impl.DefaultDBSampling;
-import org.knime.database.attribute.AttributeCollection;
-import org.knime.database.attribute.AttributeCollection.Accessibility;
-import org.knime.database.extension.snowflake.agent.SnowflakeDBLoader;
-import org.knime.database.extension.snowflake.agent.SnowflakeDBMetadataReader;
-import org.knime.database.extension.snowflake.agent.SnowflakeDBSampling;
+import java.util.Optional;
+
+import org.knime.base.node.io.csvwriter.FileWriterSettings;
 
 /**
- * {@linkplain DBAgentFactory Agent factory} for the Snowflake database.
+ * Additional settings for {@link SnowflakeDBLoader}.
  *
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
  */
-public class SnowflakeAgentFactory extends AbstractDBAgentFactory {
+public class SnowflakeLoaderSettings {
 
-    private static final AttributeCollection METADATA_ATTRIBUTES;
-    static {
-        final AttributeCollection.Builder builder = AttributeCollection.builder(DefaultDBMetadataReader.ATTRIBUTES);
-        builder.add(Accessibility.EDITABLE, DefaultDBMetadataReader.ATTRIBUTE_CAPABILITY_MULTI_DBS, true);
-        METADATA_ATTRIBUTES = builder.build();
-    }
+    private final SnowflakeLoaderFileFormat m_fileFormat;
 
-    private static final AttributeCollection SAMPLING_ATTRIBUTES;
-    static {
-        final AttributeCollection.Builder builder = AttributeCollection.builder(DefaultDBSampling.ATTRIBUTES);
-        builder.add(Accessibility.READ_ONLY, DefaultDBSampling.ATTRIBUTE_CAPABILITY_RANDOM, true);
-        builder.add(Accessibility.READ_ONLY, DefaultDBSampling.ATTRIBUTE_CAPABILITY_RANDOM_SEED, false);
-        SAMPLING_ATTRIBUTES = builder.build();
+    private final Optional<FileWriterSettings> m_fileWriterSettings;
+
+    private final SnowflakeLoaderStageType m_stageType;
+
+    private final String m_stageName;
+
+    /**
+     * Constructs a {@link SnowflakeLoaderSettings} object.
+     *
+     * @param fileFormat the selected intermediate file format.
+     * @param fileWriterSettings the optional file writer settings.
+     * @param stageType the {@link SnowflakeLoaderStageType}
+     * @param stageName the optional stage name
+     */
+    public SnowflakeLoaderSettings(final SnowflakeLoaderFileFormat fileFormat,
+        final FileWriterSettings fileWriterSettings, final SnowflakeLoaderStageType stageType,
+        final String stageName) {
+        m_fileFormat = requireNonNull(fileFormat, "fileFormat");
+        m_fileWriterSettings = Optional.ofNullable(fileWriterSettings);
+        m_stageType = stageType;
+        m_stageName = stageName;
     }
 
     /**
-     * Constructs a {@link SnowflakeAgentFactory}.
+     * Gets the selected intermediate file format.
+     *
+     * @return a {@link SnowflakeLoaderFileFormat} constant.
      */
-    public SnowflakeAgentFactory() {
-        putCreator(DBLoader.class, parameters -> new SnowflakeDBLoader(parameters.getSessionReference()));
-        putAttributes(DBSampling.class, SAMPLING_ATTRIBUTES);
-        putCreator(DBSampling.class, parameters -> new SnowflakeDBSampling(parameters.getSessionReference()));
-        putAttributes(DBMetadataReader.class, METADATA_ATTRIBUTES);
-        putCreator(DBMetadataReader.class,
-            parameters -> new SnowflakeDBMetadataReader(parameters.getSessionReference()));
+    public SnowflakeLoaderFileFormat getFileFormat() {
+        return m_fileFormat;
     }
+
+    /**
+     * Gets the optional file writer settings.
+     *
+     * @return {@linkplain Optional optionally} the {@link FileWriterSettings} object or {@linkplain Optional#empty()
+     *         empty}.
+     */
+    public Optional<FileWriterSettings> getFileWriterSettings() {
+        return m_fileWriterSettings;
+    }
+
+    /**
+     * Gets the stage type.
+     *
+     * @return the SnowflakeLoaderStageType
+     */
+    public SnowflakeLoaderStageType getStageType() {
+        return m_stageType;
+    }
+
+    /**
+     * Gets the optional stage name.
+     *
+     * @return the stage name
+     */
+    public String getStageName() {
+        return m_stageName;
+    }
+
 }

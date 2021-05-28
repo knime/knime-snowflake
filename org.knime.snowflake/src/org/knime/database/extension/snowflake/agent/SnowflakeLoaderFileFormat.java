@@ -42,53 +42,109 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ------------------------------------------------------------------------
  */
+package org.knime.database.extension.snowflake.agent;
 
-package org.knime.database.extension.snowflake;
+import java.util.Optional;
 
-import org.knime.database.agent.AbstractDBAgentFactory;
-import org.knime.database.agent.DBAgentFactory;
-import org.knime.database.agent.loader.DBLoader;
-import org.knime.database.agent.metadata.DBMetadataReader;
-import org.knime.database.agent.metadata.impl.DefaultDBMetadataReader;
-import org.knime.database.agent.sampling.DBSampling;
-import org.knime.database.agent.sampling.impl.DefaultDBSampling;
-import org.knime.database.attribute.AttributeCollection;
-import org.knime.database.attribute.AttributeCollection.Accessibility;
-import org.knime.database.extension.snowflake.agent.SnowflakeDBLoader;
-import org.knime.database.extension.snowflake.agent.SnowflakeDBMetadataReader;
-import org.knime.database.extension.snowflake.agent.SnowflakeDBSampling;
+import org.knime.core.node.util.ButtonGroupEnumInterface;
 
 /**
- * {@linkplain DBAgentFactory Agent factory} for the Snowflake database.
+ * The intermediate file formats supported by the Snowflake data loader node.
  *
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
  */
-public class SnowflakeAgentFactory extends AbstractDBAgentFactory {
+/**
+ * The supported file formats.
+ * @author Tobias
+ */
+public enum SnowflakeLoaderFileFormat implements ButtonGroupEnumInterface {
+        /** CSV file format. */
+        CSV("CSV", "Comma-separated values", ".csv") {
+        @Override
+        public boolean isDefault() {
+            return true;
+        }
+        },
+        /** Apache Parquet file format. */
+        PARQUET("Parquet", "Apache Parquet", ".parquet");
 
-    private static final AttributeCollection METADATA_ATTRIBUTES;
-    static {
-        final AttributeCollection.Builder builder = AttributeCollection.builder(DefaultDBMetadataReader.ATTRIBUTES);
-        builder.add(Accessibility.EDITABLE, DefaultDBMetadataReader.ATTRIBUTE_CAPABILITY_MULTI_DBS, true);
-        METADATA_ATTRIBUTES = builder.build();
-    }
-
-    private static final AttributeCollection SAMPLING_ATTRIBUTES;
-    static {
-        final AttributeCollection.Builder builder = AttributeCollection.builder(DefaultDBSampling.ATTRIBUTES);
-        builder.add(Accessibility.READ_ONLY, DefaultDBSampling.ATTRIBUTE_CAPABILITY_RANDOM, true);
-        builder.add(Accessibility.READ_ONLY, DefaultDBSampling.ATTRIBUTE_CAPABILITY_RANDOM_SEED, false);
-        SAMPLING_ATTRIBUTES = builder.build();
+    /**
+     * Gets the {@link SnowflakeLoaderFileFormat} constant with the specified name.
+     *
+     * @param name the name of the constant.
+     * @return {@linkplain Optional optionally} the {@link SnowflakeLoaderFileFormat} constant with the specified name
+     *         or {@linkplain Optional#empty() empty}.
+     */
+    public static Optional<SnowflakeLoaderFileFormat> optionalValueOf(final String name) {
+        if (name != null) {
+            try {
+                return Optional.of(valueOf(name));
+            } catch (IllegalArgumentException exception) {
+                // Ignored.
+            }
+        }
+        return Optional.empty();
     }
 
     /**
-     * Constructs a {@link SnowflakeAgentFactory}.
+     * Gets the default stage type.
+     *
+     * @return the default stage type
      */
-    public SnowflakeAgentFactory() {
-        putCreator(DBLoader.class, parameters -> new SnowflakeDBLoader(parameters.getSessionReference()));
-        putAttributes(DBSampling.class, SAMPLING_ATTRIBUTES);
-        putCreator(DBSampling.class, parameters -> new SnowflakeDBSampling(parameters.getSessionReference()));
-        putAttributes(DBMetadataReader.class, METADATA_ATTRIBUTES);
-        putCreator(DBMetadataReader.class,
-            parameters -> new SnowflakeDBMetadataReader(parameters.getSessionReference()));
+    public static SnowflakeLoaderFileFormat getDefault() {
+        for (SnowflakeLoaderFileFormat t : values()) {
+            if (t.isDefault()) {
+                return t;
+            }
+        }
+        return CSV;
     }
+
+    private final String m_fileExtension;
+
+    private final String m_text;
+
+    private final String m_toolTip;
+
+    /**
+     * Constructor.
+     * @param text text
+     * @param toolTip tool tip
+     * @param fileExtension file extension
+     */
+    SnowflakeLoaderFileFormat(final String text, final String toolTip, final String fileExtension) {
+        m_text = text;
+        m_toolTip = toolTip;
+        m_fileExtension = fileExtension;
+    }
+
+    /**
+     * Gets the file extension of the format.
+     *
+     * @return a file extension string, e.g. {@code ".txt"}.
+     */
+    public String getFileExtension() {
+        return m_fileExtension;
+    }
+
+    @Override
+    public String getText() {
+        return m_text;
+    }
+
+    @Override
+    public String getActionCommand() {
+        return name();
+    }
+
+    @Override
+    public String getToolTip() {
+        return m_toolTip;
+    }
+
+    @Override
+    public boolean isDefault() {
+        return false;
+    }
+
 }

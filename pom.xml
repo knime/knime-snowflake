@@ -56,20 +56,20 @@
 			<url>${knime.base.p2}</url>
 		</repository>
 		<repository>
-			<id>p2-knime-bigdata</id>
-			<layout>p2</layout>
-			<url>${knime.bigdata.p2}</url>
-		</repository>
-		<repository>
-			<id>p2-knime-bigdata-externals</id>
-			<layout>p2</layout>
-			<url>${knime.p2.repo}/knime-bigdata-externals/${git.branch}</url>
-		</repository>
-		<repository>
-			<id>p2-knime-cloud</id>
-			<layout>p2</layout>
-			<url>${knime.cloud.p2}</url>
-		</repository>
+            <id>p2-knime-bigdata</id>
+            <layout>p2</layout>
+            <url>${knime.bigdata.p2}</url>
+        </repository>       
+        <repository>
+            <id>p2-knime-bigdata-externals</id>
+            <layout>p2</layout>
+            <url>${knime.p2.repo}/knime-bigdata-externals/${git.branch}</url>
+        </repository>
+        <repository>
+            <id>p2-knime-cloud</id>
+            <layout>p2</layout>
+            <url>${knime.cloud.p2}</url>
+        </repository>
 		<repository>
 			<id>p2-knime-database</id>
 			<layout>p2</layout>

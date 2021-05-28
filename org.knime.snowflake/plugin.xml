@@ -21,6 +21,10 @@
       <Agent
             dbTypes="snowflake"
             factory="org.knime.database.extension.snowflake.SnowflakeAgentFactory"
+            interface="org.knime.database.agent.loader.DBLoader"/>
+      <Agent
+            dbTypes="snowflake"
+            factory="org.knime.database.extension.snowflake.SnowflakeAgentFactory"
             interface="org.knime.database.agent.metadata.DBMetadataReader"/>
       <Agent
             dbTypes="snowflake"
@@ -199,30 +203,26 @@
 
    </extension>
    <extension point="org.knime.database.SQLDialect">
-      <SQLDialect dbTypes="snowflake" factory="org.knime.database.extension.snowflake.dialect.SnowflakeDBSQLDialect$Factory"/>
+      <SQLDialect dbTypes="snowflake" 
+        factory="org.knime.database.extension.snowflake.dialect.SnowflakeDBSQLDialect$Factory"/>
    </extension>
-   <extension
-         point="org.knime.workbench.repository.nodes">
-      <node
-            category-path="/db/connector"
-            deprecated="false"
-            factory-class="org.knime.database.extension.snowflake.node.connector.SnowflakeDBConnectorNodeFactory">
-      </node>
+   <extension point="org.knime.database.nodes.LoaderNode2">
+      <LoaderNode2 dbTypes="snowflake" class="org.knime.database.extension.snowflake.node.io.load.SnowflakeLoaderNode"/>
    </extension>
    <extension
          point="org.knime.database.DBTypeMappingService">
-      <DBTypeMappingService
-            dbTypeId="snowflake"
-            supplier="org.knime.database.extension.snowflake.SnowflakeTypeMappingServiceSupplier">
-      </DBTypeMappingService>
+      <DBTypeMappingService dbTypeId="snowflake" 
+        supplier="org.knime.database.extension.snowflake.SnowflakeTypeMappingServiceSupplier" />
+   </extension>
+   <extension point="org.knime.database.Driver">
+      <Driver locator="org.knime.database.extension.snowflake.SnowflakeDriverLocator" />
    </extension>
 
-   <extension
-         point="org.knime.database.Driver">
-      <Driver
-            locator="org.knime.database.extension.snowflake.SnowflakeDriverLocator">
-      </Driver>
+   <extension point="org.knime.workbench.repository.nodes">
+      <node category-path="/db/connector" deprecated="false"
+            factory-class="org.knime.database.extension.snowflake.node.connector.SnowflakeDBConnectorNodeFactory" />
    </extension>
+   
 </plugin>
 
 

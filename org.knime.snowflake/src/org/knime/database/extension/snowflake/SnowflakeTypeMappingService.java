@@ -53,6 +53,7 @@ import java.util.Map;
 import org.apache.commons.lang3.tuple.Triple;
 import org.knime.core.data.DataType;
 import org.knime.core.data.def.BooleanCell;
+import org.knime.core.data.def.IntCell;
 import org.knime.core.data.time.zoneddatetime.ZonedDateTimeCellFactory;
 import org.knime.database.datatype.mapping.AbstractDBDataTypeMappingService;
 
@@ -82,6 +83,10 @@ public final class SnowflakeTypeMappingService
         final Map<DataType, Triple<DataType, Class<?>, SQLType>> defaultConsumptionMap =
             new LinkedHashMap<>(getDefaultConsumptionTriples());
         addTriple(defaultConsumptionMap, BooleanCell.TYPE, Boolean.class, JDBCType.BOOLEAN);
+        //int is also mapped to bigint in snowflake
+        //https://docs.snowflake.com/en/sql-reference/data-types-numeric.html
+        //#int-integer-bigint-smallint-tinyint-byteint
+        addTriple(defaultConsumptionMap, IntCell.TYPE, Long.class, JDBCType.BIGINT);
         addTriple(defaultConsumptionMap, ZonedDateTimeCellFactory.TYPE, String.class, JDBCType.VARCHAR);
         setDefaultConsumptionTriples(defaultConsumptionMap);
 
@@ -89,7 +94,11 @@ public final class SnowflakeTypeMappingService
         setDefaultProductionTriples(getDefaultProductionTriples());
 
         //https://docs.snowflake.com/en/sql-reference/data-types-datetime.html#timestamp-ltz-timestamp-ntz-timestamp-tz
-        addColumnType(JDBCType.TIMESTAMP, "timestamp_ntz");
+        //the default precision does not seem to be 9 which is why we specify it to retain all digits
+        //TIMESTAMP is mapped to one of the internal types based on the TIMESTAMP_TYPE_MAPPING parameter
+        //which by default is timestamp_ntz:
+        //https://docs.snowflake.com/en/sql-reference/parameters.html#label-timestamp-type-mapping
+        addColumnType(JDBCType.TIMESTAMP, "timestamp(9)");
 
 
 //    //https://docs.snowflake.com/en/sql-reference/data-types-datetime.html#timestamp-ltz-timestamp-ntz-timestamp-tz
