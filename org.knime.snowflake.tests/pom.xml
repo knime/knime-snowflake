@@ -5,7 +5,7 @@
         <artifactId>knime-snowflake</artifactId>
         <version>${revision}${changelist}</version>
     </parent>
-    <artifactId>org.knime.snowlfake.tests.collector</artifactId>
+    <artifactId>org.knime.snowflake.tests</artifactId>
     <version>${revision}${changelist}</version>
     <packaging>eclipse-plugin</packaging>
 

@@ -6,6 +6,7 @@
    <feature id="org.knime.features.snowflake.source" version="0.0.0">
       <category name="knime-snowflake"/>
    </feature>
+   <bundle id="org.knime.snowflake.testing.janitor" version="0.0.0"/>
    <category-def name="knime-snowflake" label="Build artifacts from knime-snowflake">
       <description>
          Build artifacts from knime-snowflake

@@ -22,6 +22,7 @@
 			<modules>
 				<module>org.knime.snowflake/lib/fetch_jars</module>
 				<module>org.knime.snowflake</module>
+				<module>org.knime.snowflake.testing.janitor</module>
 				<module>org.knime.features.snowflake</module>
 				<module>org.knime.update.snowflake</module>
 			</modules>
@@ -32,16 +33,16 @@
 		<profile>
 			<id>test</id>
 			<modules>
-			    <module>org.knime.snowflake/lib/fetch_jars</module>
-                <module>org.knime.snowflake</module>
-                <module>org.knime.snowlfake.tests</module>
-                <module>org.knime.features.snowflake</module>
-                <module>../knime-database/org.knime.database</module>
+				<module>org.knime.snowflake/lib/fetch_jars</module>
+				<module>org.knime.snowflake</module>
+				<module>org.knime.snowflake.tests</module>
+				<module>org.knime.features.snowflake</module>
+				<module>../knime-database/org.knime.database</module>
 				<module>../knime-database/org.knime.database.nodes</module>
 				<module>../knime-database/org.knime.workflow.migration</module>
 				<module>../knime-database/org.knime.database.extensions</module>
-                <module>../knime-database/org.knime.database.extensions.oracle</module>
-                <module>../knime-database/org.knime.database.extensions.db2</module>
+				<module>../knime-database/org.knime.database.extensions.oracle</module>
+				<module>../knime-database/org.knime.database.extensions.db2</module>
 				<module>../knime-database/org.knime.database.tests.collector</module>
 				<module>../knime-database/org.knime.database.tests</module>
 			</modules>
@@ -53,6 +54,21 @@
 			<id>p2-knime-base</id>
 			<layout>p2</layout>
 			<url>${knime.base.p2}</url>
+		</repository>
+		<repository>
+			<id>p2-knime-bigdata</id>
+			<layout>p2</layout>
+			<url>${knime.bigdata.p2}</url>
+		</repository>
+		<repository>
+			<id>p2-knime-bigdata-externals</id>
+			<layout>p2</layout>
+			<url>${knime.p2.repo}/knime-bigdata-externals/${git.branch}</url>
+		</repository>
+		<repository>
+			<id>p2-knime-cloud</id>
+			<layout>p2</layout>
+			<url>${knime.cloud.p2}</url>
 		</repository>
 		<repository>
 			<id>p2-knime-database</id>
@@ -79,16 +95,16 @@
 			<layout>p2</layout>
 			<url>${knime.workbench.p2}</url>
 		</repository>
-        <repository>
-            <id>p2-knime-js-core</id>
-            <layout>p2</layout>
-            <url>${knime.js.core.p2}</url>
-        </repository>
-        <repository>
-            <id>p2-knime-svg</id>
-            <layout>p2</layout>
-            <url>${knime.svg.p2}</url>
-        </repository>
+		<repository>
+			<id>p2-knime-js-core</id>
+			<layout>p2</layout>
+			<url>${knime.js.core.p2}</url>
+		</repository>
+		<repository>
+			<id>p2-knime-svg</id>
+			<layout>p2</layout>
+			<url>${knime.svg.p2}</url>
+		</repository>
 		<repository>
 			<id>p2-knime-json</id>
 			<layout>p2</layout>
@@ -103,6 +119,11 @@
 			<id>p2-knime-shared</id>
 			<layout>p2</layout>
 			<url>${knime.shared.p2}</url>
+		</repository>
+		<repository>
+			<id>p2-knime-testing-internal</id>
+			<layout>p2</layout>
+			<url>${knime.p2.repo}/knime-testing-internal/${git.branch}</url>
 		</repository>
 		<repository>
 			<id>p2-knime-tp</id>

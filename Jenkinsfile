@@ -18,44 +18,48 @@ buildConfigurations = [
         knimetools.defaultTychoBuild('org.knime.update.snowflake')
     },
     Snowflake: {
-        dbTest(
-            dbName: "mssqlserver",
-            containerImage: "${dockerTools.ECR}/knime/mssql-server",
-            envArgs: [ "ACCEPT_EULA=Y", "SA_PASSWORD=@SaPassword123", "MSSQL_DB=knime01", "MSSQL_USER=knime01", "MSSQL_PASSWORD=My@Super@Secret" ],
-            ports: [1433],
-        )
+         dbTest()
     }
 ]
 
 try {
     // parallel build steps
-    parallel buildConfigurations
+   parallel buildConfigurations
 
-    withEnv([ "KNIME_SNOWFLAKE_USER=sa", "KNIME_MSSQLSERVER_PASSWORD=@SaPassword123",
-              "KNIME_ORACLE_USER=SYSTEM", "KNIME_ORACLE_PASSWORD=password"
-    ]) {
-        workflowTests.runTests(
-            dependencies: [
-                repositories: [
-                    'knime-snowflake',
-                    'knime-database',
-                    'knime-database-proprietary',
-                    'knime-kerberos',
-                    'knime-testing-internal',
-                    'knime-filehandling',
-                    'knime-jep',
-                    'knime-virtual',
-                    'knime-datageneration',
-                    'knime-timeseries',
-                    'knime-cloud',
-                    'knime-textprocessing',
-                    'knime-jfreechart',
-                    'knime-distance',
-                    'knime-js-base',
-                    'knime-expressions'
-                ]
-            ]
-        )
+    withCredentials([usernamePassword(credentialsId: 'SNOWFLAKE_TESTING_CREDENTIALS', passwordVariable: 'KNIME_SNOWFLAKE_PASSWORD', usernameVariable: 'KNIME_SNOWFLAKE_USER')]) {
+        withEnv([ "KNIME_SNOWFLAKE_ADDRESS=knimepartner.eu-central-1:1234" ]) {
+            workflowTests.runTests(
+                dependencies: [
+                    repositories: [
+                        'knime-snowflake',
+                        'knime-bigdata-externals',
+                        'knime-bigdata',
+                        'knime-cloud',
+                        'knime-database-proprietary',
+                        'knime-database',
+                        'knime-datageneration',
+                        'knime-distance',
+                        'knime-distance',
+                        'knime-ensembles',
+                        'knime-expressions',
+                        'knime-filehandling',
+                        'knime-jep',
+                        'knime-jfreechart',
+                        'knime-js-base',
+                        'knime-kerberos',
+                        'knime-pmml-translation',
+                        'knime-pmml',
+                        'knime-python',
+                        'knime-testing-internal',
+                        'knime-textprocessing',
+                        'knime-timeseries',
+                        'knime-virtual',
+                    ],
+                    ius: [ 'org.knime.snowflake.testing.janitor']
+                ],
+
+            )
+        }
     }
 
 
@@ -72,12 +76,12 @@ try {
 }
 
 
-def dbTest(Map args = [:]) {
+def dbTest() {
     node("maven && java11") {
     
         try {
             // verification
-            stage("Testing Snowflake: "){
+            stage("Testing Snowflake: ") {
                 env.lastStage = env.STAGE_NAME
 
                 checkout([
@@ -95,11 +99,11 @@ def dbTest(Map args = [:]) {
                 ])
      
                 withMaven(options: [artifactsPublisher(disabled: true)]) {
-                    withCredentials([usernamePassword(credentialsId: 'ARTIFACTORY_CREDENTIALS', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_LOGIN')]) {
+                    withCredentials([usernamePassword(credentialsId: 'ARTIFACTORY_CREDENTIALS', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_LOGIN'), 
+                        usernamePassword(credentialsId: 'SNOWFLAKE_TESTING_CREDENTIALS', passwordVariable: 'KNIME_SNOWFLAKE_PASSWORD', usernameVariable: 'KNIME_SNOWFLAKE_USER')
+                    ]) {
                         // define maven properties to override
-                        def testParams
-//add Snowflake properties                        
-                       testParams = "-Dknime.snowflake.enable=true -Dknime.snowflake.account.....=${container.getContainerIP()}"
+                       testParams = "-Dknime.snowflake.enable=true -Dknime.snowflake.account=knimepartner.eu-central-1 -Dknime.database.snowflake.password=${env.KNIME_SNOFLAKE_PASSWORD}"
 
                         // run tests
                         withEnv(["TEST_PARAMS=${testParams}"]) {
@@ -117,9 +121,6 @@ def dbTest(Map args = [:]) {
         } catch (ex) {
             currentBuild.result = 'FAILURE'
             throw ex
-        } finally {
-            // Stop and remove all sidecar containers
-            sidecars.close()
         }
     }
 }
