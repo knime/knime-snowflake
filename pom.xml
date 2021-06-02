@@ -31,20 +31,21 @@
 			</activation>
 		</profile>
 		<profile>
-			<id>test</id>
+			<id>snowflake-test</id>
 			<modules>
 				<module>org.knime.snowflake/lib/fetch_jars</module>
 				<module>org.knime.snowflake</module>
 				<module>org.knime.snowflake.tests</module>
 				<module>org.knime.features.snowflake</module>
+                <module>org.knime.features.snowflake.testing</module>
 				<module>../knime-database/org.knime.database</module>
 				<module>../knime-database/org.knime.database.nodes</module>
 				<module>../knime-database/org.knime.workflow.migration</module>
 				<module>../knime-database/org.knime.database.extensions</module>
 				<module>../knime-database/org.knime.database.extensions.oracle</module>
 				<module>../knime-database/org.knime.database.extensions.db2</module>
-				<module>../knime-database/org.knime.database.tests.collector</module>
 				<module>../knime-database/org.knime.database.tests</module>
+				<module>../knime-database/org.knime.database.tests.collector</module>
 			</modules>
 		</profile>
 	</profiles>
