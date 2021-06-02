@@ -109,7 +109,7 @@ def dbTest() {
                         withEnv(["TEST_PARAMS=${testParams}"]) {
                             sh '''
                                cd knime-snowflake
-                               mvn -Dmaven.test.failure.ignore=true -Dknime.p2.repo=${P2_REPO} ${TEST_PARAMS} clean verify -P test -X -e
+                               mvn -Dmaven.test.failure.ignore=true -Dknime.p2.repo=${P2_REPO} ${TEST_PARAMS} clean verify -P snowflake-test -X -e
                             '''
                         }
 
