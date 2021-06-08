@@ -76,7 +76,7 @@ public class SnowflakeDriverLocator extends AbstractDriverLocator {
     /**
      * Driver id.
      */
-    public static final String DRIVER_ID = "built-in-snowflake-3.13.3";
+    public static final String DRIVER_ID = "built-in-snowflake-3.13.4";
 
     /**
      * Name of the account name variable in the JDBC URL template string.
@@ -141,7 +141,7 @@ public class SnowflakeDriverLocator extends AbstractDriverLocator {
 
     @Override
     public String getDriverName() {
-        return "Snowflake 3.13.3";
+        return "Snowflake 3.13.4";
     }
 
     @Override
@@ -156,7 +156,7 @@ public class SnowflakeDriverLocator extends AbstractDriverLocator {
 
     @Override
     public Collection<String> getDriverPaths() {
-        return asList("lib/snowflake-jdbc-3.13.3.jar");
+        return asList("lib/snowflake-jdbc-3.13.4.jar");
     }
 
     @Override
