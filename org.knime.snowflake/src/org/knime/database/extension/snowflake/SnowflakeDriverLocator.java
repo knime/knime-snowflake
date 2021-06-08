@@ -50,6 +50,7 @@ import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_DATABASE;
 import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_SCHEMA;
 
 import java.util.Collection;
+import java.util.TimeZone;
 
 import org.knime.database.DBType;
 import org.knime.database.attribute.Attribute;
@@ -113,6 +114,8 @@ public class SnowflakeDriverLocator extends AbstractDriverLocator {
         //Snowflake partner use only: Specifies the name of a partner application to connect through JDBC.
         final DerivableProperties jdbcProperties = new DerivableProperties();
         jdbcProperties.setDerivableProperty("application", ValueType.LITERAL, Snowflake.PARTNER_ID);
+        //we need to set this parameter to prevent problems with the timestamp type (see AP-16726)
+        jdbcProperties.setDerivableProperty("TIMEZONE", ValueType.LITERAL, TimeZone.getDefault().getID());
         ATTRIBUTE_JDBC_PROPERTIES = builder.add(Accessibility.EDITABLE,
             DBConnectionManagerAttributes.ATTRIBUTE_JDBC_PROPERTIES, jdbcProperties);
         //change only visibility but keep the default values

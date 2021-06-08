@@ -47,8 +47,6 @@ package org.knime.database.extension.snowflake;
 
 import java.sql.JDBCType;
 import java.sql.SQLType;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -56,6 +54,7 @@ import org.knime.core.data.convert.map.ConsumerRegistry;
 import org.knime.core.data.convert.map.MappingFramework;
 import org.knime.core.data.convert.map.ProducerRegistry;
 import org.knime.core.node.NodeLogger;
+import org.knime.database.datatype.mapping.DBCellValueConsumerFactory;
 import org.knime.database.datatype.mapping.DBCellValueProducerFactory;
 import org.knime.database.datatype.mapping.DBDestination;
 import org.knime.database.datatype.mapping.DBSource;
@@ -72,8 +71,6 @@ public class SnowflakePlugin extends Plugin {
 
     private static SnowflakePlugin plugin;
 
-//    private static final Calendar CALENDAR = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-
     /**
      * Gets the shared instance.
      *
@@ -88,9 +85,10 @@ public class SnowflakePlugin extends Plugin {
             MappingFramework.forDestinationType(SnowflakeDestination.class);
         reg.setParent(DBDestination.class);
         reg.unregisterAllConsumers();
-//    reg.register(new DBCellValueConsumerFactory<>(LocalDateTime.class, JDBCType.TIMESTAMP, (ps, parameters, v) -> {
-//        ps.setObject(parameters.getColumnIndex(), Timestamp.valueOf(v), SnowflakeUtil.EXTRA_TYPES_TIMESTAMP_NTZ);
-//    }));
+        reg.register(new DBCellValueConsumerFactory<>(String.class, JDBCType.TIME, (ps, parameters, v) -> {
+            //need to prevent problems with the time type (see AP-16726)
+            ps.setString(parameters.getColumnIndex(), v);
+        }));
     }
 
     private static void registerProducers() {
@@ -102,15 +100,11 @@ public class SnowflakePlugin extends Plugin {
             final int value = rs.getInt(parameters.getColumnIndex());
             return rs.wasNull() ? null : value;
         }));
-        reg.register(new DBCellValueProducerFactory<>(JDBCType.TIMESTAMP, LocalDateTime.class, (rs, parameters) -> {
-//            final SnowflakeResultSet srs = rs.unwrap(SnowflakeResultSet.class);
-//            srs.
-//            Connection connection = rs.getStatement().getConnection();
-//            SnowflakeConnection snowflakeConnection = connection.unwrap(SnowflakeConnection.class);
-//            SFConnectionHandler handler = snowflakeConnection.getHandler();
-//            SFBaseSession sfSession = handler.getSFSession();
-            final Timestamp value = rs.getTimestamp(parameters.getColumnIndex());
-            return rs.wasNull() ? null : value.toLocalDateTime();
+        //TIME
+        reg.register(new DBCellValueProducerFactory<>(JDBCType.TIME, String.class, (rs, parameters) -> {
+            //need to prevent problems with the time type (see AP-16726)
+            final String value = rs.getString(parameters.getColumnIndex());
+            return value == null ? null : value;
         }));
     }
 

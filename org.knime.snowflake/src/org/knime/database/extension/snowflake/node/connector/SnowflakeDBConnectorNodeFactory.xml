@@ -99,12 +99,19 @@ xsi:schemaLocation="http://knime.org/node/v3.6 http://knime.org/node/v3.6.xsd">
                 This tab allows you to define JDBC driver connection parameter. The value of a parameter can be a 
                 constant, variable, credential user, credential password or KNIME URL.
                 For more information about the supported driver properties see the 
-                <a href="https://docs.snowflake.com/en/user-guide/jdbc-configure.html">Snowflake documentation</a>.
+                <a href="https://docs.snowflake.com/en/user-guide/jdbc-configure.html">Snowflake documentation.</a>
+                <br/>
+                The <i>TIMEZONE</i> parameter is added with the default time zone of the KNIME runtime environment to 
+                prevent mapping problems when working with 
+                <a href="https://docs.snowflake.com/en/sql-reference/data-types-datetime.html">date and time data types.</a> 
+                For more details about the parameter see the  
+                <a href="https://docs.snowflake.com/en/sql-reference/parameters.html#timezone">Snowlfake documentation</a> or
+                ask your Snowflake administrator.
                 <br/>
                 The <i>application</i> parameter is added as default to all Snowflake connections to track the usage 
                 of KNIME Analytics Platform as Snowflake client (for details go 
                 <a href="https://docs.snowflake.com/en/user-guide/jdbc-configure.html#connection-parameters">here</a>).
-                If you are not comfortable sharing this information with Snowflake you can simply remove the parameter.
+                If you are not comfortable sharing this information with Snowflake you can remove the parameter.
                 However, if you want to promote KNIME as a client with Snowflake leave the parameter as is.
              </description>
             <option name=""></option>

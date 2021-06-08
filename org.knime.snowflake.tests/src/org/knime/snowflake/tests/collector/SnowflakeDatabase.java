@@ -50,6 +50,7 @@ import static org.knime.database.testing.framework.DBProperties.DATABASE;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.TimeZone;
 
 import org.knime.database.DBType;
 import org.knime.database.driver.DBDriverRegistry;
@@ -88,7 +89,7 @@ public final class SnowflakeDatabase extends AbstractDatabase<DefaultDBValidator
 
     private SnowflakeDatabase(final DatabaseVO databaseVO, final DBProperties properties, final String databaseName,
         final String schemaName) throws SQLException {
-        super(databaseVO, DefaultDBValidator::new, properties);
+        super(databaseVO, SnowflakeDBValidator::new, properties);
         m_databaseName = databaseName;
         m_schemaName = schemaName;
     }
@@ -171,12 +172,14 @@ public final class SnowflakeDatabase extends AbstractDatabase<DefaultDBValidator
 
         @Override
         public SnowflakeDatabase build() throws SQLException {
+            final TimeZone timeZone = TimeZone.getDefault();
             final String url = "jdbc:snowflake://" + m_accountName + ".snowflakecomputing.com/" //forced line break
                     + "?warehouse=" + m_warehouse //forced line break
                     + "&role=" + m_role  //forced line break
                     + "&db=" + m_database  //forced line break
-                    + "&schema=" + m_schema
-                    + "&JDBC_USE_SESSION_TIMEZONE=false";
+                    + "&schema=" + m_schema  //forced line break
+                    //we need to set this parameter to prevent problems with the timestamp type (see AP-16726)
+                    + "&TIMEZONE=" + timeZone.getID();
             return new SnowflakeDatabase(new DatabaseVO(getType(), getDialect(), getDriver(), url, getJdbcProperties()),
                 getDBProperties(), m_database, m_schema);
         }

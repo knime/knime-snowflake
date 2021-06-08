@@ -54,6 +54,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.knime.core.data.DataType;
 import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.IntCell;
+import org.knime.core.data.time.localtime.LocalTimeCellFactory;
 import org.knime.core.data.time.zoneddatetime.ZonedDateTimeCellFactory;
 import org.knime.database.datatype.mapping.AbstractDBDataTypeMappingService;
 
@@ -87,11 +88,16 @@ public final class SnowflakeTypeMappingService
         //https://docs.snowflake.com/en/sql-reference/data-types-numeric.html
         //#int-integer-bigint-smallint-tinyint-byteint
         addTriple(defaultConsumptionMap, IntCell.TYPE, Long.class, JDBCType.BIGINT);
+        //need to prevent problems with the time type (see AP-16726)
+        addTriple(defaultConsumptionMap, LocalTimeCellFactory.TYPE, String.class, JDBCType.TIME);
         addTriple(defaultConsumptionMap, ZonedDateTimeCellFactory.TYPE, String.class, JDBCType.VARCHAR);
         setDefaultConsumptionTriples(defaultConsumptionMap);
 
         // Default production paths
-        setDefaultProductionTriples(getDefaultProductionTriples());
+        final Map<SQLType, Triple<SQLType, Class<?>, DataType>> defaultProductionMap = getDefaultProductionTriples();
+        //need to prevent problems with the time type (see AP-16726)
+        addTriple(defaultProductionMap, JDBCType.TIME, String.class, LocalTimeCellFactory.TYPE);
+        setDefaultProductionTriples(defaultProductionMap);
 
         //https://docs.snowflake.com/en/sql-reference/data-types-datetime.html#timestamp-ltz-timestamp-ntz-timestamp-tz
         //the default precision does not seem to be 9 which is why we specify it to retain all digits
