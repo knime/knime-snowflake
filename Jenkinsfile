@@ -103,7 +103,7 @@ def dbTest() {
                         usernamePassword(credentialsId: 'SNOWFLAKE_TESTING_CREDENTIALS', passwordVariable: 'KNIME_SNOWFLAKE_PASSWORD', usernameVariable: 'KNIME_SNOWFLAKE_USER')
                     ]) {
                         // define maven properties to override
-                       testParams = "-Dknime.snowflake.enable=true -Dknime.snowflake.account=knimepartner.eu-central-1 -Dknime.database.snowflake.password=${env.KNIME_SNOFLAKE_PASSWORD}"
+                       testParams = "-Dknime.snowflake.enable=true -Dknime.snowflake.account=knimepartner.eu-central-1 -Dknime.snowflake.password=${KNIME_SNOWFLAKE_PASSWORD}"
 
                         // run tests
                         withEnv(["TEST_PARAMS=${testParams}"]) {
