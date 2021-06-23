@@ -348,6 +348,21 @@ public class SnowflakeLoaderNode extends UnconnectedCsvLoaderNode2
         final String fileExtension =
             fileFormat.getFileExtension() + (SnowflakeLoaderFileFormat.CSV == fileFormat ? ".gz" : "");
         // Create and write to the temporary file
+        //TODO: Use the new file handling classes here
+//        try (final FSConnection fsConnection = DefaultFSConnectionFactory.createLocalFSConnection()){
+//            File temp = FileUtil.getWorkflowTempDir();
+//            final FSPath tempPath = fsConnection.getFileSystem().getPath(filePath);
+//            final FSPath tempFile = FSFiles.createTempFile(tempPath, "snowflake", fileExtension);
+//            //write file
+//
+//
+//            final URIExporter exporter =
+//                ((NoConfigURIExporterFactory)fsConnection.getURIExporterFactory(URIExporterIDs.KNIME_FILE))
+//                    .getExporter();
+//            final URI fileURI = exporter.toUri(tempFile);
+//
+//        }
+// See BigDataLoader2 and BigDataLoaderNode2        
         final Path temporaryFile = createTempFile("knime2db", fileExtension).toPath();
         try (AutoCloseable temporaryFileDeleter = () -> delete(temporaryFile)) {
             executionContext.setMessage("Writing temporary file...");

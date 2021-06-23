@@ -46,13 +46,13 @@ package org.knime.database.extension.snowflake.agent;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.core.runtime.URIUtil;
 import org.knime.base.node.io.csvwriter.FileWriterSettings;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
@@ -63,6 +63,13 @@ import org.knime.database.dialect.DBSQLDialect;
 import org.knime.database.model.DBTable;
 import org.knime.database.session.DBSession;
 import org.knime.database.session.DBSessionReference;
+import org.knime.filehandling.core.connections.DefaultFSConnectionFactory;
+import org.knime.filehandling.core.connections.FSConnection;
+import org.knime.filehandling.core.connections.FSFileSystem;
+import org.knime.filehandling.core.connections.FSPath;
+import org.knime.filehandling.core.connections.uriexport.URIExporter;
+import org.knime.filehandling.core.connections.uriexport.URIExporterIDs;
+import org.knime.filehandling.core.connections.uriexport.noconfig.NoConfigURIExporterFactory;
 
 /**
  * Snowflake data loader.
@@ -152,35 +159,44 @@ public class SnowflakeDBLoader implements DBLoader {
                 throw new IllegalArgumentException("Unsupported file format: " + additionalSettings.getFileFormat());
         }
 
-        final File path = new File(filePath);
-        final String fileName = path.getName();
-        final String stagedFileName = "@" + stageName + "/" + fileName;
-        final String fileURL = "file://" + filePath;
+        try (FSConnection fsConnection = DefaultFSConnectionFactory.createLocalFSConnection();
+                FSFileSystem<?> fs = fsConnection.getFileSystem();) {
+            final FSPath tempFile = fs.getPath(filePath);
+            final String fileName = tempFile.getFileName().toString();
+            //stage name must be in single quotes for special characters see
+            //https://docs.snowflake.com/en/sql-reference/sql/put.html#required-parameters
+            final String stagedFileName = "'@" + stageName + "/" + fileName + "'";
+            final URIExporter exporter =
+                    ((NoConfigURIExporterFactory)fsConnection.getURIExporterFactory(URIExporterIDs.KNIME_FILE))
+                    .getExporter();
+            final String fileURI = URIUtil.toUnencodedString(exporter.toUri(tempFile));
 
-        final String putFileCommand = "PUT " + fileURL + " " + stagedFileName + putParameter;
-        //the purge command tells Snowflake to delete the file after successful loading so we don't need to do it
-        //https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html
-        final String copyFileCommand =
-            "COPY INTO " + dialect.createFullName(table) + " \nFROM " + stagedFileName + fileFormat + "\n PURGE=TRUE";
-        exec.checkCanceled();
-        try (Connection connection = session.getConnectionProvider().getConnection(exec);
-                Statement statement = connection.createStatement()) {
-            exec.setMessage("Uploading data to Snowflake (this might take some time without progress changes)");
-            statement.execute(putFileCommand);
-            exec.setMessage("Loading staged data into table (this might take some time without progress changes)");
-            statement.execute(copyFileCommand);
-            exec.setProgress(1);
-        } catch (final Throwable throwable) {
-            //try to remove the staged file only on exception since we use the purge option in the copy command
-            final String deleteFileCommand = "REMOVE " + stagedFileName;
+            //see https://docs.snowflake.com/en/sql-reference/sql/put.html#required-parameters for path specification
+            final String putFileCommand = "PUT '" + fileURI + "' " + stagedFileName + putParameter;
+            //the purge command tells Snowflake to delete the file after successful loading so we don't need to do it
+            //https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html
+            final String copyFileCommand = "COPY INTO " + dialect.createFullName(table) + " \nFROM " + stagedFileName
+                + fileFormat + "\n PURGE=TRUE";
+            exec.checkCanceled();
             try (Connection connection = session.getConnectionProvider().getConnection(exec);
                     Statement statement = connection.createStatement()) {
-                exec.setMessage("Deleting staged file");
-                statement.execute(deleteFileCommand);
-            } catch (final Throwable t) {
-                LOGGER.debug("Exception while removing staged file: " + t.getMessage());
+                exec.setMessage("Uploading data to Snowflake (this might take some time without progress changes)");
+                statement.execute(putFileCommand);
+                exec.setMessage("Loading staged data into table (this might take some time without progress changes)");
+                statement.execute(copyFileCommand);
+                exec.setProgress(1);
+            } catch (final Throwable throwable) {
+                //try to remove the staged file only on exception since we use the purge option in the copy command
+                final String deleteFileCommand = "REMOVE " + stagedFileName;
+                try (Connection connection = session.getConnectionProvider().getConnection(exec);
+                        Statement statement = connection.createStatement()) {
+                    exec.setMessage("Deleting staged file");
+                    statement.execute(deleteFileCommand);
+                } catch (final Throwable t) {
+                    LOGGER.debug("Exception while removing staged file: " + t.getMessage());
+                }
+                throw new SQLException(throwable.getMessage(), throwable);
             }
-            throw new SQLException(throwable.getMessage(), throwable);
         }
     }
 
