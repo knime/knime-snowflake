@@ -68,56 +68,56 @@
             <layout>p2</layout>
             <url>${knime.cloud.p2}</url>
         </repository>
+        <repository>
+            <id>p2-knime-core</id>
+            <layout>p2</layout>
+            <url>${knime.core.p2}</url>
+        </repository>
 		<repository>
 			<id>p2-knime-database</id>
 			<layout>p2</layout>
 			<url>${knime.database.p2}</url>
 		</repository>
+        <repository>
+            <id>p2-knime-expressions</id>
+            <layout>p2</layout>
+            <url>${knime.expressions.p2}</url>
+        </repository>
+        <repository>
+            <id>p2-knime-filehandling</id>
+            <layout>p2</layout>
+            <url>${knime.filehandling.p2}</url>
+        </repository>
+        <repository>
+            <id>p2-knime-js-core</id>
+            <layout>p2</layout>
+            <url>${knime.js.core.p2}</url>
+        </repository>
+        <repository>
+            <id>p2-knime-json</id>
+            <layout>p2</layout>
+            <url>${knime.json.p2}</url>
+        </repository>
 		<repository>
 			<id>p2-knime-kerberos</id>
 			<layout>p2</layout>
 			<url>${knime.kerberos.p2}</url>
 		</repository>
-		<repository>
-			<id>p2-knime-expressions</id>
-			<layout>p2</layout>
-			<url>${knime.expressions.p2}</url>
-		</repository>
-		<repository>
-			<id>p2-knime-filehandling</id>
-			<layout>p2</layout>
-			<url>${knime.filehandling.p2}</url>
-		</repository>
-		<repository>
-			<id>p2-knime-workbench</id>
-			<layout>p2</layout>
-			<url>${knime.workbench.p2}</url>
-		</repository>
-		<repository>
-			<id>p2-knime-js-core</id>
-			<layout>p2</layout>
-			<url>${knime.js.core.p2}</url>
-		</repository>
-		<repository>
-			<id>p2-knime-svg</id>
-			<layout>p2</layout>
-			<url>${knime.svg.p2}</url>
-		</repository>
-		<repository>
-			<id>p2-knime-json</id>
-			<layout>p2</layout>
-			<url>${knime.json.p2}</url>
-		</repository>
-		<repository>
-			<id>p2-knime-core</id>
-			<layout>p2</layout>
-			<url>${knime.core.p2}</url>
-		</repository>
+        <repository>
+            <id>p2-knime-office365</id>
+            <layout>p2</layout>
+            <url>${knime.office365.p2}</url>
+        </repository>
 		<repository>
 			<id>p2-knime-shared</id>
 			<layout>p2</layout>
 			<url>${knime.shared.p2}</url>
 		</repository>
+        <repository>
+            <id>p2-knime-svg</id>
+            <layout>p2</layout>
+            <url>${knime.svg.p2}</url>
+        </repository>
 		<repository>
 			<id>p2-knime-testing-internal</id>
 			<layout>p2</layout>
@@ -128,6 +128,11 @@
 			<layout>p2</layout>
 			<url>${knime.tp.p2}</url>
 		</repository>
+        <repository>
+            <id>p2-knime-workbench</id>
+            <layout>p2</layout>
+            <url>${knime.workbench.p2}</url>
+        </repository>
 	</repositories>
 
 	<properties>
