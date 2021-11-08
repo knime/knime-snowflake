@@ -48,17 +48,21 @@ package org.knime.database.extension.snowflake.node.connector;
 import static org.knime.database.node.connector.DBConnectorUIHelper.INSETS_PANEL;
 
 import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
 import javax.swing.Box;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.context.ports.PortsConfiguration;
 import org.knime.core.node.defaultnodesettings.DialogComponentAuthentication;
 import org.knime.core.node.defaultnodesettings.SettingsModelAuthentication;
 import org.knime.core.node.defaultnodesettings.SettingsModelAuthentication.AuthenticationType;
@@ -91,15 +95,19 @@ public class SnowflakeDBConnectorNodeDialog extends AbstractDBConnectorNodeDialo
 
     private final DialogComponentAuthentication m_componentAuthentication;
 
+    private final boolean m_hasInputPort;
+
     /**
      * Constructs an {@link SnowflakeDBConnectorNodeDialog}.
+     * @param portsConfiguration {@link PortsConfiguration} with the input port info
      */
-    public SnowflakeDBConnectorNodeDialog() {
+    public SnowflakeDBConnectorNodeDialog(final PortsConfiguration portsConfiguration) {
         super(new SnowflakeDBConnectorSettings(),
             new ConfigurationPanel<>(" Configuration ", () -> new DBTypeUI[]{DB_TYPE},
                 DBConnectorUIHelper::getNonDefaultDBDialects, DBConnectorUIHelper::getDBDrivers));
         m_componentAuthentication =
                 new DialogComponentAuthentication(m_modelAuthentication, "Authentication", AUTH_TYPES, NAMING_MAP);
+        m_hasInputPort = ArrayUtils.isNotEmpty(portsConfiguration.getInputPorts());
         initializeConnectionSettingsPanel();
     }
 
@@ -121,7 +129,14 @@ public class SnowflakeDBConnectorNodeDialog extends AbstractDBConnectorNodeDialo
         panel.add(m_locationPanel, gbc);
         // authentication
         gbc.gridy++;
-        panel.add(m_componentAuthentication.getComponentPanel(), gbc);
+        if (!m_hasInputPort) {
+            // authentication
+            panel.add(m_componentAuthentication.getComponentPanel(), gbc);
+        } else {
+            gbc.insets = new Insets(5, 5, 0, 0);
+            panel.add(new JLabel("Using information from input connection for authentication"), gbc);
+            gbc.insets = INSETS_PANEL;
+        }
         //add resizeable box to move components to top
         gbc.gridy++;
         gbc.weighty = 1;

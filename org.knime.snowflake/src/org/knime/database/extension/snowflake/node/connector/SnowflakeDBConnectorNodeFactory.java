@@ -45,20 +45,25 @@
 
 package org.knime.database.extension.snowflake.node.connector;
 
+import java.util.Optional;
+
+import org.knime.core.node.ConfigurableNodeFactory;
 import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
+import org.knime.core.node.context.NodeCreationConfiguration;
+import org.knime.database.port.DBSessionPortObject;
+import org.knime.ext.microsoft.authentication.port.MicrosoftCredentialPortObject;
 
 /**
  * A node factory for the <em>Snowflake connector node</em>.
  *
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
  */
-public class SnowflakeDBConnectorNodeFactory extends NodeFactory<SnowflakeDBConnectorNodeModel> {
+public class SnowflakeDBConnectorNodeFactory extends ConfigurableNodeFactory<SnowflakeDBConnectorNodeModel> {
 
     @Override
-    public SnowflakeDBConnectorNodeModel createNodeModel() {
-        return new SnowflakeDBConnectorNodeModel();
+    public SnowflakeDBConnectorNodeModel createNodeModel(final NodeCreationConfiguration creationConfig) {
+        return new SnowflakeDBConnectorNodeModel(creationConfig.getPortConfig().orElseThrow());
     }
 
     @Override
@@ -78,7 +83,15 @@ public class SnowflakeDBConnectorNodeFactory extends NodeFactory<SnowflakeDBConn
     }
 
     @Override
-    protected NodeDialogPane createNodeDialogPane() {
-        return new SnowflakeDBConnectorNodeDialog();
+    protected NodeDialogPane createNodeDialogPane(final NodeCreationConfiguration creationConfig) {
+        return new SnowflakeDBConnectorNodeDialog(creationConfig.getPortConfig().orElseThrow());
+    }
+
+    @Override
+    protected Optional<PortsConfigurationBuilder> createPortsConfigBuilder() {
+        final PortsConfigurationBuilder builder = new PortsConfigurationBuilder();
+        builder.addOptionalInputPortGroup("Microsoft Authentication", MicrosoftCredentialPortObject.TYPE);
+        builder.addFixedOutputPortGroup("DB Output", DBSessionPortObject.TYPE);
+        return Optional.of(builder);
     }
 }

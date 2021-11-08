@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <knimeNode type="Source" icon="snowflake_connector.png"
-xmlns="http://knime.org/node/v3.6" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xsi:schemaLocation="http://knime.org/node/v3.6 http://knime.org/node/v3.6.xsd">
+    xmlns="http://knime.org/node/v4.1"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://knime.org/node/v4.1 http://knime.org/node/v4.1.xsd">
     <name>Snowflake Connector</name>
     <shortDescription>Create a database connection to Snowflake.</shortDescription>
     <fullDescription>
@@ -98,8 +99,6 @@ xsi:schemaLocation="http://knime.org/node/v3.6 http://knime.org/node/v3.6.xsd">
             <description>
                 This tab allows you to define JDBC driver connection parameter. The value of a parameter can be a 
                 constant, variable, credential user, credential password or KNIME URL.
-                For more information about the supported driver properties see the 
-                <a href="https://docs.snowflake.com/en/user-guide/jdbc-configure.html">Snowflake documentation.</a>
                 <br/>
                 The <i>TIMEZONE</i> parameter is added with the default time zone of the KNIME runtime environment to 
                 prevent mapping problems when working with 
@@ -114,14 +113,20 @@ xsi:schemaLocation="http://knime.org/node/v3.6 http://knime.org/node/v3.6.xsd">
                 If you are not comfortable sharing this information with Snowflake you can remove the parameter.
                 However, if you want to promote KNIME as a client with Snowflake leave the parameter as is.
              </description>
-            <option name=""></option>
+             <option name="JDBC Parameters">
+                For more information about the supported driver properties see the 
+                <a href="https://docs.snowflake.com/en/user-guide/jdbc-configure.html">Snowflake documentation.</a>
+             </option>
         </tab>
         <tab name="Advanced">
             <description>
                 This tab allows you to define KNIME framework properties such as connection handling,
                 advanced SQL dialect settings or logging options.
             </description>
-            <option name=""></option>
+            <option name="Advanced Parameters">
+                For more information about the supported parameters see the 
+                <a href="https://docs.knime.com/latest/db_extension_guide/index.html#advanced_tab">KNIME Database Extension Guide.</a>
+            </option>
         </tab>
         <tab name="Input Type Mapping">
             <description>
@@ -149,7 +154,15 @@ xsi:schemaLocation="http://knime.org/node/v3.6 http://knime.org/node/v3.6.xsd">
         </tab>
     </fullDescription>
 
-    <ports>
+    <ports><dynInPort insert-before="0" name="Microsoft Authentication" group-identifier="Microsoft Authentication"> 
+            When available the node will set the
+            <a href="https://docs.snowflake.com/en/user-guide/jdbc-parameters.html#authenticator"><i>authenticator</i></a> as well as
+            <a href="https://docs.snowflake.com/en/user-guide/jdbc-parameters.html#token"><i>token</i></a>  
+            JDBC parameter automatically based on the information from the connected 
+            <a href="https://kni.me/n/UZkKlFCxy6dBn1IO">Microsoft Authentication node.</a> 
+            Depending on your database setup you might need to specify additional JDBC parameters which are described in the 
+            <a href="https://docs.snowflake.com/en/user-guide/jdbc-parameters.html#jdbc-driver-connection-parameter-reference">Snowflake documentation.</a>
+        </dynInPort>
         <outPort index="0" name="DB Connection">Snowflake DB Connection.</outPort>
     </ports>
 </knimeNode>

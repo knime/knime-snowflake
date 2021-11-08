@@ -45,13 +45,25 @@
 
 package org.knime.database.extension.snowflake.node.connector;
 
+import static org.knime.ext.microsoft.authentication.port.MicrosoftCredential.Type.OAUTH2_ACCESS_TOKEN;
+
+import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.context.ports.PortsConfiguration;
 import org.knime.core.node.defaultnodesettings.SettingsModelAuthentication;
+import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.workflow.CredentialsProvider;
 import org.knime.database.connection.DBConnectionController;
 import org.knime.database.connection.UserDBConnectionController;
 import org.knime.database.node.connector.AbstractDBConnectorNodeModel;
+import org.knime.ext.microsoft.authentication.port.MicrosoftCredentialPortObject;
+import org.knime.ext.microsoft.authentication.port.MicrosoftCredentialPortObjectSpec;
 
 /**
  * A node model for the <em>Snowflake connector node</em>.
@@ -60,27 +72,52 @@ import org.knime.database.node.connector.AbstractDBConnectorNodeModel;
  */
 public class SnowflakeDBConnectorNodeModel extends AbstractDBConnectorNodeModel<SnowflakeDBConnectorSettings> {
 
+    private final boolean m_hasInputPort;
+
     /**
      * Constructs an {@link SnowflakeDBConnectorNodeModel} object.
+     * @param portsConfiguration {@link PortsConfiguration} with the input port info
      */
-    public SnowflakeDBConnectorNodeModel() {
-        super(new SnowflakeDBConnectorSettings());
+    public SnowflakeDBConnectorNodeModel(final PortsConfiguration portsConfiguration) {
+        super(new SnowflakeDBConnectorSettings(), portsConfiguration.getInputPorts());
+        m_hasInputPort = ArrayUtils.isNotEmpty(portsConfiguration.getInputPorts());
+    }
+
+    @Override
+    protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+        if (m_hasInputPort) {
+            final MicrosoftCredentialPortObjectSpec in = (MicrosoftCredentialPortObjectSpec)inSpecs[0];
+            if (in.getMicrosoftCredential() != null
+                && !OAUTH2_ACCESS_TOKEN.equals(in.getMicrosoftCredential().getType())) {
+                throw new InvalidSettingsException("Supports only OAuth2 access tokens");
+            }
+        }
+        return super.configure(inSpecs);
     }
 
     @Override
     protected DBConnectionController createConnectionController(final NodeSettingsRO internalSettings)
         throws InvalidSettingsException {
+        if (m_hasInputPort) {
+            return new MSAuthDBConnectionController(internalSettings);
+        }
         return new UserDBConnectionController(internalSettings, getCredentialsProvider());
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    protected DBConnectionController createConnectionController(final SnowflakeDBConnectorSettings sessionSettings)
-            throws InvalidSettingsException {
+    protected DBConnectionController createConnectionController(final List<PortObject> inObjects,
+        final SnowflakeDBConnectorSettings sessionSettings, final ExecutionMonitor monitor)
+                throws InvalidSettingsException {
+        if (CollectionUtils.isNotEmpty(inObjects)) {
+            return new MSAuthDBConnectionController(
+                ((MicrosoftCredentialPortObject)inObjects.get(0)).getMicrosoftCredentials(),
+                sessionSettings.getDBUrl());
+        }
         final SettingsModelAuthentication authentication = getSettings().getAuthenticationModel();
         final CredentialsProvider credentialsProvider = getCredentialsProvider();
         return new UserDBConnectionController(sessionSettings.getDBUrl(), authentication.getAuthenticationType(),
             authentication.getUserName(credentialsProvider), authentication.getPassword(credentialsProvider),
             authentication.getCredential(), credentialsProvider);
     }
-
 }
