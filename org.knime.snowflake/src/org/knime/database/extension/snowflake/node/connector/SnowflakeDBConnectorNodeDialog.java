@@ -159,6 +159,10 @@ public class SnowflakeDBConnectorNodeDialog extends AbstractDBConnectorNodeDialo
         super.loadSettingsFrom(settings, specs);
         // The authentication data loading is redundant, but the call is required for component initialization.
         m_componentAuthentication.loadSettingsFrom(settings, specs, getCredentialsProvider());
+        if (m_hasInputPort) {
+            //enforce none as authentication type if authentication port is connected
+            m_modelAuthentication.setValues(AuthenticationType.NONE, null, null, null);
+        }
     }
 
     @Override
