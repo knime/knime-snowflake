@@ -154,7 +154,14 @@
         </tab>
     </fullDescription>
 
-    <ports><dynInPort insert-before="0" name="Microsoft Authentication" group-identifier="Microsoft Authentication"> 
+    <ports><dynInPort insert-before="0" name="Microsoft Authentication" group-identifier="Microsoft Authentication">
+    		<p>
+    		To use this input port, you must enter the scope you want to use into the <i>Others</i> field of the 
+            <a href="https://kni.me/n/UZkKlFCxy6dBn1IO">Microsoft Authentication node.</a>
+            The scope is specific to the setup of your Azure Active Directory. 
+            For further details on how to create a scope or where to find it see the 
+            <a href="https://docs.snowflake.com/en/user-guide/oauth-azure.html#step-1-configure-the-oauth-resource-in-azure-ad">Snowflake documentation.</a>
+			</p><p>
             When available the node will set the
             <a href="https://docs.snowflake.com/en/user-guide/jdbc-parameters.html#authenticator"><i>authenticator</i></a> as well as
             <a href="https://docs.snowflake.com/en/user-guide/jdbc-parameters.html#token"><i>token</i></a>  
@@ -162,6 +169,7 @@
             <a href="https://kni.me/n/UZkKlFCxy6dBn1IO">Microsoft Authentication node.</a> 
             Depending on your database setup you might need to specify additional JDBC parameters which are described in the 
             <a href="https://docs.snowflake.com/en/user-guide/jdbc-parameters.html#jdbc-driver-connection-parameter-reference">Snowflake documentation.</a>
+            </p>
         </dynInPort>
         <outPort index="0" name="DB Connection">Snowflake DB Connection.</outPort>
     </ports>
