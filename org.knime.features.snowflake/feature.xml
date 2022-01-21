@@ -727,12 +727,6 @@ license terms applicable to such Node, including when such Node is
 propagated with or for interoperation with KNIME.
    </license>
 
-   <url>
-      <discovery label="KNIME Database Extension" url="https://kni.me/e/0mIkLShcIfCXS7Y-"/>
-      <discovery label="KNIME Database Extension Guide" url="https://docs.knime.com/latest/db_extension_guide/index.html"/>
-      <discovery label="Snowflake" url="https://www.snowflake.com/"/>
-   </url>
-
    <plugin
          id="org.knime.snowflake"
          download-size="0"
