@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension point="org.knime.workbench.repository.nodes">
+      <node category-path="/analytics/integrations/h2o-3/mojo/snowflake" deprecated="false"
+            factory-class="org.knime.ext.h2o.database.node.scorer.classification.DatabaseH2OMojoClassificationPredictorNodeFactory" />
+      <node
+            category-path="/analytics/integrations/h2o-3/mojo/snowflake"
+            deprecated="false"
+            factory-class="org.knime.ext.h2o.database.node.scorer.regression.DatabaseH2OMojoRegressionPredictorNodeFactory"
+            hidden="false">
+      </node>
+      <node
+            category-path="/analytics/integrations/h2o-3/mojo/snowflake"
+            deprecated="false"
+            factory-class="org.knime.ext.h2o.database.node.scorer.clustering.DatabaseH2OMojoClusterAssignerNodeFactory"
+            hidden="false">
+      </node>
+      <node
+            category-path="/analytics/integrations/h2o-3/mojo/snowflake"
+            deprecated="false"
+            factory-class="org.knime.ext.h2o.database.node.scorer.anomalydetection.DatabaseH2OMojoAnomalyDetectorNodeFactory"
+            hidden="false">
+      </node>
+      <node
+            category-path="/analytics/integrations/h2o-3/mojo/snowflake"
+            deprecated="false"
+            factory-class="org.knime.ext.h2o.database.node.scorer.autoencoding.DatabaseH2OMojoAutoEncoderPredictorNodeFactory"
+            hidden="false">
+      </node>
+      <node
+            category-path="/analytics/integrations/h2o-3/mojo/snowflake"
+            deprecated="false"
+            factory-class="org.knime.ext.h2o.database.node.scorer.dimreduction.DatabaseH2OMojoDimReductionPredictorNodeFactory"
+            hidden="false">
+      </node>
+      <node
+            category-path="/analytics/integrations/h2o-3/mojo/snowflake"
+            deprecated="false"
+            factory-class="org.knime.ext.h2o.database.node.scorer.wordembedding.DatabaseH2OMojoWordEmbeddingPredictorNodeFactory"
+            hidden="false">
+      </node>
+   </extension>
+   <extension
+         point="org.knime.workbench.repository.categories">
+      <category
+            icon="icon/snowflake-bug.png"
+            level-id="snowflake"
+            locked="true"
+            name="Snowflake"
+            path="/analytics/integrations/h2o-3/mojo">
+      </category>
+   </extension>
+   
+</plugin>
+
+

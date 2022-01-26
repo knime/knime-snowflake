@@ -9,5 +9,6 @@
 	<suppress checks="MagicNumber" files="src[\\/]org[\\/]knime[\\/]database[\\/]extension[\\/]snowflake[\\/]node[\\/]io[\\/]load[\\/]SnowflakeLoaderNodeComponents\.java$"/>
 	<suppress checks="MagicNumber" files="src[\\/]org[\\/]knime[\\/]database[\\/]extension[\\/]snowflake[\\/]node[\\/]io[\\/]load[\\/]SnowflakeLoaderNodeSettings\.java$"/>
 	<suppress checks="MagicNumber" files="src[\\/]org[\\/]knime[\\/]database[\\/]extension[\\/]snowflake[\\/]node[\\/]connector[\\/]SnowflakeDBConnectorNodeDialog\.java$"/>
+	<suppress checks="MagicNumber" files="src[\\/]org[\\/]knime[\\/]ext[\\/]h2o[\\/]database[\\/]node[\\/]scorer[\\/]DatabaseH2OMojoPredictorNodeModel\.java$"/>
 
 </suppressions>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<knimeNode type="Predictor" icon="../snowflake_predictor.png"
+    xmlns="http://knime.org/node/v4.1"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://knime.org/node/v4.1 http://knime.org/node/v4.1.xsd">
+    <name>Snowflake H2O MOJO Predictor (Cluster Assigner)</name>
+
+    <shortDescription>
+        Assigns cluster to an incoming Snowflake connection according to a MOJO.
+    </shortDescription>
+
+    <fullDescription>
+        <intro>
+            This node applies a clustering
+            <a href="https://github.com/h2oai/h2o-3/blob/master/h2o-docs/src/product/howto/MOJO_QuickStart.md">MOJO</a>
+            to an incoming Snowflake connection.
+        </intro>
+
+        <tab name="General Settings">
+            <option name="Enforce presence of all feature columns">
+                If checked, the node will fail if any of the feature columns used for learning the MOJO is missing. Otherwise, a
+                warning will be displayed and the missing columns are treated as <i>NA</i> by the MOJO predictor.
+            </option>
+            <option name="Fail if a prediction exception occurs">
+                If checked, the node will fail if the prediction of a row fails.
+                Otherwise, a missing value will be the output.
+            </option>
+            <option
+                name="Treat unknown categorical values as missing values">
+                By default, H2O does not handle the case that a categorical feature column contains a value that was not present 
+                during model training. If this option is enabled, H2O will convert these values to <i>NA</i>,
+                i.e. treat them as missing values. If this option is disabled, the node will either fail or missing values
+                will be in the output depending on the setting "Fail if a prediction exception occurs".
+            </option>
+        </tab>
+        <tab name="Clustering Settings">
+            <option name="Change cluster column name">
+                Change the name of the cluster column.
+            </option>
+        </tab>
+    </fullDescription>
+
+    <ports>
+        <inPort index="0" name="MOJO (Clustering)">
+            The MOJO. Its model category must be clustering.
+        </inPort>
+        <inPort index="1" name="DB Data">
+            The DB Data object that should be used for prediction
+        </inPort>
+        <outPort index="0" name="Predicted DB Data">
+            The DB Data object containing the assigned cluster.
+        </outPort>
+    </ports>
+</knimeNode>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knimeNode type="Predictor" icon="../snowflake_predictor.png"
+    xmlns="http://knime.org/node/v4.1"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://knime.org/node/v4.1 http://knime.org/node/v4.1.xsd">
+    <name>Snowflake H2O MOJO Predictor (Classification)</name>
+
+    <shortDescription>Classifies an incoming Snowflake connection using a MOJO.</shortDescription>
+
+    <fullDescription>
+        <intro>
+            This node applies a classification
+            <a href="https://github.com/h2oai/h2o-3/blob/master/h2o-docs/src/product/howto/MOJO_QuickStart.md">MOJO</a>
+            (binomial or multinomial) to an incoming Snowflake connection.
+        </intro>
+        <tab name="General Settings">
+            <option
+                name="Enforce presence of all feature columns">
+                If checked, the node will fail if any of the feature columns used for learning the MOJO is missing. Otherwise a
+                warning will be displayed and the missing columns are treated as <i>NA</i> by the MOJO predictor.
+            </option>
+            <option name="Fail, if a prediction exception occurs">
+                If checked, the node will fail if the prediction of a row fails. Otherwise a missing value will
+                be the output.
+            </option>
+        </tab>
+        <tab name="Classification Settings">
+            <option name="Change prediction column name">
+                Change the name of the prediction column.
+            </option>
+            <option name="Append individual class probabilities">
+                Select to append the class probabilities of each class to the table.
+                Useful for scoring models.
+            </option>
+            <option name="Suffix for probability columns">
+                If class probabilities are appended, the suffix allows you to avoid duplicate column names. Can be empty.
+            </option>
+        </tab>
+    </fullDescription>
+
+    <ports>
+        <inPort index="0" name="MOJO (Bi-/Multinomial)">
+            The MOJO. Its model category must be either binomial or multinomial.
+        </inPort>
+        <inPort index="1" name="DB Data">
+            The DB Data object that should be used for prediction
+        </inPort>
+        <outPort index="0" name="Predicted DB Data">
+            The DB Data object containing the predicted class and, if selected, the individual
+            class probabilities.
+        </outPort>
+    </ports>
+</knimeNode>
