@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: KNIME Snowflake H2O extension
+Bundle-SymbolicName: org.knime.ext.h2o.database;singleton:=true
+Bundle-Version: 4.6.0.qualifier
+Bundle-Vendor: KNIME AG, Zurich, Switzerland
+Require-Bundle: org.knime.database;bundle-version="[4.1.0,5.0.0)",
+ org.knime.database.nodes;bundle-version="[4.6.0,5.0.0)",
+ org.knime.base;bundle-version="[4.0.0,5.0.0)",
+ org.knime.ext.h2o.mojo,
+ org.knime.workbench.repository,
+ org.knime.filehandling.core;bundle-version="[4.6.0,5.0.0)",
+ org.knime.base.filehandling;bundle-version="[4.6.0,5.0.0)",
+ ai.h2o.genmodel;bundle-version="[3.32.1,4.0.0)",
+ com.google.gson;bundle-version="2.8.1"
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: org.knime.snowflake
+Bundle-ClassPath: knime-database-h2o.jar,
+ lib/org.knime.snowflake.h2o.companion-1.0.0.jar

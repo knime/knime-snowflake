@@ -1,0 +1,1 @@
+The jar file is generated in the org.knime.snowflake.h20.companion library by executing mvn clean verify.

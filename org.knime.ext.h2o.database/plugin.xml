@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension point="org.knime.workbench.repository.nodes">
+      <node category-path="/analytics/integrations/h2o-3/mojo/snowflake" deprecated="false"
+            factory-class="org.knime.ext.h2o.database.node.scorer.classification.DatabaseH2OMojoClassificationPredictorNodeFactory" />
+      <node
+            category-path="/analytics/integrations/h2o-3/mojo/snowflake"
+            deprecated="false"
+            factory-class="org.knime.ext.h2o.database.node.scorer.regression.DatabaseH2OMojoRegressionPredictorNodeFactory"
+            hidden="false">
+      </node>
+   </extension>
+   <extension
+         point="org.knime.workbench.repository.categories">
+      <category
+            level-id="snowflake"
+            locked="true"
+            name="Snowflake"
+            path="/analytics/integrations/h2o-3/mojo">
+      </category>
+   </extension>
+   
+</plugin>
+
+

@@ -17,10 +17,13 @@
 		<profile>
 			<id>build</id>
 			<modules>
+			    <module>org.knime.snowflake.h2o.companion</module>
 				<module>org.knime.snowflake/lib/fetch_jars</module>
 				<module>org.knime.snowflake</module>
+				<module>org.knime.ext.h2o.database</module>
 				<module>org.knime.snowflake.testing.janitor</module>
 				<module>org.knime.features.snowflake</module>
+				<module>org.knime.features.ext.h2o.database</module>
 				<module>org.knime.update.snowflake</module>
 			</modules>
 			<activation>
@@ -91,6 +94,11 @@
             <url>${knime.filehandling.p2}</url>
         </repository>
         <repository>
+            <id>p2-knime-h2o</id>
+            <layout>p2</layout>
+            <url>${knime.h2o.p2}</url>
+        </repository>
+        <repository>
             <id>p2-knime-js-core</id>
             <layout>p2</layout>
             <url>${knime.js.core.p2}</url>
@@ -109,6 +117,11 @@
             <id>p2-knime-office365</id>
             <layout>p2</layout>
             <url>${knime.office365.p2}</url>
+        </repository>
+        <repository>
+            <id>p2-knime-product</id>
+            <layout>p2</layout>
+            <url>${knime.product.p2}</url>
         </repository>
 		<repository>
 			<id>p2-knime-shared</id>
