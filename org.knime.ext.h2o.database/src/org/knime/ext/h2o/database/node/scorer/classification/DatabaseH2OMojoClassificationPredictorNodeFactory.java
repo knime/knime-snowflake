@@ -45,18 +45,17 @@
 
 package org.knime.ext.h2o.database.node.scorer.classification;
 
-import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeView;
-import org.knime.ext.h2o.database.node.scorer.DatabaseH2OMojoPredictorNodeDialog;
+import org.knime.ext.h2o.database.node.scorer.DatabaseH2OMojoPredictorNodeFactory;
+import org.knime.ext.h2o.mojo.nodes.scorer.H2OGeneralMojoPredictorNodeDialog;
+import org.knime.ext.h2o.mojo.nodes.scorer.classification.H2OMojoClassificationPredictorNodeDialog;
 
 /**
- * A node factory for the <em>Snowflake connector node</em>.
+ * A node factory for the <em>Snowflake MOJO Classification predictor node</em>.
  *
- * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
+ * @author Zkriya Rakhimberdiyev
  */
 public class DatabaseH2OMojoClassificationPredictorNodeFactory
-    extends NodeFactory<DatabaseH2OMojoClassificationPredictorNodeModel> {
+    extends DatabaseH2OMojoPredictorNodeFactory<DatabaseH2OMojoClassificationPredictorNodeModel> {
 
     @Override
     public DatabaseH2OMojoClassificationPredictorNodeModel createNodeModel() {
@@ -64,24 +63,8 @@ public class DatabaseH2OMojoClassificationPredictorNodeFactory
     }
 
     @Override
-    protected int getNrNodeViews() {
-        return 0;
-    }
-
-    @Override
-    public NodeView<DatabaseH2OMojoClassificationPredictorNodeModel> createNodeView(final int viewIndex,
-        final DatabaseH2OMojoClassificationPredictorNodeModel nodeModel) {
-        return null;
-    }
-
-    @Override
-    protected boolean hasDialog() {
-        return true;
-    }
-
-    @Override
-    protected NodeDialogPane createNodeDialogPane() {
-        return new DatabaseH2OMojoPredictorNodeDialog();
+    protected H2OGeneralMojoPredictorNodeDialog getNodeDialog() {
+        return new H2OMojoClassificationPredictorNodeDialog();
     }
 
 }

@@ -47,8 +47,11 @@ package org.knime.snowflake.h2o.companion.udf;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.knime.snowflake.h2o.companion.udf.util.PredictionResult;
 
 import hex.ModelCategory;
 import hex.genmodel.MojoModel;
@@ -59,29 +62,26 @@ import hex.genmodel.easy.EasyPredictModelWrapper.Config;
 import hex.genmodel.easy.RowData;
 import hex.genmodel.easy.exception.PredictException;
 
-abstract class AbstractMojoPreditor<R extends Object> implements MojoPredictor<R> {
+abstract class AbstractMojoPreditor<R> implements MojoPredictor<R> {
 
 	private EasyPredictModelWrapper m_predictor;
-	private ModelCategory m_modelCategory;
-	private double[] m_classProbabilities;
-	private R m_result;
+	private MojoModel m_mojoModel;
 	private String[] m_inputColumnNames;
 	private File m_mojoModelFile;
 
-	private static String[] getInputColumnNames(final MojoModel mojoModel) {
-		final String[] colNames = mojoModel.getNames();
-		final String responseName = mojoModel.getResponseName();
-		final List<String> inputColNames = new ArrayList<>(colNames.length);
-		for (final String colName : colNames) {
-			if (!colName.equals(responseName)) {
-				inputColNames.add(colName);
+	protected void validateColumnNames(final MojoModel mojoModel, final String... inputColumnNames) {
+		final Set<String> mojoColumnNames = new HashSet<>(Arrays.asList(mojoModel.getNames()));
+
+		for (final String inputColumnName : inputColumnNames) {
+			if (!mojoColumnNames.contains(inputColumnName)) {
+				throw new IllegalArgumentException("MOJO does not contain table column name " + inputColumnName);
 			}
 		}
-		return inputColNames.toArray(new String[0]);
 	}
 
 	@Override
-	public synchronized void init(final File mojoModelFile) throws IOException {
+	public synchronized void init(final File mojoModelFile, final boolean convertUnknownCategoricalLevelsToNa,
+			final String... inputColumnNames) throws IOException {
 		// needs to be synchronized to ensure proper initialization during parallel
 		// execution
 		if (m_mojoModelFile == null || !m_mojoModelFile.equals(mojoModelFile)) {
@@ -90,31 +90,38 @@ abstract class AbstractMojoPreditor<R extends Object> implements MojoPredictor<R
 			final MojoModel mojoModel = MojoModel.load(backend);
 			final Config config = new Config();
 			config.setModel(mojoModel);
-			config.setConvertUnknownCategoricalLevelsToNa(true);
+			config.setConvertUnknownCategoricalLevelsToNa(convertUnknownCategoricalLevelsToNa);
 			m_predictor = new EasyPredictModelWrapper(config);
-			m_modelCategory = mojoModel.getModelCategory();
-			m_inputColumnNames = getInputColumnNames(mojoModel);
+			m_mojoModel = mojoModel;
+			validateColumnNames(mojoModel, inputColumnNames);
+			m_inputColumnNames = inputColumnNames;
 		}
 	}
 
 	public AbstractMojoPreditor() {
 	}
 
-	@SuppressWarnings("boxing")
 	@Override
-	public void predict(final Object... inputData) throws PredictException {
+	public PredictionResult<R> predict(final Object... inputData) throws PredictException {
+		final RowData row = parseRowData(inputData);
+		return predictInternal(row);
+	}
+
+	private RowData parseRowData(final Object... inputData) throws PredictException {
 		if (inputData.length != m_inputColumnNames.length) {
 			throw new PredictException(String.format("Input data size %d different form model input size %d",
 					inputData.length, m_inputColumnNames.length));
 		}
-		final RowData row = new RowData();
+		final RowData result = new RowData();
 		for (int i = 0, length = inputData.length; i < length; i++) {
-			row.put(getInputColumnNames()[i], inputData[i]);
+			if (inputData[i] != null) {
+				result.put(getInputColumnNames()[i], inputData[i]);
+			}
 		}
-		m_result = predictInternal(row);
+		return result;
 	}
 
-	protected abstract R predictInternal(RowData row) throws PredictException;
+	protected abstract PredictionResult<R> predictInternal(RowData row) throws PredictException;
 
 	/**
 	 * @return the predictor
@@ -127,7 +134,25 @@ abstract class AbstractMojoPreditor<R extends Object> implements MojoPredictor<R
 	 * @return the modelCategory
 	 */
 	protected ModelCategory getModelCategory() {
-		return m_modelCategory;
+		return m_mojoModel.getModelCategory();
+	}
+
+	/**
+	 * The names of all columns used, including response and offset columns.
+	 *
+	 * @return names of all columns used
+	 */
+	protected String[] getNames() {
+		return m_mojoModel.getNames();
+	}
+
+	/**
+	 * Returns domain values for all columns, including the response column.
+	 *
+	 * @return domain values for all columns
+	 */
+	protected String[] getDomainValues(final String columnName) {
+		return m_mojoModel.getDomainValues(columnName);
 	}
 
 	/**
@@ -137,21 +162,18 @@ abstract class AbstractMojoPreditor<R extends Object> implements MojoPredictor<R
 		return m_inputColumnNames;
 	}
 
-	@Override
-	public R getResult() {
-		return m_result;
-	}
-
 	/**
-	 * @param classProbabilities the classProbabilities to set
+	 * Returns the expected size of the prediction. If no expectation can be given, -1 is returned.
+	 *
+	 * @return the expected prediction size
 	 */
-	protected void setClassProbabilities(final double[] classProbabilities) {
-		m_classProbabilities = classProbabilities;
+	protected int getPredictionsSize() {
+		int result;
+		try {
+			result = m_mojoModel.getPredsSize(m_mojoModel.getModelCategory());
+		} catch (final UnsupportedOperationException e) {
+			result = -1;
+		}
+		return result;
 	}
-
-	@Override
-	public double[] getClassProbabilities() {
-		return m_classProbabilities;
-	}
-
 }

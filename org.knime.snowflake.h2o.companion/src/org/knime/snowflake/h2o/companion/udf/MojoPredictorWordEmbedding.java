@@ -45,45 +45,47 @@
 
 package org.knime.snowflake.h2o.companion.udf;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.stream.IntStream;
 
 import org.knime.snowflake.h2o.companion.udf.util.PredictionResult;
 
+import hex.genmodel.MojoModel;
+import hex.genmodel.easy.EasyPredictModelWrapper;
+import hex.genmodel.easy.RowData;
 import hex.genmodel.easy.exception.PredictException;
+import hex.genmodel.easy.prediction.Word2VecPrediction;
 
 /**
- * Interface that all MOJO predictors need to implement.
+ * {@link MojoPredictor} implementation for word embedding.
  *
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
- * @param <R>
- *            result type of the prediction
  */
-public interface MojoPredictor<R> {
+public class MojoPredictorWordEmbedding extends AbstractMojoPreditor<double[]> {
 
-	/**
-	 * Initializes the class and caches the model information. So subsequent calls
-	 * don't do anything.
-	 *
-	 * @param mojoModelFile                       the MOJO model file to read
-	 * @param convertUnknownCategoricalLevelsToNa <code>true</code> if unknown
-	 *                                            category values should be
-	 *                                            converted to NaN
-	 * @param inputColumnNames                    input table column names
-	 * @throws IOException if a problem with the file occurs
-	 */
-	void init(File mojoModelFile, boolean convertUnknownCategoricalLevelsToNa, String... inputColumnNames)
-			throws IOException;
+	@Override
+	protected void validateColumnNames(MojoModel mojoModel, String... inputColumnNames) {
+		//nothing to validate since the user can select any new column to embed
+		return;
+	}
+	
+	@Override
+	public PredictionResult<double[]> predictInternal(final RowData row) throws PredictException {
+		final EasyPredictModelWrapper predictor = getPredictor();
+		final Word2VecPrediction prediction = (Word2VecPrediction) predictor.predict(row);
+		final HashMap<String, float[]> wordEmbeddings = prediction.wordEmbeddings;
+		final float[] vector = wordEmbeddings.get(getInputColumnNames()[0]);
 
-	/**
-	 * Main method to predict unknown data rows.
-	 *
-	 * @param inputData
-	 *            Java objects e.g. String and Double values in the same order as they appeared during model training
-	 *
-	 * @return result of {@link PredictionResult}
-	 * @throws PredictException
-	 *             if anything went wrong
-	 */
-	PredictionResult<R> predict(final Object... inputData) throws PredictException;
+		if (vector == null) {
+
+			throw new PredictException("The input column contains a missing value or unknown word.");
+		}
+
+		// create the output
+		final double[] vectorD = new double[vector.length];
+		// convert to String array
+		IntStream.range(0, vector.length).forEach(index -> vectorD[index] = vector[index]);
+
+		return new PredictionResult<>(vectorD, null);
+	}
 }

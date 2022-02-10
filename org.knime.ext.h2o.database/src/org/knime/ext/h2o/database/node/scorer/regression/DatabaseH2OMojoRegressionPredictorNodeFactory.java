@@ -45,18 +45,17 @@
 
 package org.knime.ext.h2o.database.node.scorer.regression;
 
-import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeView;
-import org.knime.ext.h2o.database.node.scorer.DatabaseH2OMojoPredictorNodeDialog;
+import org.knime.ext.h2o.database.node.scorer.DatabaseH2OMojoPredictorNodeFactory;
+import org.knime.ext.h2o.mojo.nodes.scorer.H2OGeneralMojoPredictorNodeDialog;
+import org.knime.ext.h2o.mojo.nodes.scorer.regression.H2OMojoRegressionPredictorNodeDialog;
 
 /**
- * A node factory for the <em>Snowflake connector node</em>.
+ * A node factory for the <em>Snowflake Regression Predictor node</em>.
  *
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
  */
 public class DatabaseH2OMojoRegressionPredictorNodeFactory
-    extends NodeFactory<DatabaseH2OMojoRegressionPredictorNodeModel> {
+    extends DatabaseH2OMojoPredictorNodeFactory<DatabaseH2OMojoRegressionPredictorNodeModel> {
 
     @Override
     public DatabaseH2OMojoRegressionPredictorNodeModel createNodeModel() {
@@ -64,24 +63,7 @@ public class DatabaseH2OMojoRegressionPredictorNodeFactory
     }
 
     @Override
-    protected int getNrNodeViews() {
-        return 0;
+    protected H2OGeneralMojoPredictorNodeDialog getNodeDialog() {
+        return new H2OMojoRegressionPredictorNodeDialog();
     }
-
-    @Override
-    public NodeView<DatabaseH2OMojoRegressionPredictorNodeModel> createNodeView(final int viewIndex,
-        final DatabaseH2OMojoRegressionPredictorNodeModel nodeModel) {
-        return null;
-    }
-
-    @Override
-    protected boolean hasDialog() {
-        return true;
-    }
-
-    @Override
-    protected NodeDialogPane createNodeDialogPane() {
-        return new DatabaseH2OMojoPredictorNodeDialog();
-    }
-
 }

@@ -43,54 +43,84 @@
  * ------------------------------------------------------------------------
  */
 
-package org.knime.ext.h2o.database.node.scorer.regression;
+package org.knime.ext.h2o.database.node.scorer.wordembedding;
 
-import org.knime.core.data.DataColumnSpec;
+import java.io.IOException;
+import java.net.URISyntaxException;
+
+import org.apache.commons.lang3.StringUtils;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.ext.h2o.database.node.scorer.DatabaseH2OMojoPredictorNodeModel;
+import org.knime.ext.h2o.database.node.scorer.UDFObject;
+import org.knime.ext.h2o.mojo.H2OMojoPortObject;
 import org.knime.ext.h2o.mojo.H2OMojoPortObjectSpec;
 import org.knime.ext.h2o.mojo.nodes.scorer.H2OGeneralMojoPredictorConfig;
 import org.knime.ext.h2o.mojo.nodes.scorer.H2OMojoPredictorUtils;
-import org.knime.ext.h2o.mojo.nodes.scorer.regression.H2OMojoRegressionPredictorConfig;
+import org.knime.ext.h2o.mojo.nodes.scorer.wordembedding.H2OMojoWordEmbeddingPredictorConfig;
 import org.knime.snowflake.h2o.companion.udf.MojoPredictor;
-import org.knime.snowflake.h2o.companion.udf.MojoPredictorRegression;
+import org.knime.snowflake.h2o.companion.udf.MojoPredictorWordEmbedding;
 
 /**
- * A node model for the <em>Snowflake Regression Predictor node</em>.
+ * The node model of the Snowflake MOJO Predictor node which predicts a word vector.
  *
- * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
+ * @author Simon Schmid, KNIME GmbH, Konstanz, Germany
  */
-public class DatabaseH2OMojoRegressionPredictorNodeModel extends DatabaseH2OMojoPredictorNodeModel {
+public final class DatabaseH2OMojoWordEmbeddingPredictorNodeModel
+    extends DatabaseH2OMojoPredictorNodeModel {
 
     @Override
     protected void validateInternal(final DataTableSpec tableSpec, final H2OGeneralMojoPredictorConfig config)
             throws InvalidSettingsException {
 
-        final H2OMojoRegressionPredictorConfig regressionConfig =
-                (H2OMojoRegressionPredictorConfig) config;
+        final H2OMojoWordEmbeddingPredictorConfig wordEmbeddingConfig =
+                (H2OMojoWordEmbeddingPredictorConfig) config;
 
-        if (regressionConfig.isChangePredColName()
-                && regressionConfig.getPredColName().trim().isEmpty()) {
+        final String colName = wordEmbeddingConfig.getInputColName();
+        if (!tableSpec.containsName(colName)) {
+            throw new InvalidSettingsException("No column with name '" + colName + "' in the input table found!");
+        }
+        if (wordEmbeddingConfig.isChangePredColName()
+                && StringUtils.isBlank(wordEmbeddingConfig.getPredColName())) {
             throw new InvalidSettingsException("The column name for the prediction must not be empty!");
         }
     }
 
     @Override
-    protected H2OMojoRegressionPredictorConfig createConfig() {
-        return new H2OMojoRegressionPredictorConfig();
+    protected void validateInputTable(final DataTableSpec tableSpec) throws InvalidSettingsException {
+        // do nothing
+    }
+
+    @Override
+    protected UDFObject getUDFObject(final DataTableSpec inputTableSpec, final DataTableSpec resultTableSpec,
+        final H2OMojoPortObject mojoPortObject, final H2OGeneralMojoPredictorConfig config)
+                throws InvalidSettingsException, IOException, URISyntaxException {
+
+        final H2OMojoWordEmbeddingPredictorConfig wordEmbeddingConfig =
+                (H2OMojoWordEmbeddingPredictorConfig) config;
+
+        return new UDFObject(inputTableSpec, resultTableSpec, mojoPortObject, getPredictorClass(),
+            wordEmbeddingConfig.isConvertUnknownCategoricalLevelsToNa(),
+            wordEmbeddingConfig.isEnforcePresenceOfWords(), wordEmbeddingConfig.getInputColName());
+    }
+
+    @Override
+    protected H2OMojoWordEmbeddingPredictorConfig createConfig() {
+        return new H2OMojoWordEmbeddingPredictorConfig();
     }
 
     @Override
     protected DataTableSpec getSpec(final DataTableSpec spec, final H2OMojoPortObjectSpec mojoSpec,
         final H2OGeneralMojoPredictorConfig config) {
-        final DataColumnSpec columnSpec = H2OMojoPredictorUtils.getRegressionColumnSpecs(spec, mojoSpec,
-            (H2OMojoRegressionPredictorConfig) config);
-        return new DataTableSpec(columnSpec);
+
+        return H2OMojoPredictorUtils.getWordEmbeddingTableSpec(spec,
+            (H2OMojoWordEmbeddingPredictorConfig) config, false);
     }
 
     @Override
-    protected Class<? extends MojoPredictor<Double>> getPredictorClass() {
-        return MojoPredictorRegression.class;
+    protected Class<? extends MojoPredictor<double[]>> getPredictorClass() {
+        return MojoPredictorWordEmbedding.class;
     }
+
+
 }

@@ -43,47 +43,48 @@
  * ------------------------------------------------------------------------
  */
 
-package org.knime.snowflake.h2o.companion.udf;
+package org.knime.ext.h2o.database.node.scorer.dimreduction;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.knime.snowflake.h2o.companion.udf.util.PredictionResult;
-
-import hex.genmodel.easy.exception.PredictException;
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.ext.h2o.database.node.scorer.DatabaseH2OMojoPredictorNodeModel;
+import org.knime.ext.h2o.mojo.H2OMojoPortObjectSpec;
+import org.knime.ext.h2o.mojo.nodes.scorer.H2OGeneralMojoPredictorConfig;
+import org.knime.ext.h2o.mojo.nodes.scorer.H2OMojoPredictorUtils;
+import org.knime.ext.h2o.mojo.nodes.scorer.dimreduction.H2OMojoDimReductionPredictorConfig;
+import org.knime.snowflake.h2o.companion.udf.MojoPredictor;
+import org.knime.snowflake.h2o.companion.udf.MojoPredictorDimReduction;
 
 /**
- * Interface that all MOJO predictors need to implement.
+ * The node model of the Snowflake MOJO predictor node which applies a dimension reduction.
  *
- * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
- * @param <R>
- *            result type of the prediction
+ * @author Simon Schmid, KNIME GmbH, Konstanz, Germany
  */
-public interface MojoPredictor<R> {
+public final class DatabaseH2OMojoDimReductionPredictorNodeModel extends DatabaseH2OMojoPredictorNodeModel {
 
-	/**
-	 * Initializes the class and caches the model information. So subsequent calls
-	 * don't do anything.
-	 *
-	 * @param mojoModelFile                       the MOJO model file to read
-	 * @param convertUnknownCategoricalLevelsToNa <code>true</code> if unknown
-	 *                                            category values should be
-	 *                                            converted to NaN
-	 * @param inputColumnNames                    input table column names
-	 * @throws IOException if a problem with the file occurs
-	 */
-	void init(File mojoModelFile, boolean convertUnknownCategoricalLevelsToNa, String... inputColumnNames)
-			throws IOException;
+    @Override
+    protected void validateInternal(final DataTableSpec tableSpec,
+        final H2OGeneralMojoPredictorConfig config)
+            throws InvalidSettingsException {
+        // do nothing
+    }
 
-	/**
-	 * Main method to predict unknown data rows.
-	 *
-	 * @param inputData
-	 *            Java objects e.g. String and Double values in the same order as they appeared during model training
-	 *
-	 * @return result of {@link PredictionResult}
-	 * @throws PredictException
-	 *             if anything went wrong
-	 */
-	PredictionResult<R> predict(final Object... inputData) throws PredictException;
+    @Override
+    protected H2OMojoDimReductionPredictorConfig createConfig() {
+        return new H2OMojoDimReductionPredictorConfig();
+    }
+
+    @Override
+    protected DataTableSpec getSpec(final DataTableSpec spec, final H2OMojoPortObjectSpec mojoSpec,
+        final H2OGeneralMojoPredictorConfig config) {
+        final DataColumnSpec[] columnSpec = H2OMojoPredictorUtils
+                .getDimReductionColumnSpecs(spec, mojoSpec, (H2OMojoDimReductionPredictorConfig) config);
+        return new DataTableSpec(columnSpec);
+    }
+
+    @Override
+    protected Class<? extends MojoPredictor<Double>> getPredictorClass() {
+        return MojoPredictorDimReduction.class;
+    }
 }

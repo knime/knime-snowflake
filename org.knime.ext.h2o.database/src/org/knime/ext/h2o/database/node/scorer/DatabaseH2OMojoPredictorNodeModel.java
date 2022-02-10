@@ -45,24 +45,23 @@
 
 package org.knime.ext.h2o.database.node.scorer;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+import java.util.StringJoiner;
 
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Platform;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.URIUtil;
+import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
@@ -79,11 +78,15 @@ import org.knime.database.datatype.mapping.DBTypeMappingRegistry;
 import org.knime.database.datatype.mapping.DBTypeMappingService;
 import org.knime.database.dialect.DBSQLDialect;
 import org.knime.database.node.DBNodeModel;
+import org.knime.database.node.util.DBNodeModelHelper;
 import org.knime.database.port.DBDataPortObject;
+import org.knime.database.port.DBDataPortObjectSpec;
 import org.knime.database.session.DBSession;
 import org.knime.datatype.mapping.DataTypeMappingDirection;
 import org.knime.ext.h2o.mojo.H2OMojoPortObject;
 import org.knime.ext.h2o.mojo.H2OMojoPortObjectSpec;
+import org.knime.ext.h2o.mojo.nodes.scorer.H2OGeneralMojoPredictorConfig;
+import org.knime.ext.h2o.mojo.nodes.scorer.H2OMojoPredictorUtils;
 import org.knime.filehandling.core.connections.DefaultFSConnectionFactory;
 import org.knime.filehandling.core.connections.FSConnection;
 import org.knime.filehandling.core.connections.FSFileSystem;
@@ -91,8 +94,6 @@ import org.knime.filehandling.core.connections.uriexport.URIExporter;
 import org.knime.filehandling.core.connections.uriexport.URIExporterIDs;
 import org.knime.filehandling.core.connections.uriexport.noconfig.NoConfigURIExporterFactory;
 import org.knime.snowflake.h2o.companion.udf.MojoPredictor;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.Version;
 
 /**
  * Basic node model for all Snowflake MOJO predictor nodes.
@@ -101,6 +102,15 @@ import org.osgi.framework.Version;
  */
 public abstract class DatabaseH2OMojoPredictorNodeModel extends DBNodeModel {
 
+    /** The name of the name column in the staged files table returned by the Snowflake LS command. */
+    private static final String COL_STAGED_FILE_NAME = "name";
+
+    /** The config of the node. */
+    private H2OGeneralMojoPredictorConfig m_config = createConfig();
+
+    /** {@link PortObjectSpec} of the {@link H2OMojoPortObject}. */
+    private H2OMojoPortObjectSpec m_mojoSpec;
+
     /**
      * Constructor.
      */
@@ -108,182 +118,269 @@ public abstract class DatabaseH2OMojoPredictorNodeModel extends DBNodeModel {
         super(new PortType[]{H2OMojoPortObject.TYPE, DBDataPortObject.TYPE}, new PortType[]{DBDataPortObject.TYPE});
     }
 
-    private static void addLatestH2OModelJars(final List<File> files) throws IOException {
-        //TODO: Check if we really need the gson lib
-        for (final String symbolicName : List.of("ai.h2o.genmodel", "ai.h2o.logger", "ai.h2o.tree-api",
-            "com.google.gson")) {
-            final Bundle[] bundles = Platform.getBundles(symbolicName, null);
-            Version maxVersion = Version.emptyVersion;
-            Bundle maxBundle = null;
-            for (final Bundle bundle : bundles) {
-                final Version version = bundle.getVersion();
-                if (maxVersion.compareTo(version) < 0) {
-                    maxVersion = version;
-                    maxBundle = bundle;
-                }
-            }
-            files.add(FileLocator.getBundleFile(maxBundle));
-        }
-    }
-
     @Override
     protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
-        //TODO: Check if MOJO model type is compatible and all model input columns are available
-        //Have a look at H2OMojoPredictorUtils e.g. in AbstractSparkH2OMojoPredictorNodeModel
-        return new PortObjectSpec[]{inSpecs[1]};
+        m_mojoSpec = (H2OMojoPortObjectSpec)inSpecs[0];
+
+        final DBDataPortObjectSpec dbPortSpec = DBNodeModelHelper.asDBDataPortObjectSpec(inSpecs[1]);
+        final DataTableSpec tableSpec = dbPortSpec.getDataTableSpec();
+
+        // Check input model
+        H2OMojoPredictorUtils.validateModelCategory(m_mojoSpec, m_config);
+        // Check input table
+        validateInputTable(tableSpec);
+
+        validateInternal(tableSpec, m_config);
+
+        return new PortObjectSpec[]{null};
+    }
+
+    /**
+     * Checks the columns of the input table for correct names and types. This function may need to be overridden.
+     *
+     * @param tableSpec input {@link DataTableSpec}
+     * @throws InvalidSettingsException if the name or type of an input column is missing or does not fit
+     */
+    protected void validateInputTable(final DataTableSpec tableSpec) throws InvalidSettingsException {
+        final List<String> warningMsgs =
+            H2OMojoPredictorUtils.validateInputTable(tableSpec, m_mojoSpec, m_config.isEnforcePresenceOfColumns());
+        final Optional<String> combinedWarningMessages =
+            H2OMojoPredictorUtils.combineFeatureColumnWarningMessages(warningMsgs);
+        if (combinedWarningMessages.isPresent()) {
+            setWarningMessage(combinedWarningMessages.get());
+        }
     }
 
     @Override
     protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec) throws Exception {
-
         //same for all models
         final DBDataPortObject inputData = (DBDataPortObject)inData[1];
         final DBSession session = inputData.getDBSession();
 
+        final DataTableSpec outputSpec = getSpec(inputData.getDataTableSpec(), m_mojoSpec, m_config);
         final H2OMojoPortObject mojoPortObject = (H2OMojoPortObject)inData[0];
-        final H2OMojoPortObjectSpec mojoSpec = mojoPortObject.getSpec();
 
-        final File mojoModelFile = mojoPortObject.getFile();
-
-        final List<File> files2include = new LinkedList<>();
-        addLatestH2OModelJars(files2include);
-
-        //TODO: Get the jar file from the lib folder via the class loader via load resources
-        files2include.add(new File("C:\\DEV\\GIT\\master\\knime-snowflake\\org.knime.ext.h2o.database\\lib\\"
-            + "org.knime.snowflake.h2o.companion-1.0.0.jar"));
-        files2include.add(mojoModelFile);
-
-        final String fileName = mojoModelFile.getName().toString();
-        //Somehow the PUT command converts the stage name to upper case even though we enclose it into ''
-        final String stageName = ("KNIME_" + fileName).toUpperCase();
-
-        //TODO: Get entered name form dialog or use default
-        final String predictionColName = "my prediction";
-
-        final UDFArguments arguments = new UDFArguments(inputData, mojoSpec, stageName, fileName, getPredictorClass(),
-            files2include, getJavaReturnType());
+        final UDFObject udfObject = getUDFObject(inputData.getDataTableSpec(), outputSpec, mojoPortObject, m_config);
 
         exec.setMessage("Creating function");
+        exec.checkCanceled();
         try (Connection connection = session.getConnectionProvider().getConnection(exec);
                 Statement statement = connection.createStatement()) {
-
-            createStage(exec.createSubProgress(0.2), statement, stageName);
-
-            uploadFiles(exec.createSubProgress(0.4), statement, stageName, files2include);
-
-            createUDF(exec.createSubProgress(0.4), statement, arguments);
-
+            exec.setMessage("Creating temporary stages");
+            createTemporaryStageIfNotExists(exec.createSubProgress(0.1), statement, udfObject.getMojoStageName());
+            createTemporaryStageIfNotExists(exec.createSubProgress(0.1), statement, UDFObject.FILES_STAGE_NAME);
+            exec.checkCanceled();
+            exec.setMessage("Uploading model files to Snowflake (this might take some time without progress changes)");
+            uploadFilesIfNotExists(exec.createSubProgress(0.6), statement, udfObject.getStageToFiles());
+            exec.setMessage("Register function");
+            createUDF(exec.createSubProgress(0.1), statement, udfObject);
         }
-        final DBDataObject outputData = createOutputData(exec, inputData, arguments, predictionColName);
+        exec.setProgress(1, "Creating output query");
+        final DBDataObject outputData = createOutputData(exec, inputData, udfObject, outputSpec);
         return new PortObject[]{new DBDataPortObject(inputData, outputData)};
     }
 
+    private static void createTemporaryStageIfNotExists(final ExecutionMonitor exec, final Statement statement,
+        final String stageName) throws SQLException {
+        //when creating a space it needs to be in double quotes for special characters
+        final String createTempStage = "CREATE TEMPORARY STAGE IF NOT EXISTS \"" + stageName + "\"";
+        exec.setMessage("Stage name: " + stageName);
+        statement.execute(createTempStage);
+        exec.setProgress(1);
+    }
+
+    private static void uploadFilesIfNotExists(final ExecutionMonitor exec, final Statement statement,
+        final Map<String, List<File>> stageToFiles)
+        throws IOException, URISyntaxException, SQLException, CanceledExecutionException {
+
+        try (FSConnection fsConnection = DefaultFSConnectionFactory.createLocalFSConnection();
+                FSFileSystem<?> fs = fsConnection.getFileSystem()) {
+            final URIExporter exporter =
+                ((NoConfigURIExporterFactory)fsConnection.getURIExporterFactory(URIExporterIDs.KNIME_FILE))
+                    .getExporter();
+            final int fileCount = stageToFiles.entrySet().stream().mapToInt(e -> e.getValue().size()).sum();
+            //upload model file
+            int i = 0;
+            for (Map.Entry<String, List<File>> entry : stageToFiles.entrySet()) {
+                final String stage = entry.getKey();
+                final List<File> files = entry.getValue();
+                final Set<String> existingStageFileNames = retrieveStageAndFileNames(statement, stage);
+                for (final File file : files) {
+                    final String currentStageFileName = (stage + "/" + file.getName()).toLowerCase();
+                    exec.setProgress(i / (double)fileCount, "Uploading file " + ++i + " of " + fileCount);
+                    exec.checkCanceled();
+                    if (!existingStageFileNames.contains(currentStageFileName)) {
+                        final String fileURI = URIUtil.toUnencodedString(exporter.toUri(fs.getPath(file.toString())));
+                        //see https://docs.snowflake.com/en/sql-reference/sql/put.html#required-parameters for path
+                        //specification stage name must be in single quotes for special characters however Snowflake
+                        //still converts the stage name to upper case!
+                        final String putFileCommand =
+                            "PUT '" + fileURI + "' '@" + stage + "' AUTO_COMPRESS=FALSE OVERWRITE = TRUE";
+                        statement.execute(putFileCommand);
+                    }
+                }
+            }
+        }
+        exec.setProgress(1);
+    }
+
+    private static Set<String> retrieveStageAndFileNames(final Statement statement, final String stage)
+        throws SQLException {
+        final Set<String> result = new HashSet<>();
+
+        final String listFiles = "LS '@" + stage + "'";
+
+        statement.execute(listFiles);
+        try (ResultSet rs = statement.getResultSet()) {
+            while (rs.next()) {
+                final String stageAndFileName = rs.getString(COL_STAGED_FILE_NAME);
+                if (StringUtils.isNotBlank(stageAndFileName)) {
+                    result.add(stageAndFileName.toLowerCase());
+                }
+            }
+        }
+        return result;
+    }
+
+    private static void createUDF(final ExecutionMonitor exec, final Statement statement, final UDFObject udfObject)
+        throws IOException, SQLException, InvalidSettingsException {
+
+        //load the template from the companion jar and replace all placeholder
+        final String udf = udfObject.buildUDFFromTemplate();
+
+        exec.setMessage("Function name: " + udfObject.getFunctionName());
+        statement.execute(udf);
+        exec.setProgress(1);
+    }
+
+    private static DBDataObject createOutputData(final ExecutionContext exec, final DBDataPortObject inputData,
+        final UDFObject udfObject, final DataTableSpec outputSpec)
+        throws CanceledExecutionException, InvalidSettingsException, SQLException {
+
+        final DBSession session = inputData.getDBSession();
+
+        final String resultSQL = udfObject.isTabularUDF() ? createTUDFSQL(inputData, udfObject, outputSpec)
+            : createUDFSQL(inputData, udfObject, outputSpec);
+
+        final DBTypeMappingService<?, ?> mappingService =
+            DBTypeMappingRegistry.getInstance().getDBTypeMappingService(session.getDBType());
+
+        return session.getAgent(DBMetadataReader.class).getDBDataObject(exec, new SQLQuery(resultSQL), inputData
+            .getExternalToKnimeTypeMapping().resolve(mappingService, DataTypeMappingDirection.EXTERNAL_TO_KNIME));
+    }
+
+    private static String createUDFSQL(final DBDataPortObject inputData, final UDFObject udfObject,
+        final DataTableSpec outputSpec) {
+
+        final DBSQLDialect dialect = inputData.getDBSession().getDialect();
+        final String tempTableName = dialect.getTempTableName();
+        final String predictColumnName = dialect.delimit(outputSpec.getColumnNames()[0]);
+        final String inUdfColumns = delimitTableWithColumns(tempTableName, udfObject.getInUDFColumns(), dialect);
+
+        return "SELECT *, " + udfObject.getFunctionName() + "(" + inUdfColumns + ") AS " + predictColumnName
+            + "\nFROM (" + dialect.asTable(inputData.getData().getQuery() + ")", tempTableName);
+    }
+
+    private static String createTUDFSQL(final DBDataPortObject inputData, final UDFObject udfObject,
+        final DataTableSpec outputSpec) {
+
+        final DBSQLDialect dialect = inputData.getDBSession().getDialect();
+        final String udfTableName = dialect.getTempTableName();
+        final StringJoiner resultTableColumns = new StringJoiner(",");
+
+        for (int i = 0; i < outputSpec.getNumColumns(); i++) {
+            resultTableColumns
+                .add(dialect.asColumn(dialect.delimit(udfTableName) + ".col" + i, outputSpec.getColumnNames()[i]));
+        }
+
+        final String tempTableName = dialect.getTempTableName();
+        final String inTableColumns =
+            delimitTableWithColumns(tempTableName, inputData.getDataTableSpec().getColumnNames(), dialect);
+        final String inUdfColumns = delimitTableWithColumns(tempTableName, udfObject.getInUDFColumns(), dialect);
+
+        return "SELECT " + inTableColumns + ", " + resultTableColumns + "\nFROM ("
+            + dialect.asTable(inputData.getData().getQuery() + ")", tempTableName) + ",\n"
+            + dialect.asTable("TABLE(" + udfObject.getFunctionName() + "(" + inUdfColumns + "))", udfTableName);
+    }
+
+    private static String delimitTableWithColumns(final String tableName, final String[] columnNames,
+        final DBSQLDialect dialect) {
+
+        final StringJoiner result = new StringJoiner(",");
+
+        for (String columnName : columnNames) {
+            result.add(dialect.delimit(tableName) + "." + dialect.delimit(columnName));
+        }
+        return result.toString();
+    }
+
     /**
-     * Returns the Java class that is returned by the prediction method.
+     * Constructs UDF object.
      *
-     * @return the return type of the Java class
+     * @param inputTableSpec input table specification
+     * @param resultTableSpec result table specification
+     * @param mojoPortObject MOJO port object
+     * @param config MOJO configuration
+     * @return constructed UDF object
+     * @throws InvalidSettingsException if input table doesn't contain MOJO column
+     * @throws IOException if jar dependencies not found
+     * @throws URISyntaxException if companion jar not found
      */
-    protected abstract Class<?> getJavaReturnType();
+    protected UDFObject getUDFObject(final DataTableSpec inputTableSpec, final DataTableSpec resultTableSpec,
+        final H2OMojoPortObject mojoPortObject, final H2OGeneralMojoPredictorConfig config)
+        throws InvalidSettingsException, IOException, URISyntaxException {
+
+        return new UDFObject(inputTableSpec, resultTableSpec, mojoPortObject, getPredictorClass(),
+            m_config.isConvertUnknownCategoricalLevelsToNa(), m_config.isFailOnPredictException());
+    }
 
     /**
      * Returns the {@link MojoPredictor} instance that should be used for prediction in the UDF.
      *
      * @return the {@link MojoPredictor} implementation to use in the UDF.
      */
-    protected abstract Class<? extends MojoPredictor> getPredictorClass();
+    protected abstract Class<? extends MojoPredictor<?>> getPredictorClass();
 
-    private static void createStage(final ExecutionMonitor exec, final Statement statement, final String stageName)
-        throws SQLException {
-        //when creating a space it needs to be in double quotes for special characters
-        final String createTempStage = "CREATE OR REPLACE TEMPORARY STAGE \"" + stageName + "\"";
-        exec.setMessage("Create temp stage: " + stageName);
-        statement.execute(createTempStage);
-        exec.setProgress(1);
-    }
+    /**
+     * Validates the specific configuration.
+     *
+     * @param tableSpec input database table specification
+     * @param config MOJO configuration
+     * @throws InvalidSettingsException if configuration is invalid
+     */
+    protected abstract void validateInternal(DataTableSpec tableSpec, H2OGeneralMojoPredictorConfig config)
+        throws InvalidSettingsException;
 
-    private static void uploadFiles(final ExecutionMonitor exec, final Statement statement, final String stageName,
-        final List<File> files) throws IOException, URISyntaxException, SQLException {
-        try (FSConnection fsConnection = DefaultFSConnectionFactory.createLocalFSConnection();
-                FSFileSystem<?> fs = fsConnection.getFileSystem();) {
-            final URIExporter exporter =
-                ((NoConfigURIExporterFactory)fsConnection.getURIExporterFactory(URIExporterIDs.KNIME_FILE))
-                    .getExporter();
-            //upload model file
-            exec.setMessage("Uploading MOJO files to Snowflake (this might take some time without progress changes)");
-            for (final File file : files) {
-                final String fileURI = URIUtil.toUnencodedString(exporter.toUri(fs.getPath(file.toString())));
-                //see https://docs.snowflake.com/en/sql-reference/sql/put.html#required-parameters for path
-                //specification stage name must be in single quotes for special characters however Snowflake
-                //still converts the stage name to upper case!
-                final String putFileCommand =
-                    "PUT '" + fileURI + "' '@" + stageName + "' AUTO_COMPRESS=FALSE OVERWRITE = TRUE";
-                ////TODO: Use a different stage for the jar files and see if they already exists LS <STAGENAME>
-                //prior overwriting them. But than we need to check if an existing jar is still up to date. To do so
-                //we could use the MD5 check sum.
-                statement.execute(putFileCommand);
-            }
-        }
-        exec.setProgress(1);
-    }
+    /**
+     * Creates the specific configuration.
+     *
+     * @return configuration
+     */
+    protected abstract H2OGeneralMojoPredictorConfig createConfig();
 
-    private static void createUDF(final ExecutionMonitor exec, final Statement statement, final UDFArguments arguments)
-        throws IOException, SQLException {
-
-        ////TODO:Can we tie the UDFArguments class and the UDF template tighter together?
-        final Map<String, String> variables = arguments.getVariables();
-
-
-        //load the template from the companion jar and replace all placeholder
-        //TODO: Maybe move the logic on how to create the udf from the template into the UDFArgumenets class and also
-        //move the template here from the companion plugin
-        String udf;
-        final String packageName = MojoPredictor.class.getPackageName().replace('.', '/');
-        try (InputStream in = MojoPredictor.class.getResourceAsStream("/" + packageName + "/udfTemplate.sql");
-                BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-            final StringWriter stringWriter = new StringWriter();
-            reader.transferTo(stringWriter);
-            udf = stringWriter.toString();
-            for (final Entry<String, String> var : variables.entrySet()) {
-                udf = udf.replace("<$" + var.getKey() + "$>", var.getValue());
-            }
-        }
-        exec.setMessage("Create function: " + variables.get("functionName"));
-        statement.execute(udf);
-        exec.setProgress(1);
-    }
-
-    private static DBDataObject createOutputData(final ExecutionContext exec, final DBDataPortObject inputData,
-        final UDFArguments arguments, final String predictionColName)
-        throws CanceledExecutionException, InvalidSettingsException, SQLException {
-        final DBSession session = inputData.getDBSession();
-        final DBSQLDialect dialect = session.getDialect();
-        final String predictionColumn = dialect.delimit(predictionColName);
-
-        final String resultSQL =
-            "SELECT *, " + arguments.getFunctionName() + "(" + arguments.getColumnNames() + ") AS " + predictionColumn
-                + " FROM (" + dialect.asTable(inputData.getData().getQuery() + ")", dialect.getTempTableName());
-
-        final DBTypeMappingService<?, ?> mappingService =
-            DBTypeMappingRegistry.getInstance().getDBTypeMappingService(session.getDBType());
-        final DBDataObject newData =
-            session.getAgent(DBMetadataReader.class).getDBDataObject(exec, new SQLQuery(resultSQL), inputData
-                .getExternalToKnimeTypeMapping().resolve(mappingService, DataTypeMappingDirection.EXTERNAL_TO_KNIME));
-        return newData;
-    }
+    /**
+     * Returns the specification of the output which will be created.
+     *
+     * @param spec input specification
+     * @param mojoSpec MOJO specification
+     * @param config configuration
+     * @return output specification
+     */
+    protected abstract DataTableSpec getSpec(DataTableSpec spec, H2OMojoPortObjectSpec mojoSpec,
+        H2OGeneralMojoPredictorConfig config);
 
     @Override
     protected void saveSettingsToInternal(final NodeSettingsWO settings) {
-
+        m_config.saveSettingsTo(settings);
     }
 
     @Override
     protected void validateSettingsInternal(final NodeSettingsRO settings) throws InvalidSettingsException {
-
+        m_config.validateSettings(settings);
     }
 
     @Override
     protected void loadValidatedSettingsFromInternal(final NodeSettingsRO settings) throws InvalidSettingsException {
-
+        m_config.loadValidatedSettingsFrom(settings);
     }
-
 }

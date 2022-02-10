@@ -43,47 +43,27 @@
  * ------------------------------------------------------------------------
  */
 
-package org.knime.snowflake.h2o.companion.udf;
+package org.knime.ext.h2o.database.node.scorer.autoencoding;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.knime.snowflake.h2o.companion.udf.util.PredictionResult;
-
-import hex.genmodel.easy.exception.PredictException;
+import org.knime.ext.h2o.database.node.scorer.DatabaseH2OMojoPredictorNodeFactory;
+import org.knime.ext.h2o.mojo.nodes.scorer.H2OGeneralMojoPredictorNodeDialog;
+import org.knime.ext.h2o.mojo.nodes.scorer.autoencoding.H2OMojoAutoEncoderPredictorNodeDialog;
 
 /**
- * Interface that all MOJO predictors need to implement.
+ * A node factory for the <em>Snowflake predictor node which applies an autoencoder</em>.
  *
- * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
- * @param <R>
- *            result type of the prediction
+ * @author Zkriya Rakhimberdiyev
  */
-public interface MojoPredictor<R> {
+public final class DatabaseH2OMojoAutoEncoderPredictorNodeFactory
+    extends DatabaseH2OMojoPredictorNodeFactory<DatabaseH2OMojoAutoEncoderPredictorNodeModel> {
 
-	/**
-	 * Initializes the class and caches the model information. So subsequent calls
-	 * don't do anything.
-	 *
-	 * @param mojoModelFile                       the MOJO model file to read
-	 * @param convertUnknownCategoricalLevelsToNa <code>true</code> if unknown
-	 *                                            category values should be
-	 *                                            converted to NaN
-	 * @param inputColumnNames                    input table column names
-	 * @throws IOException if a problem with the file occurs
-	 */
-	void init(File mojoModelFile, boolean convertUnknownCategoricalLevelsToNa, String... inputColumnNames)
-			throws IOException;
+    @Override
+    public DatabaseH2OMojoAutoEncoderPredictorNodeModel createNodeModel() {
+        return new DatabaseH2OMojoAutoEncoderPredictorNodeModel();
+    }
 
-	/**
-	 * Main method to predict unknown data rows.
-	 *
-	 * @param inputData
-	 *            Java objects e.g. String and Double values in the same order as they appeared during model training
-	 *
-	 * @return result of {@link PredictionResult}
-	 * @throws PredictException
-	 *             if anything went wrong
-	 */
-	PredictionResult<R> predict(final Object... inputData) throws PredictException;
+    @Override
+    protected H2OGeneralMojoPredictorNodeDialog getNodeDialog() {
+        return new H2OMojoAutoEncoderPredictorNodeDialog();
+    }
 }

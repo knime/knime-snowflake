@@ -43,47 +43,44 @@
  * ------------------------------------------------------------------------
  */
 
-package org.knime.snowflake.h2o.companion.udf;
+package org.knime.ext.h2o.database.node.scorer;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.knime.snowflake.h2o.companion.udf.util.PredictionResult;
-
-import hex.genmodel.easy.exception.PredictException;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.port.PortObjectSpec;
+import org.knime.ext.h2o.mojo.nodes.scorer.AbstractH2OMojoPredictorNodeDialog;
 
 /**
- * Interface that all MOJO predictors need to implement.
+ * A node dialog for the <em>Snowflake connector node</em>.
  *
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
- * @param <R>
- *            result type of the prediction
  */
-public interface MojoPredictor<R> {
+public class DatabaseH2OMojoPredictorNodeDialogDecorator extends NodeDialogPane {
 
-	/**
-	 * Initializes the class and caches the model information. So subsequent calls
-	 * don't do anything.
-	 *
-	 * @param mojoModelFile                       the MOJO model file to read
-	 * @param convertUnknownCategoricalLevelsToNa <code>true</code> if unknown
-	 *                                            category values should be
-	 *                                            converted to NaN
-	 * @param inputColumnNames                    input table column names
-	 * @throws IOException if a problem with the file occurs
-	 */
-	void init(File mojoModelFile, boolean convertUnknownCategoricalLevelsToNa, String... inputColumnNames)
-			throws IOException;
+    private final AbstractH2OMojoPredictorNodeDialog m_dialog;
 
-	/**
-	 * Main method to predict unknown data rows.
-	 *
-	 * @param inputData
-	 *            Java objects e.g. String and Double values in the same order as they appeared during model training
-	 *
-	 * @return result of {@link PredictionResult}
-	 * @throws PredictException
-	 *             if anything went wrong
-	 */
-	PredictionResult<R> predict(final Object... inputData) throws PredictException;
+    /**
+     * Constructs a node dialog.
+     *
+     * @param dialog the node dialog to decorate
+     */
+    public DatabaseH2OMojoPredictorNodeDialogDecorator(final AbstractH2OMojoPredictorNodeDialog dialog) {
+        m_dialog = dialog;
+
+        addTab("General Settings", m_dialog.getSettingsPanel());
+    }
+
+    @Override
+    public void saveSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
+        m_dialog.saveSettingsTo(settings);
+    }
+
+    @Override
+    public void loadSettingsFrom(final NodeSettingsRO settings, final PortObjectSpec[] specs)
+        throws NotConfigurableException {
+        m_dialog.loadSettingsFrom(settings, specs);
+    }
 }

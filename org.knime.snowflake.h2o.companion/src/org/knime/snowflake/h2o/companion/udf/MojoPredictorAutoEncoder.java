@@ -45,45 +45,70 @@
 
 package org.knime.snowflake.h2o.companion.udf;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import org.knime.snowflake.h2o.companion.udf.util.PredictionResult;
 
+import hex.genmodel.easy.RowData;
 import hex.genmodel.easy.exception.PredictException;
+import hex.genmodel.easy.prediction.AutoEncoderModelPrediction;
 
 /**
- * Interface that all MOJO predictors need to implement.
+ * {@link MojoPredictor} implementation for auto encoding.
  *
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
- * @param <R>
- *            result type of the prediction
  */
-public interface MojoPredictor<R> {
+public class MojoPredictorAutoEncoder extends AbstractMojoPreditor<Double> {
 
-	/**
-	 * Initializes the class and caches the model information. So subsequent calls
-	 * don't do anything.
-	 *
-	 * @param mojoModelFile                       the MOJO model file to read
-	 * @param convertUnknownCategoricalLevelsToNa <code>true</code> if unknown
-	 *                                            category values should be
-	 *                                            converted to NaN
-	 * @param inputColumnNames                    input table column names
-	 * @throws IOException if a problem with the file occurs
-	 */
-	void init(File mojoModelFile, boolean convertUnknownCategoricalLevelsToNa, String... inputColumnNames)
-			throws IOException;
+	@Override
+	public PredictionResult<Double> predictInternal(final RowData row) throws PredictException {
+		final AutoEncoderModelPrediction prediction = (AutoEncoderModelPrediction) getPredictor().predict(row);
+		final RowData reconstructedRowData = prediction.reconstructedRowData;
+		final double[] result = new double[getPredictionsSize()];
 
-	/**
-	 * Main method to predict unknown data rows.
-	 *
-	 * @param inputData
-	 *            Java objects e.g. String and Double values in the same order as they appeared during model training
-	 *
-	 * @return result of {@link PredictionResult}
-	 * @throws PredictException
-	 *             if anything went wrong
-	 */
-	PredictionResult<R> predict(final Object... inputData) throws PredictException;
+		final List<String[]> domainValuesCollection = new ArrayList<>();
+
+		for (final String colName : getNames()) {
+			final Object r = reconstructedRowData.get(colName);
+			if (r instanceof Double) {
+				domainValuesCollection.add(null);
+			}
+			// categorical fields will be represented as a map of the domain values to the reconstructed values
+			else if (r instanceof Map) {
+				domainValuesCollection.add(getDomainValues(colName));
+			} else {
+				throw new PredictException("Unexpected data type of reconstructed value: " + r.getClass().getName());
+			}
+		}
+
+		int i = 0;
+		int j = 0;
+		for (final String colName : getNames()) {
+			final Object r = reconstructedRowData.get(colName);
+			final String[] domainValues = domainValuesCollection.get(j++);
+			if (domainValues == null) {
+				result[i++] = (double) r;
+			}
+			// categorical fields will be represented as a map of the domain values to the reconstructed values
+			else {
+				@SuppressWarnings("unchecked") // its given by implementation that this cast will always work
+				final Map<String, Double> map = (Map<String, Double>) r;
+				for (final String domainValue : domainValues) {
+					final Object r2 = map.get(domainValue);
+					result[i++] = (double) r2;
+				}
+				// probability for a missing value is also contained in the map
+				final Object r2 = map.get(null);
+				result[i++] = (double) r2;
+			}
+		}
+
+		if (result.length > 1) {
+			return new PredictionResult<>(result[0], Arrays.copyOfRange(result, 1, result.length));
+		}
+		return new PredictionResult<>(result[0], null);
+	}
 }

@@ -43,47 +43,27 @@
  * ------------------------------------------------------------------------
  */
 
-package org.knime.snowflake.h2o.companion.udf;
+package org.knime.ext.h2o.database.node.scorer.clustering;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.knime.snowflake.h2o.companion.udf.util.PredictionResult;
-
-import hex.genmodel.easy.exception.PredictException;
+import org.knime.ext.h2o.database.node.scorer.DatabaseH2OMojoPredictorNodeFactory;
+import org.knime.ext.h2o.mojo.nodes.scorer.H2OGeneralMojoPredictorNodeDialog;
+import org.knime.ext.h2o.mojo.nodes.scorer.clustering.H2OMojoClusterAssignerNodeDialog;
 
 /**
- * Interface that all MOJO predictors need to implement.
+ * A node factory for the <em>Snowflake cluster assigner node</em>.
  *
- * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
- * @param <R>
- *            result type of the prediction
+ * @author Zkriya Rakhimberdiyev
  */
-public interface MojoPredictor<R> {
+public class DatabaseH2OMojoClusterAssignerNodeFactory
+    extends DatabaseH2OMojoPredictorNodeFactory<DatabaseH2OMojoClusterAssignerNodeModel> {
 
-	/**
-	 * Initializes the class and caches the model information. So subsequent calls
-	 * don't do anything.
-	 *
-	 * @param mojoModelFile                       the MOJO model file to read
-	 * @param convertUnknownCategoricalLevelsToNa <code>true</code> if unknown
-	 *                                            category values should be
-	 *                                            converted to NaN
-	 * @param inputColumnNames                    input table column names
-	 * @throws IOException if a problem with the file occurs
-	 */
-	void init(File mojoModelFile, boolean convertUnknownCategoricalLevelsToNa, String... inputColumnNames)
-			throws IOException;
+    @Override
+    public DatabaseH2OMojoClusterAssignerNodeModel createNodeModel() {
+        return new DatabaseH2OMojoClusterAssignerNodeModel();
+    }
 
-	/**
-	 * Main method to predict unknown data rows.
-	 *
-	 * @param inputData
-	 *            Java objects e.g. String and Double values in the same order as they appeared during model training
-	 *
-	 * @return result of {@link PredictionResult}
-	 * @throws PredictException
-	 *             if anything went wrong
-	 */
-	PredictionResult<R> predict(final Object... inputData) throws PredictException;
+    @Override
+    protected H2OGeneralMojoPredictorNodeDialog getNodeDialog() {
+        return new H2OMojoClusterAssignerNodeDialog();
+    }
 }

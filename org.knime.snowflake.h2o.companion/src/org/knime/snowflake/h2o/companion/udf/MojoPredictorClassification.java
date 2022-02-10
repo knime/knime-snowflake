@@ -1,6 +1,5 @@
 /*
  * ------------------------------------------------------------------------
- *
  *  Copyright by KNIME AG, Zurich, Switzerland
  *  Website: http://www.knime.com; Email: contact@knime.com
  *
@@ -45,6 +44,8 @@
  */
 package org.knime.snowflake.h2o.companion.udf;
 
+import org.knime.snowflake.h2o.companion.udf.util.PredictionResult;
+
 import hex.genmodel.easy.RowData;
 import hex.genmodel.easy.exception.PredictException;
 import hex.genmodel.easy.prediction.AbstractPrediction;
@@ -60,30 +61,26 @@ import hex.genmodel.easy.prediction.OrdinalModelPrediction;
 public class MojoPredictorClassification extends AbstractMojoPreditor<String> {
 
 	@Override
-	public String predictInternal(final RowData row) throws PredictException {
+	public PredictionResult<String> predictInternal(final RowData row) throws PredictException {
 
 		final AbstractPrediction prediction = getPredictor().predict(row);
-		final String result;
 		switch (getModelCategory()) {
+
 		case Binomial:
 			final BinomialModelPrediction binomialPrediction = (BinomialModelPrediction) prediction;
-			setClassProbabilities(binomialPrediction.classProbabilities);
-			result = binomialPrediction.label;
-			break;
+			return new PredictionResult<>(binomialPrediction.label, binomialPrediction.classProbabilities);
+
 		case Multinomial:
 			final MultinomialModelPrediction multinomialPrediction = (MultinomialModelPrediction) prediction;
-			setClassProbabilities(multinomialPrediction.classProbabilities);
-			result = multinomialPrediction.label;
-			break;
+			return new PredictionResult<>(multinomialPrediction.label, multinomialPrediction.classProbabilities);
+
 		case Ordinal:
 			final OrdinalModelPrediction ordinalPrediction = (OrdinalModelPrediction) prediction;
-			setClassProbabilities(ordinalPrediction.classProbabilities);
-			result = ordinalPrediction.label;
-			break;
+			return new PredictionResult<>(ordinalPrediction.label, ordinalPrediction.classProbabilities);
+
 		default:
 			throw new IllegalStateException("MOJOs of category '" + getModelCategory() + "' are not supported yet.");
 		}
-		return result;
 	}
 
 }

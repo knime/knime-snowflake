@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<knimeNode type="Predictor" icon="../snowflake_predictor.png"
+    xmlns="http://knime.org/node/v4.1"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://knime.org/node/v4.1 http://knime.org/node/v4.1.xsd">
+    <name>Snowflake H2O MOJO Predictor (Word Embedding)</name>
+
+    <shortDescription>
+        Applies a word embedding MOJO to an incoming Snowflake connection.
+    </shortDescription>
+
+    <fullDescription>
+        <intro>
+            This node applies a word embedding
+            <a href="https://github.com/h2oai/h2o-3/blob/master/h2o-docs/src/product/howto/MOJO_QuickStart.md">MOJO</a>
+            to an input column.
+            <br />
+            <br />
+            <i>Note: The input will not be stripped, so leading or trailing whitespaces should be removed before prediction if desired.</i>
+        </intro>
+
+        <tab name="Word Embedding Settings">
+            <option name="Input column">
+                The input column of type String. The content of the String cells will be treated as
+                one word to predict, no tokenization will be performed.
+            </option>
+            <option name="Change prediction column name">
+                Change the name of the prediction column.
+            </option>
+            <option
+                name="Fail if a word is not in the vocabulary">
+                If checked, the node will fail if any of the words in the input table is missing in the vocabulary of the MOJO.
+                Otherwise, a missing value will be the output.
+            </option>
+        </tab>
+
+    </fullDescription>
+
+    <ports>
+        <inPort index="0" name="MOJO (WordEmbedding)">
+            The MOJO. Its model category must be word embedding.
+        </inPort>
+        <inPort index="1" name="DB Data">
+            The DB Data object that should be used for prediction
+        </inPort>
+        <outPort index="0" name="Predicted DB Data">
+            The input DB Data object enhanced with the predicted vector.
+        </outPort>
+    </ports>
+</knimeNode>

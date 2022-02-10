@@ -45,24 +45,52 @@
 
 package org.knime.ext.h2o.database.node.scorer.classification;
 
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.node.InvalidSettingsException;
 import org.knime.ext.h2o.database.node.scorer.DatabaseH2OMojoPredictorNodeModel;
+import org.knime.ext.h2o.mojo.H2OMojoPortObjectSpec;
+import org.knime.ext.h2o.mojo.nodes.scorer.H2OGeneralMojoPredictorConfig;
+import org.knime.ext.h2o.mojo.nodes.scorer.H2OMojoPredictorUtils;
+import org.knime.ext.h2o.mojo.nodes.scorer.classification.H2OMojoClassificationPredictorConfig;
 import org.knime.snowflake.h2o.companion.udf.MojoPredictor;
 import org.knime.snowflake.h2o.companion.udf.MojoPredictorClassification;
 
 /**
- * A node model for the <em>Snowflake MOJO Predictor node</em>.
+ * A node model for the <em>Snowflake MOJO Classification node</em>.
  *
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
  */
 public class DatabaseH2OMojoClassificationPredictorNodeModel extends DatabaseH2OMojoPredictorNodeModel {
 
     @Override
-    protected Class<? extends MojoPredictor> getPredictorClass() {
-        return MojoPredictorClassification.class;
+    protected void validateInternal(final DataTableSpec tableSpec, final H2OGeneralMojoPredictorConfig config)
+            throws InvalidSettingsException {
+
+        final H2OMojoClassificationPredictorConfig classificationConfig =
+                (H2OMojoClassificationPredictorConfig) config;
+
+        if (classificationConfig.isChangePredColName()
+                && classificationConfig.getPredColName().trim().isEmpty()) {
+            throw new InvalidSettingsException("The column name for the prediction must not be empty!");
+        }
     }
 
     @Override
-    protected Class<?> getJavaReturnType() {
-        return String.class;
+    protected H2OMojoClassificationPredictorConfig createConfig() {
+        return new H2OMojoClassificationPredictorConfig();
+    }
+
+    @Override
+    protected DataTableSpec getSpec(final DataTableSpec spec, final H2OMojoPortObjectSpec mojoSpec,
+        final H2OGeneralMojoPredictorConfig config) {
+        final DataColumnSpec[] columnSpecs = H2OMojoPredictorUtils.getClassificationColumnSpecs2(spec,
+            mojoSpec, (H2OMojoClassificationPredictorConfig) config);
+        return new DataTableSpec(columnSpecs);
+    }
+
+    @Override
+    protected Class<? extends MojoPredictor<String>> getPredictorClass() {
+        return MojoPredictorClassification.class;
     }
 }

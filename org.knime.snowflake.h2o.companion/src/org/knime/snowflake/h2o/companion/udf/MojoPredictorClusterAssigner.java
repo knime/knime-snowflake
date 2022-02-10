@@ -45,45 +45,22 @@
 
 package org.knime.snowflake.h2o.companion.udf;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.knime.snowflake.h2o.companion.udf.util.PredictionResult;
 
+import hex.genmodel.easy.RowData;
 import hex.genmodel.easy.exception.PredictException;
+import hex.genmodel.easy.prediction.ClusteringModelPrediction;
 
 /**
- * Interface that all MOJO predictors need to implement.
+ * {@link MojoPredictor} implementation for predictor which assigns cluster.
  *
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
- * @param <R>
- *            result type of the prediction
  */
-public interface MojoPredictor<R> {
+public class MojoPredictorClusterAssigner extends AbstractMojoPreditor<Integer> {
 
-	/**
-	 * Initializes the class and caches the model information. So subsequent calls
-	 * don't do anything.
-	 *
-	 * @param mojoModelFile                       the MOJO model file to read
-	 * @param convertUnknownCategoricalLevelsToNa <code>true</code> if unknown
-	 *                                            category values should be
-	 *                                            converted to NaN
-	 * @param inputColumnNames                    input table column names
-	 * @throws IOException if a problem with the file occurs
-	 */
-	void init(File mojoModelFile, boolean convertUnknownCategoricalLevelsToNa, String... inputColumnNames)
-			throws IOException;
-
-	/**
-	 * Main method to predict unknown data rows.
-	 *
-	 * @param inputData
-	 *            Java objects e.g. String and Double values in the same order as they appeared during model training
-	 *
-	 * @return result of {@link PredictionResult}
-	 * @throws PredictException
-	 *             if anything went wrong
-	 */
-	PredictionResult<R> predict(final Object... inputData) throws PredictException;
+	@Override
+	public PredictionResult<Integer> predictInternal(final RowData row) throws PredictException {
+		final ClusteringModelPrediction prediction = (ClusteringModelPrediction) getPredictor().predict(row);
+		return new PredictionResult<>(prediction.cluster, null);
+	}
 }

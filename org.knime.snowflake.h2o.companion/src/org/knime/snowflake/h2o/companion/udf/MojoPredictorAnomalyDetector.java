@@ -43,38 +43,25 @@
  * ------------------------------------------------------------------------
  */
 
-package org.knime.ext.h2o.database.node.scorer;
+package org.knime.snowflake.h2o.companion.udf;
 
-import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeSettingsRO;
-import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.NotConfigurableException;
-import org.knime.core.node.port.PortObjectSpec;
+import org.knime.snowflake.h2o.companion.udf.util.PredictionResult;
+
+import hex.genmodel.easy.RowData;
+import hex.genmodel.easy.exception.PredictException;
+import hex.genmodel.easy.prediction.AnomalyDetectionPrediction;
 
 /**
- * A node dialog for the <em>Snowflake connector node</em>.
+ * {@link MojoPredictor} implementation for anomaly detection.
  *
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
  */
-public class DatabaseH2OMojoPredictorNodeDialog extends NodeDialogPane {
+public class MojoPredictorAnomalyDetector extends AbstractMojoPreditor<Double> {
 
-    /**
-     * Constructs a node dialog.
-     */
-    public DatabaseH2OMojoPredictorNodeDialog() {
+	@Override
+	public PredictionResult<Double> predictInternal(final RowData row) throws PredictException {
+		final AnomalyDetectionPrediction prediction = (AnomalyDetectionPrediction) getPredictor().predict(row);
 
-    }
-
-    @Override
-    protected void loadSettingsFrom(final NodeSettingsRO settings, final PortObjectSpec[] specs)
-        throws NotConfigurableException {
-
-    }
-
-    @Override
-    protected void saveSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
-        // TK_TODO Auto-generated method stub
-
-    }
+		return new PredictionResult<>(prediction.normalizedScore, new double[] { prediction.score });
+	}
 }

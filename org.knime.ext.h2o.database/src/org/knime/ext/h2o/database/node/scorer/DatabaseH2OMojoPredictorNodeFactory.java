@@ -42,48 +42,47 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ------------------------------------------------------------------------
  */
+package org.knime.ext.h2o.database.node.scorer;
 
-package org.knime.snowflake.h2o.companion.udf;
-
-import java.io.File;
-import java.io.IOException;
-
-import org.knime.snowflake.h2o.companion.udf.util.PredictionResult;
-
-import hex.genmodel.easy.exception.PredictException;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeFactory;
+import org.knime.core.node.NodeView;
+import org.knime.ext.h2o.mojo.nodes.scorer.H2OGeneralMojoPredictorNodeDialog;
 
 /**
- * Interface that all MOJO predictors need to implement.
+ * Abstract NodeModel implementation for all H2O MOJO database predictors.
  *
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
- * @param <R>
- *            result type of the prediction
+ * @param <M> the DatabaseH2OMojoPredictorNodeModel implementation
  */
-public interface MojoPredictor<R> {
+public abstract class DatabaseH2OMojoPredictorNodeFactory<M extends DatabaseH2OMojoPredictorNodeModel>
+    extends NodeFactory<M> {
 
-	/**
-	 * Initializes the class and caches the model information. So subsequent calls
-	 * don't do anything.
-	 *
-	 * @param mojoModelFile                       the MOJO model file to read
-	 * @param convertUnknownCategoricalLevelsToNa <code>true</code> if unknown
-	 *                                            category values should be
-	 *                                            converted to NaN
-	 * @param inputColumnNames                    input table column names
-	 * @throws IOException if a problem with the file occurs
-	 */
-	void init(File mojoModelFile, boolean convertUnknownCategoricalLevelsToNa, String... inputColumnNames)
-			throws IOException;
+    @Override
+    protected int getNrNodeViews() {
+        return 0;
+    }
 
-	/**
-	 * Main method to predict unknown data rows.
-	 *
-	 * @param inputData
-	 *            Java objects e.g. String and Double values in the same order as they appeared during model training
-	 *
-	 * @return result of {@link PredictionResult}
-	 * @throws PredictException
-	 *             if anything went wrong
-	 */
-	PredictionResult<R> predict(final Object... inputData) throws PredictException;
+    @Override
+    public NodeView<M> createNodeView(final int viewIndex, final M nodeModel) {
+        return null;
+    }
+
+    @Override
+    protected boolean hasDialog() {
+        return true;
+    }
+
+    @Override
+    protected NodeDialogPane createNodeDialogPane() {
+        return new DatabaseH2OMojoPredictorNodeDialogDecorator(getNodeDialog());
+    }
+
+    /**
+     * Returns the node dialog to use.
+     *
+     * @return the node dialog to use
+     */
+    protected abstract H2OGeneralMojoPredictorNodeDialog getNodeDialog();
+
 }

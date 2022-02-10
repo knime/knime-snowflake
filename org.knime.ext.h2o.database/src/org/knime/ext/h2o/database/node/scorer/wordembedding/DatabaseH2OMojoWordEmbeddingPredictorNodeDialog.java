@@ -43,47 +43,45 @@
  * ------------------------------------------------------------------------
  */
 
-package org.knime.snowflake.h2o.companion.udf;
+package org.knime.ext.h2o.database.node.scorer.wordembedding;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.knime.snowflake.h2o.companion.udf.util.PredictionResult;
-
-import hex.genmodel.easy.exception.PredictException;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.port.PortObjectSpec;
+import org.knime.database.node.util.DBNodeDialogHelper;
+import org.knime.database.port.DBDataPortObjectSpec;
+import org.knime.ext.h2o.mojo.nodes.scorer.wordembedding.H2OMojoWordEmbeddingPredictorNodeDialog;
 
 /**
- * Interface that all MOJO predictors need to implement.
+ * The node dialog of the Snowflake MOJO Predictor node which predicts a word vector.
  *
- * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
- * @param <R>
- *            result type of the prediction
+ * @author Zkriya Rakhimberdiyev
  */
-public interface MojoPredictor<R> {
+public class DatabaseH2OMojoWordEmbeddingPredictorNodeDialog extends H2OMojoWordEmbeddingPredictorNodeDialog {
 
-	/**
-	 * Initializes the class and caches the model information. So subsequent calls
-	 * don't do anything.
-	 *
-	 * @param mojoModelFile                       the MOJO model file to read
-	 * @param convertUnknownCategoricalLevelsToNa <code>true</code> if unknown
-	 *                                            category values should be
-	 *                                            converted to NaN
-	 * @param inputColumnNames                    input table column names
-	 * @throws IOException if a problem with the file occurs
-	 */
-	void init(File mojoModelFile, boolean convertUnknownCategoricalLevelsToNa, String... inputColumnNames)
-			throws IOException;
+    @Override
+    public void saveSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
+        m_enforePresenceOfAllWords.saveSettingsTo(settings);
+        m_dialogCompInputColSelect.saveSettingsTo(settings);
+        m_dialogCompChangeColName.saveSettingsTo(settings);
+        m_dialogCompPredColName.saveSettingsTo(settings);
+    }
 
-	/**
-	 * Main method to predict unknown data rows.
-	 *
-	 * @param inputData
-	 *            Java objects e.g. String and Double values in the same order as they appeared during model training
-	 *
-	 * @return result of {@link PredictionResult}
-	 * @throws PredictException
-	 *             if anything went wrong
-	 */
-	PredictionResult<R> predict(final Object... inputData) throws PredictException;
+    @Override
+    public void loadSettingsFrom(final NodeSettingsRO settings, final PortObjectSpec[] specs)
+        throws NotConfigurableException {
+
+        final DBDataPortObjectSpec dbPortSpec = DBNodeDialogHelper.asDBDataPortObjectSpec(specs[1],
+            true, false);
+        final DataTableSpec tableSpec = dbPortSpec.getDataTableSpec();
+        final PortObjectSpec[] specs2 = new PortObjectSpec[]{specs[0], tableSpec};
+
+        m_enforePresenceOfAllWords.loadSettingsFrom(settings, specs2);
+        m_dialogCompInputColSelect.loadSettingsFrom(settings, specs2);
+        m_dialogCompChangeColName.loadSettingsFrom(settings, specs2);
+        m_dialogCompPredColName.loadSettingsFrom(settings, specs2);
+    }
 }

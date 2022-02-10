@@ -1,28 +1,30 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <knimeNode type="Predictor" icon="../snowflake_predictor.png"
     xmlns="http://knime.org/node/v4.1"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://knime.org/node/v4.1 http://knime.org/node/v4.1.xsd">
-    <name>Snowflake H2O MOJO Predictor (Regression)</name>
+    <name>Snowflake H2O MOJO Predictor (Dimension Reduction)</name>
 
-    <shortDescription>Predicts incoming Snowflake connection by regression using a MOJO.</shortDescription>
+    <shortDescription>
+        Applies a dimension reduction MOJO to an incoming Snowflake connection.
+    </shortDescription>
 
     <fullDescription>
         <intro>
-            This node applies a regression
+            This node applies a dimension reduction
             <a href="https://github.com/h2oai/h2o-3/blob/master/h2o-docs/src/product/howto/MOJO_QuickStart.md">MOJO</a>
             to an incoming Snowflake connection.
         </intro>
+
         <tab name="General Settings">
             <option
                 name="Enforce presence of all feature columns">
-                If checked, the node will fail if any of the feature columns used for
-                learning the MOJO is missing. Otherwise, a warning will be displayed and 
-                the missing columns are treated as <i>NA</i> by the MOJO predictor.
+                If checked, the node will fail if any of the feature columns used for learning the MOJO is missing. Otherwise, a
+                warning will be displayed and the missing columns are treated as <i>NA</i> by the MOJO predictor.
             </option>
             <option name="Fail if a prediction exception occurs">
-                If checked, the node will fail if the prediction of a row fails. 
-                Otherwise, a missing value will be the output.
+                If checked, the node will fail if the prediction of a row fails. Otherwise, a missing value
+                will be the output.
             </option>
             <option
                 name="Treat unknown categorical values as missing values">
@@ -32,22 +34,23 @@
                 missing values will be in the output depending on the setting "Fail if a prediction exception occurs".
             </option>
         </tab>
-        <tab name="Regression Settings">
-            <option name="Change prediction column name">
-                Change the name of the prediction column.
+        <tab name="Dimension Reduction Settings">
+            <option name="Dimension columns prefix">
+                The prefix allows you to avoid duplicate column names. Can be empty.
             </option>
         </tab>
+
     </fullDescription>
 
     <ports>
-        <inPort index="0" name="MOJO (Regression)">
-            The MOJO. Its model category must be regression.
+        <inPort index="0" name="MOJO (DimReduction)">
+            The MOJO. Its model category must be dimension reduction.
         </inPort>
         <inPort index="1" name="DB Data">
             The DB Data object that should be used for prediction
         </inPort>
         <outPort index="0" name="Predicted DB Data">
-            The input DB Data object enhanced with the prediction results.
+            The input DB Data object containing the reduced input row.
         </outPort>
     </ports>
 </knimeNode>

@@ -45,22 +45,22 @@
  */
 package org.knime.snowflake.h2o.companion.udf;
 
+import org.knime.snowflake.h2o.companion.udf.util.PredictionResult;
+
 import hex.genmodel.easy.RowData;
 import hex.genmodel.easy.exception.PredictException;
 import hex.genmodel.easy.prediction.RegressionModelPrediction;
 
 /**
- * {@link MojoPredictor} implementation for classification prediction.
+ * {@link MojoPredictor} implementation for regression prediction.
  *
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
  */
 public class MojoPredictorRegression extends AbstractMojoPreditor<Double> {
 
-	@SuppressWarnings("boxing")
 	@Override
-	public Double predictInternal(final RowData row) throws PredictException {
+	public PredictionResult<Double> predictInternal(final RowData row) throws PredictException {
 		final RegressionModelPrediction prediction = (RegressionModelPrediction) getPredictor().predict(row);
-		return prediction.value;
+		return new PredictionResult<>(prediction.value, null);
 	}
-
 }
