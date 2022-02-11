@@ -44,9 +44,19 @@
  */
 package org.knime.database.extension.snowflake.agent;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.parquet.hadoop.metadata.CompressionCodecName;
+import org.knime.base.node.io.csvwriter.FileWriterSettings;
 import org.knime.core.node.util.ButtonGroupEnumInterface;
+import org.knime.database.extension.snowflake.node.io.load.writer.ConnectedSnowflakeLoaderNodeSettings;
+import org.knime.database.extension.snowflake.node.io.load.writer.SnowflakeCsvWriter;
+import org.knime.database.extension.snowflake.node.io.load.writer.SnowflakeParquetWriter;
+import org.knime.database.node.io.load.impl.fs.util.DBFileWriter;
 
 /**
  * The intermediate file formats supported by the Snowflake data loader node.
@@ -55,8 +65,10 @@ import org.knime.core.node.util.ButtonGroupEnumInterface;
  */
 /**
  * The supported file formats.
+ *
  * @author Tobias
  */
+@SuppressWarnings("deprecation")
 public enum SnowflakeLoaderFileFormat implements ButtonGroupEnumInterface {
         /** CSV file format. */
         CSV("CSV", "Comma-separated values", ".csv") {
@@ -67,6 +79,14 @@ public enum SnowflakeLoaderFileFormat implements ButtonGroupEnumInterface {
         },
         /** Apache Parquet file format. */
         PARQUET("Parquet", "Apache Parquet", ".parquet");
+
+    private static final String SNAPPY_COMPRESSION = CompressionCodecName.SNAPPY.name();
+
+    /** GZIP compression flag which is available for all file formats. */
+    public static final String GZIP_COMPRESSION = CompressionCodecName.GZIP.name();
+
+    /** No compression flag which is available for all file formats. */
+    public static final String NONE_COMPRESSION = "NONE";
 
     /**
      * Gets the {@link SnowflakeLoaderFileFormat} constant with the specified name.
@@ -108,6 +128,7 @@ public enum SnowflakeLoaderFileFormat implements ButtonGroupEnumInterface {
 
     /**
      * Constructor.
+     *
      * @param text text
      * @param toolTip tool tip
      * @param fileExtension file extension
@@ -125,6 +146,126 @@ public enum SnowflakeLoaderFileFormat implements ButtonGroupEnumInterface {
      */
     public String getFileExtension() {
         return m_fileExtension;
+    }
+
+    /**
+     * Returns the {@link DBFileWriter} to use.
+     *
+     * @return the {@link DBFileWriter} to use
+     */
+    public DBFileWriter<ConnectedSnowflakeLoaderNodeSettings, SnowflakeLoaderSettings> getWriter() {
+        switch (this) {
+            case CSV:
+                return new SnowflakeCsvWriter();
+            case PARQUET:
+                return new SnowflakeParquetWriter();
+            default:
+                throw new IllegalStateException("Unsupported file format: " + this.name());
+        }
+    }
+
+    /**
+     * Returns the list of supported compression formats.
+     *
+     * @return the list of supported compression formats
+     */
+
+    public List<String> getCompressionFormats() {
+        final List<String> compressionFormats = new LinkedList<>();
+        compressionFormats.add(NONE_COMPRESSION);
+        switch (this) {
+            case CSV:
+                compressionFormats.add(GZIP_COMPRESSION);
+                break;
+            case PARQUET:
+                compressionFormats.add(GZIP_COMPRESSION);
+                compressionFormats.add(SNAPPY_COMPRESSION);
+                break;
+            default:
+                throw new IllegalStateException("Unsupported file format: " + this.name());
+        }
+        return compressionFormats;
+
+    }
+
+    /**
+     * Returns the chunk size tool tip.
+     *
+     * @return the chunk size tool tip per format
+     */
+    public String getChunkSizeToolTipText() {
+        switch (this) {
+            case CSV:
+                return "Not supported";
+            case PARQUET:
+                return "Within file Row Group size (MB)";
+            default:
+                throw new IllegalStateException("Unsupported file format: " + this.name());
+        }
+    }
+
+    /**
+     * Returns the file size per format.
+     *
+     * @return the file size tool tip per format
+     */
+    public String getFileSizeToolTipText() {
+        switch (this) {
+            case CSV:
+                return "Not supported";
+            case PARQUET:
+                return "Split data into files of size (MB)";
+            default:
+                throw new IllegalStateException("Unsupported file format: " + this.name());
+        }
+    }
+
+    /**
+     * Returns the default compression format.
+     *
+     * @return the default compression format
+     */
+    public String getDefaultCompressionFormat() {
+        switch (this) {
+            case CSV:
+                return GZIP_COMPRESSION;
+            case PARQUET:
+                return SNAPPY_COMPRESSION;
+            default:
+                throw new IllegalStateException("Unsupported file format: " + this.name());
+        }
+    }
+
+    /**
+     * Returns the default chunk size.
+     *
+     * @return the default chunk size per format
+     */
+    public int getDefaultChunkSize() {
+        switch (this) {
+            case CSV:
+                return 1024;
+            case PARQUET:
+                return 128;
+            default:
+                throw new IllegalStateException("Unsupported file format: " + this.name());
+        }
+    }
+
+    /**
+     * Returns the default file size.
+     *
+     * @return the default file size per format
+     */
+    public long getDefaultFileSize() {
+        switch (this) {
+            case CSV:
+                return 1024;
+            case PARQUET:
+                return 1024;
+            default:
+                throw new IllegalStateException("Unsupported file format: " + this.name());
+        }
     }
 
     @Override
@@ -145,6 +286,63 @@ public enum SnowflakeLoaderFileFormat implements ButtonGroupEnumInterface {
     @Override
     public boolean isDefault() {
         return false;
+    }
+
+    /**
+     * Returns the put parameter part put command.
+     *
+     * @param settings {@link SnowflakeLoaderSettings} parameter
+     * @return the put parameter
+     */
+    String getPutParameter(final SnowflakeLoaderSettings settings) {
+        //https://docs.snowflake.com/en/sql-reference/sql/put.html
+        if (GZIP_COMPRESSION.equals(settings.getCompression())) {
+            return " SOURCE_COMPRESSION=GZIP AUTO_COMPRESS=FALSE";
+        }
+        return " AUTO_COMPRESS=FALSE";
+    }
+
+    /**
+     * Returns the file format dependent part of the copy file command.
+     *
+     * @param settings the user settings
+     * @return the file format part of the load command
+     */
+    String getCopyParameter(final SnowflakeLoaderSettings settings) {
+        //https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#optional-parameters
+        switch (this) {
+            case CSV:
+
+                final FileWriterSettings s = settings.getFileWriterSettings()
+                    .orElseThrow(() -> new IllegalArgumentException("Missing file writer settings."));
+                final String lineSeparator =
+                    StringEscapeUtils.escapeJava(s.getLineEndingMode() == FileWriterSettings.LineEnding.SYST
+                        ? System.getProperty("line.separator") : s.getLineEndingMode().getEndString());
+                final String compression;
+                if (GZIP_COMPRESSION.equals(settings.getCompression())) {
+                    compression = " COMPRESSION = GZIP";
+                } else {
+                    compression = "";
+                }
+                return "\nFILE_FORMAT=(TYPE='CSV'" //enforced line break
+                    + compression //enforced line break
+                    + "\n RECORD_DELIMITER = '" + lineSeparator + "'" + "\n FIELD_DELIMITER = '" + s.getColSeparator()
+                    + "'" //enforced line break
+                    + "\n SKIP_HEADER = " + (s.writeColumnHeader() ? 1 : 0) //enforced line break
+                    + "\n ESCAPE = "
+                    + (StringUtils.isEmpty(s.getQuoteReplacement()) ? "NONE" : "'" + s.getQuoteReplacement() + "'")
+                    + "\n FIELD_OPTIONALLY_ENCLOSED_BY  = '" + s.getQuoteBegin() + "'" //enforced line break
+                    + "\n NULL_IF = '" + s.getMissValuePattern() + "'" //enforced line break
+                    + "\n EMPTY_FIELD_AS_NULL  = FALSE" //enforced line break
+                    + "\n ENCODING   = '" + s.getCharacterEncoding() + "'" //enforced line break
+                    + "\n)";
+            case PARQUET:
+
+                //https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#copy-options-copyoptions
+                return "\nFILE_FORMAT=(TYPE='PARQUET') \nMATCH_BY_COLUMN_NAME=CASE_SENSITIVE";
+            default:
+                throw new IllegalArgumentException("Unsupported file format: " + this);
+        }
     }
 
 }

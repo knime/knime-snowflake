@@ -42,122 +42,96 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ------------------------------------------------------------------------
  */
-package org.knime.database.extension.snowflake.agent;
+package org.knime.database.extension.snowflake.node.io.load.writer;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.Optional;
-
-import org.knime.base.node.io.csvwriter.FileWriterSettings;
+import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
+import org.knime.core.node.defaultnodesettings.SettingsModelLong;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.database.extension.snowflake.node.io.load.SnowflakeLoaderNodeSettings;
+import org.knime.database.node.component.dbrowser.SettingsModelDBMetadata;
+import org.knime.database.node.component.format.file.SettingsModelCsvFileFormat;
+import org.knime.database.node.io.load.impl.fs.ConnectedCsvLoaderNodeSettings2;
 
 /**
- * Additional settings for {@link SnowflakeDBLoader}.
- *
+ * Converts a {@link SnowflakeLoaderNodeSettings} model into a {@link ConnectedCsvLoaderNodeSettings2} model.
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
  */
-@SuppressWarnings("deprecation")
-public class SnowflakeLoaderSettings {
+public class ConnectedSnowflakeLoaderNodeSettings extends ConnectedCsvLoaderNodeSettings2 {
 
-    private final SnowflakeLoaderFileFormat m_fileFormat;
+    private SnowflakeLoaderNodeSettings m_s;
 
-    private final Optional<FileWriterSettings> m_fileWriterSettings;
-
-    private final SnowflakeLoaderStageType m_stageType;
-
-    private final String m_stageName;
-
-    private final String m_compression;
-
-    private final int m_chunkSize;
-
-    private final long m_fileSize;
 
     /**
-     * Constructs a {@link SnowflakeLoaderSettings} object.
+     * Constructor.
      *
-     * @param fileFormat the selected intermediate file format.
-     * @param fileWriterSettings the optional file writer settings.
-     * @param stageType the {@link SnowflakeLoaderStageType}
-     * @param stageName the optional stage name
-     * @param compression compression method
-     * @param chunkSize within file chunk size
-     * @param fileSize file size
+     * @param s {@link SnowflakeLoaderNodeSettings} to use
      */
-    public SnowflakeLoaderSettings(final SnowflakeLoaderFileFormat fileFormat,
-        final FileWriterSettings fileWriterSettings, final SnowflakeLoaderStageType stageType,
-        final String stageName, final String compression,
-        final int chunkSize, final long fileSize) {
-        m_fileFormat = requireNonNull(fileFormat, "fileFormat");
-        m_fileWriterSettings = Optional.ofNullable(fileWriterSettings);
-        m_stageType = stageType;
-        m_stageName = stageName;
-        m_compression = compression;
-        m_chunkSize = chunkSize;
-        m_fileSize = fileSize;
+    public ConnectedSnowflakeLoaderNodeSettings(final SnowflakeLoaderNodeSettings s) {
+        super(s.getModelDelegate());
+        m_s = s;
+    }
+
+    @Override
+    public SettingsModelCsvFileFormat getFileFormatModel() {
+        return m_s.getFileFormatModel();
+    }
+
+    @Override
+    public SettingsModelDBMetadata getTableNameModel() {
+        return m_s.getTableNameModel();
     }
 
     /**
-     * Gets the selected intermediate file format.
+     * Gets the file format selection settings model.
      *
-     * @return a {@link SnowflakeLoaderFileFormat} constant.
+     * @return a {@link SettingsModelString} object.
      */
-    public SnowflakeLoaderFileFormat getFileFormat() {
-        return m_fileFormat;
+    public SettingsModelString getFileFormatSelectionModel() {
+        return m_s.getFileFormatSelectionModel();
     }
 
     /**
-     * Gets the optional file writer settings.
+     * Gets the stage type selection settings model.
      *
-     * @return {@linkplain Optional optionally} the {@link FileWriterSettings} object or {@linkplain Optional#empty()
-     *         empty}.
+     * @return a {@link SettingsModelString} object.
      */
-    public Optional<FileWriterSettings> getFileWriterSettings() {
-        return m_fileWriterSettings;
+    public SettingsModelString getStageTypeSelectionModel() {
+        return m_s.getStageTypeSelectionModel();
     }
 
     /**
-     * Gets the stage type.
+     * Gets the stage name settings model.
      *
-     * @return the SnowflakeLoaderStageType
+     * @return a {@link SettingsModelString} object.
      */
-    public SnowflakeLoaderStageType getStageType() {
-        return m_stageType;
+    public SettingsModelString getStageNameModel() {
+        return m_s.getStageNameModel();
     }
 
     /**
-     * Gets the optional stage name.
-     *
-     * @return the stage name
-     */
-    public String getStageName() {
-        return m_stageName;
-    }
-
-    /**
-     * Gets the compression format.
+     * Returns the compression model.
      *
      * @return the compression
      */
-    public String getCompression() {
-        return m_compression;
+    public SettingsModelString getCompressionModel() {
+        return m_s.getCompressionModel();
     }
 
     /**
-     * Gets the chunk size.
+     * Returns the chunk size model.
      *
      * @return the chunkSize
      */
-    public int getChunkSize() {
-        return m_chunkSize;
+    public SettingsModelInteger getChunkSizeModel() {
+        return m_s.getChunkSizeModel();
     }
 
     /**
-     * Gets the file size.
+     * Returns the file size model.
      *
      * @return the fileSize
      */
-    public long getFileSize() {
-        return m_fileSize;
+    public SettingsModelLong getFileSizeModel() {
+        return m_s.getFileSizeModel();
     }
-
 }
