@@ -4,8 +4,10 @@
     <suppress checks=".*" files=".+\.(?:png|svg)$"/>
 
 	<suppress checks="NewlineAtEndOfFile" files=".*flattened-pom.xml$"/>
+	<suppress checks="MagicNumber" files="src[\\/]org[\\/]knime[\\/]database[\\/]extension[\\/]snowflake[\\/]agent[\\/]SnowflakeLoaderFileFormat\.java$"/>
 	<suppress checks="MagicNumber" files="src[\\/]org[\\/]knime[\\/]database[\\/]extension[\\/]snowflake[\\/]node[\\/]io[\\/]load[\\/]SnowflakeLoaderNode\.java$"/>
+	<suppress checks="MagicNumber" files="src[\\/]org[\\/]knime[\\/]database[\\/]extension[\\/]snowflake[\\/]node[\\/]io[\\/]load[\\/]SnowflakeLoaderNodeComponents\.java$"/>
+	<suppress checks="MagicNumber" files="src[\\/]org[\\/]knime[\\/]database[\\/]extension[\\/]snowflake[\\/]node[\\/]io[\\/]load[\\/]SnowflakeLoaderNodeSettings\.java$"/>
 	<suppress checks="MagicNumber" files="src[\\/]org[\\/]knime[\\/]database[\\/]extension[\\/]snowflake[\\/]node[\\/]connector[\\/]SnowflakeDBConnectorNodeDialog\.java$"/>
-
 
 </suppressions>

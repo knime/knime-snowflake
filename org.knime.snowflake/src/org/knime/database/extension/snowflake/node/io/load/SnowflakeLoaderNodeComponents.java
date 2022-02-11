@@ -44,7 +44,10 @@
  */
 package org.knime.database.extension.snowflake.node.io.load;
 
+import static org.knime.database.extension.snowflake.node.io.load.SnowflakeLoaderNodeSettings.createChunkSizeModel;
+import static org.knime.database.extension.snowflake.node.io.load.SnowflakeLoaderNodeSettings.createCompressionModel;
 import static org.knime.database.extension.snowflake.node.io.load.SnowflakeLoaderNodeSettings.createFileFormatSelectionModel;
+import static org.knime.database.extension.snowflake.node.io.load.SnowflakeLoaderNodeSettings.createFileSizeModel;
 import static org.knime.database.extension.snowflake.node.io.load.SnowflakeLoaderNodeSettings.createStageNameModel;
 import static org.knime.database.extension.snowflake.node.io.load.SnowflakeLoaderNodeSettings.createStageTypeSelectionModel;
 
@@ -52,7 +55,11 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import org.knime.core.node.defaultnodesettings.DialogComponentButtonGroup;
+import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
+import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
+import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
+import org.knime.core.node.defaultnodesettings.SettingsModelLong;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.database.extension.snowflake.agent.SnowflakeLoaderFileFormat;
 import org.knime.database.extension.snowflake.agent.SnowflakeLoaderStageType;
@@ -75,6 +82,15 @@ public class SnowflakeLoaderNodeComponents extends UnconnectedCsvLoaderNodeCompo
     private final DialogComponentString m_stageNameComponent;
     private final SettingsModelString m_stageNameModel;
 
+    private final DialogComponentStringSelection m_compressionComponent;
+    private final SettingsModelString m_compressionModel;
+
+    private final DialogComponentNumber m_chunkSizeComponent;
+    private final SettingsModelInteger m_chunkSizeModel;
+
+    private final DialogComponentNumber m_fileSizeComponent;
+    private final SettingsModelLong m_fileSizeModel;
+
     /**
      * Constructs a {@link SnowflakeLoaderNodeComponents} object.
      *
@@ -84,10 +100,21 @@ public class SnowflakeLoaderNodeComponents extends UnconnectedCsvLoaderNodeCompo
         super(dialogDelegate);
         m_fileFormatSelectionModel = createFileFormatSelectionModel();
         m_fileFormatSelectionComponent = createFileFormatSelectionComponent(m_fileFormatSelectionModel);
+
         m_stageTypeSelectionModel = createStageTypeSelectionModel();
         m_stageTypeSelectionComponent = createStageTypeSelectionComponent(m_stageTypeSelectionModel);
+
         m_stageNameModel = createStageNameModel();
         m_stageNameComponent = createStageNameComponent(m_stageNameModel);
+
+        m_compressionModel = createCompressionModel();
+        m_compressionComponent = createCompressionComponent(m_compressionModel);
+
+        m_chunkSizeModel = createChunkSizeModel();
+        m_chunkSizeComponent = createChunkSizeComponent(m_chunkSizeModel);
+
+        m_fileSizeModel = createFileSizeModel();
+        m_fileSizeComponent = createFileSizeComponent(m_fileSizeModel);
     }
 
     /**
@@ -101,10 +128,21 @@ public class SnowflakeLoaderNodeComponents extends UnconnectedCsvLoaderNodeCompo
         super(dialogDelegate, charsets);
         m_fileFormatSelectionModel = createFileFormatSelectionModel();
         m_fileFormatSelectionComponent = createFileFormatSelectionComponent(m_fileFormatSelectionModel);
+
         m_stageTypeSelectionModel = createStageTypeSelectionModel();
         m_stageTypeSelectionComponent = createStageTypeSelectionComponent(m_stageTypeSelectionModel);
+
         m_stageNameModel = createStageNameModel();
         m_stageNameComponent = createStageNameComponent(m_stageNameModel);
+
+        m_compressionModel = createCompressionModel();
+        m_compressionComponent = createCompressionComponent(m_compressionModel);
+
+        m_chunkSizeModel = createChunkSizeModel();
+        m_chunkSizeComponent = createChunkSizeComponent(m_chunkSizeModel);
+
+        m_fileSizeModel = createFileSizeModel();
+        m_fileSizeComponent = createFileSizeComponent(m_fileSizeModel);
     }
 
     /**
@@ -177,6 +215,19 @@ public class SnowflakeLoaderNodeComponents extends UnconnectedCsvLoaderNodeCompo
         return new DialogComponentString(stageNameModel, "Internal stage name: ");
     }
 
+    private static DialogComponentStringSelection
+        createCompressionComponent(final SettingsModelString compressionModel) {
+        return new DialogComponentStringSelection(compressionModel, "Compression method: ", "<NONE>");
+    }
+
+    private static DialogComponentNumber createChunkSizeComponent(final SettingsModelInteger chunkSizeModel) {
+        return new DialogComponentNumber(chunkSizeModel, "Within file chunk size: ", 1024, 10);
+    }
+
+    private static DialogComponentNumber createFileSizeComponent(final SettingsModelLong fileSizeModel) {
+        return new DialogComponentNumber(fileSizeModel, "File size: ", 1024, 15);
+    }
+
     /**
      * Gets the stage name component.
      *
@@ -195,4 +246,57 @@ public class SnowflakeLoaderNodeComponents extends UnconnectedCsvLoaderNodeCompo
         return m_stageNameModel;
     }
 
+    /**
+     * Returns the compression component.
+     *
+     * @return the compressionComponent
+     */
+    public DialogComponentStringSelection getCompressionComponent() {
+        return m_compressionComponent;
+    }
+
+    /**
+     * Returns the compression model.
+     *
+     * @return the compressionModel
+     */
+    public SettingsModelString getCompressionModel() {
+        return m_compressionModel;
+    }
+
+    /**
+     * Returns the chunk size component.
+     *
+     * @return the chunkSizeComponent
+     */
+    public DialogComponentNumber getChunkSizeComponent() {
+        return m_chunkSizeComponent;
+    }
+
+    /**
+     * Returns the chunk isze model.
+     *
+     * @return the chunkSizeModel
+     */
+    public SettingsModelInteger getChunkSizeModel() {
+        return m_chunkSizeModel;
+    }
+
+    /**
+     * Returns the file size component.
+     *
+     * @return the fileSizeComponent
+     */
+    public DialogComponentNumber getFileSizeComponent() {
+        return m_fileSizeComponent;
+    }
+
+    /**
+     * Returns the file size model.
+     *
+     * @return the fileSizeModel
+     */
+    public SettingsModelLong getFileSizeModel() {
+        return m_fileSizeModel;
+    }
 }

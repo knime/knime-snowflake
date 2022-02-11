@@ -44,16 +44,22 @@
  */
 package org.knime.database.extension.snowflake.agent;
 
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
+import static org.apache.commons.io.FileUtils.sizeOf;
 
+import java.net.URISyntaxException;
+import java.nio.file.LinkOption;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.LinkedList;
+import java.util.List;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.URIUtil;
-import org.knime.base.node.io.csvwriter.FileWriterSettings;
+import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
@@ -66,6 +72,7 @@ import org.knime.database.session.DBSessionReference;
 import org.knime.filehandling.core.connections.DefaultFSConnectionFactory;
 import org.knime.filehandling.core.connections.FSConnection;
 import org.knime.filehandling.core.connections.FSFileSystem;
+import org.knime.filehandling.core.connections.FSFiles;
 import org.knime.filehandling.core.connections.FSPath;
 import org.knime.filehandling.core.connections.uriexport.URIExporter;
 import org.knime.filehandling.core.connections.uriexport.URIExporterIDs;
@@ -97,12 +104,92 @@ public class SnowflakeDBLoader implements DBLoader {
         final DBLoadTableFromFileParameters<SnowflakeLoaderSettings> loadParameters =
             (DBLoadTableFromFileParameters<SnowflakeLoaderSettings>)parameters;
         final String filePath = loadParameters.getFilePath();
+        try (FSConnection fsConnection = DefaultFSConnectionFactory.createLocalFSConnection();
+                FSFileSystem<?> fs = fsConnection.getFileSystem();) {
+            final FSPath tempFile = fs.getPath(filePath);
+            final List<FSPath> files;
+            if (FSFiles.isDirectory(tempFile, LinkOption.NOFOLLOW_LINKS)) {
+                files = FSFiles.getFilePathsFromFolder(tempFile);
+            } else {
+                files = List.of(tempFile);
+            }
+            copyAndLoadFile(exec, loadParameters, fsConnection, files);
+        }
+    }
+
+    private void copyAndLoadFile(final ExecutionMonitor exec,
+        final DBLoadTableFromFileParameters<SnowflakeLoaderSettings> loadParameters, final FSConnection fsConnection,
+        final List<FSPath> tempFiles)
+        throws URISyntaxException, CanceledExecutionException, SQLException, InvalidSettingsException {
         final DBTable table = loadParameters.getTable();
         final SnowflakeLoaderSettings additionalSettings = loadParameters.getAdditionalSettings()
             .orElseThrow(() -> new IllegalArgumentException("Missing additional settings."));
         final DBSession session = m_sessionReference.get();
         final DBSQLDialect dialect = session.getDialect();
 
+        exec.setMessage("Loading data files into Snowflake...");
+        final String stageName = getStageName(additionalSettings, table, dialect);
+        final SnowflakeLoaderFileFormat fileFormat = additionalSettings.getFileFormat();
+        //https://docs.snowflake.com/en/sql-reference/sql/put.html
+        final String putParameter = fileFormat.getPutParameter(additionalSettings);
+        //https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#optional-parameters
+        final String copyParameter = fileFormat.getCopyParameter(additionalSettings);
+        final List<String> stagedFileNames = new LinkedList<>();
+        try (Connection connection = session.getConnectionProvider().getConnection(exec);
+                Statement statement = connection.createStatement()) {
+            final ExecutionMonitor subexec = exec.createSubProgress(0.4);
+            int i = 1;
+            final int fileCount = tempFiles.size();
+            for (FSPath tempFile : tempFiles) {
+                stagedFileNames.add(tempFile.getFileName().toString());
+                final URIExporter exporter =
+                    ((NoConfigURIExporterFactory)fsConnection.getURIExporterFactory(URIExporterIDs.KNIME_FILE))
+                        .getExporter();
+                final String fileURI = URIUtil.toUnencodedString(exporter.toUri(tempFile));
+                //https://docs.snowflake.com/en/sql-reference/sql/put.html#required-parameters for path specification
+                final String putFileCommand = "PUT '" + fileURI + "' " + "'@" + stageName + "' " + putParameter;
+                subexec.checkCanceled();
+                subexec.setMessage(
+                    format("Uploading file %d of %d of size %s (this might take some time without progress changes)", i,
+                        fileCount, byteCountToDisplaySize(sizeOf(tempFile.toFile()))));
+                statement.execute(putFileCommand);
+                subexec.setProgress(i++ / (double)fileCount);
+            }
+            subexec.setProgress(1, "All data files successful loaded into Snowflake");
+            //the purge command tells Snowflake to delete the file after successful loading so we don't need to do it
+            //https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html
+            final String copyFileCommand = "COPY INTO " + dialect.createFullName(table) + " \nFROM '@" + stageName + "'"
+                + createFilesList(stagedFileNames) + copyParameter + "\n PURGE=TRUE";
+            exec.checkCanceled();
+            exec.setMessage(
+                "Loading staged data into Snowflake table (this might take some time without progress changes)");
+            statement.execute(copyFileCommand);
+            exec.setMessage("Data loaded successful into Snowflake table: " + table.toString());
+            exec.setProgress(1);
+        } catch (final Throwable throwable) {
+            try (Connection connection = session.getConnectionProvider().getConnection(exec);
+                    Statement statement = connection.createStatement()) {
+                for (String stagedFileName : stagedFileNames) {
+                    //try to remove the staged file only on exception since we use the purge option in the copy command
+                    final String deleteFileCommand = "REMOVE " + "'@" + stageName + "/" + stagedFileName + "'";
+                    exec.setMessage("Deleting staged file");
+                    statement.execute(deleteFileCommand);
+                }
+            } catch (final Throwable t) {
+                LOGGER.debug("Exception while removing staged file: " + t.getMessage());
+            }
+            throw new SQLException(throwable.getMessage(), throwable);
+        }
+    }
+
+    private static String createFilesList(final List<String> stagedFileNames) {
+        return " FILES=('" + String.join("','", stagedFileNames) + "') ";
+    }
+
+    private static String getStageName(final SnowflakeLoaderSettings additionalSettings, final DBTable table,
+        final DBSQLDialect dialect) throws InvalidSettingsException {
+        //stage name must be in single quotes for special characters see
+        //https://docs.snowflake.com/en/sql-reference/sql/put.html#required-parameters
         final String userStageName = additionalSettings.getStageName();
         final String stageName;
         switch (additionalSettings.getStageType()) {
@@ -112,6 +199,7 @@ public class SnowflakeDBLoader implements DBLoader {
             case TABLE:
                 //this is intentional since the % needs to be between the namespace and the identifier see
                 //https://docs.snowflake.com/en/sql-reference/sql/put.html
+                @SuppressWarnings("deprecation")
                 final String nameSpace = dialect.createFullName(table.getCatalogName(), table.getSchemaName());
                 stageName =
                     (StringUtils.isBlank(nameSpace) ? "" : nameSpace + ".") + "%" + dialect.delimit(table.getName());
@@ -122,82 +210,7 @@ public class SnowflakeDBLoader implements DBLoader {
             default:
                 throw new InvalidSettingsException("Unknown stage type: " + additionalSettings.getStageType());
         }
-        //https://docs.snowflake.com/en/sql-reference/sql/put.html
-        final String putParameter;
-        //https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#optional-parameters
-        final String fileFormat;
-        switch (additionalSettings.getFileFormat()) {
-            case CSV:
-                putParameter = " SOURCE_COMPRESSION=GZIP AUTO_COMPRESS=FALSE";
-
-                final FileWriterSettings s = additionalSettings.getFileWriterSettings()
-                    .orElseThrow(() -> new IllegalArgumentException("Missing file writer settings."));
-                final String lineSeparator =
-                    StringEscapeUtils.escapeJava(s.getLineEndingMode() == FileWriterSettings.LineEnding.SYST
-                        ? System.getProperty("line.separator") : s.getLineEndingMode().getEndString());
-
-                fileFormat = "\nFILE_FORMAT=(TYPE='CSV'" //enforced line break
-                    + " COMPRESSION = GZIP" //enforced line break
-                    + "\n RECORD_DELIMITER = '" + lineSeparator + "'" + "\n FIELD_DELIMITER = '" + s.getColSeparator()
-                    + "'" //enforced line break
-                    + "\n SKIP_HEADER = " + (s.writeColumnHeader() ? 1 : 0) //enforced line break
-                    + "\n ESCAPE = "
-                    + (StringUtils.isEmpty(s.getQuoteReplacement()) ? "NONE" : "'" + s.getQuoteReplacement() + "'")
-                    + "\n FIELD_OPTIONALLY_ENCLOSED_BY  = '" + s.getQuoteBegin() + "'" //enforced line break
-                    + "\n NULL_IF = '" + s.getMissValuePattern() + "'" //enforced line break
-                    + "\n EMPTY_FIELD_AS_NULL  = FALSE" //enforced line break
-                    + "\n ENCODING   = '" + s.getCharacterEncoding() + "'" //enforced line break
-                    + "\n)";
-                break;
-            case PARQUET:
-                putParameter = "";
-
-                //https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#copy-options-copyoptions
-                fileFormat = "\nFILE_FORMAT=(TYPE='PARQUET') \nMATCH_BY_COLUMN_NAME=CASE_SENSITIVE";
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported file format: " + additionalSettings.getFileFormat());
-        }
-
-        try (FSConnection fsConnection = DefaultFSConnectionFactory.createLocalFSConnection();
-                FSFileSystem<?> fs = fsConnection.getFileSystem();) {
-            final FSPath tempFile = fs.getPath(filePath);
-            final String fileName = tempFile.getFileName().toString();
-            //stage name must be in single quotes for special characters see
-            //https://docs.snowflake.com/en/sql-reference/sql/put.html#required-parameters
-            final String stagedFileName = "'@" + stageName + "/" + fileName + "'";
-            final URIExporter exporter =
-                    ((NoConfigURIExporterFactory)fsConnection.getURIExporterFactory(URIExporterIDs.KNIME_FILE))
-                    .getExporter();
-            final String fileURI = URIUtil.toUnencodedString(exporter.toUri(tempFile));
-
-            //see https://docs.snowflake.com/en/sql-reference/sql/put.html#required-parameters for path specification
-            final String putFileCommand = "PUT '" + fileURI + "' " + stagedFileName + putParameter;
-            //the purge command tells Snowflake to delete the file after successful loading so we don't need to do it
-            //https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html
-            final String copyFileCommand = "COPY INTO " + dialect.createFullName(table) + " \nFROM " + stagedFileName
-                + fileFormat + "\n PURGE=TRUE";
-            exec.checkCanceled();
-            try (Connection connection = session.getConnectionProvider().getConnection(exec);
-                    Statement statement = connection.createStatement()) {
-                exec.setMessage("Uploading data to Snowflake (this might take some time without progress changes)");
-                statement.execute(putFileCommand);
-                exec.setMessage("Loading staged data into table (this might take some time without progress changes)");
-                statement.execute(copyFileCommand);
-                exec.setProgress(1);
-            } catch (final Throwable throwable) {
-                //try to remove the staged file only on exception since we use the purge option in the copy command
-                final String deleteFileCommand = "REMOVE " + stagedFileName;
-                try (Connection connection = session.getConnectionProvider().getConnection(exec);
-                        Statement statement = connection.createStatement()) {
-                    exec.setMessage("Deleting staged file");
-                    statement.execute(deleteFileCommand);
-                } catch (final Throwable t) {
-                    LOGGER.debug("Exception while removing staged file: " + t.getMessage());
-                }
-                throw new SQLException(throwable.getMessage(), throwable);
-            }
-        }
+        return stageName;
     }
 
 }

@@ -44,6 +44,12 @@
  */
 package org.knime.database.extension.snowflake.node.io.load;
 
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
+import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
+import org.knime.core.node.defaultnodesettings.SettingsModelLong;
+import org.knime.core.node.defaultnodesettings.SettingsModelLongBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.database.extension.snowflake.agent.SnowflakeLoaderFileFormat;
 import org.knime.database.extension.snowflake.agent.SnowflakeLoaderStageType;
@@ -57,9 +63,17 @@ import org.knime.database.node.io.load.impl.unconnected.UnconnectedCsvLoaderNode
  */
 public class SnowflakeLoaderNodeSettings extends UnconnectedCsvLoaderNodeSettings2 {
 
+    private static final String CFG_FILE_COMPRESSION = "fileCompression";
+    private static final String CFG_FILE_CHUNK_SIZE = "withinFileChunkSize";
+    private static final String CFG_FILE_SIZE = "fileSize";
+
     private final SettingsModelString m_fileFormatSelectionModel;
     private final SettingsModelString m_stageTypeSelectionModel;
     private final SettingsModelString m_stageNameModel;
+
+    private final SettingsModelString m_compression;
+    private final SettingsModelInteger m_chunkSize;
+    private SettingsModelLong m_fileSize;
 
     /**
      * Constructs a {@link SnowflakeLoaderNodeSettings} object.
@@ -71,6 +85,9 @@ public class SnowflakeLoaderNodeSettings extends UnconnectedCsvLoaderNodeSetting
         m_fileFormatSelectionModel = createFileFormatSelectionModel();
         m_stageTypeSelectionModel = createStageTypeSelectionModel();
         m_stageNameModel = createStageNameModel();
+        m_compression = createCompressionModel();
+        m_chunkSize = createChunkSizeModel();
+        m_fileSize = createFileSizeModel();
     }
 
     /**
@@ -125,5 +142,116 @@ public class SnowflakeLoaderNodeSettings extends UnconnectedCsvLoaderNodeSetting
      */
     public SettingsModelString getStageNameModel() {
         return m_stageNameModel;
+    }
+
+    /**
+     * Creates the compression model.
+     *
+     * @return the compression {@link SettingsModelString}
+     */
+    static SettingsModelString createCompressionModel() {
+        return new SettingsModelString(CFG_FILE_COMPRESSION, SnowflakeLoaderFileFormat.GZIP_COMPRESSION);
+    }
+
+    /**
+     * Returns the compression model.
+     *
+     * @return the compression
+     */
+    public SettingsModelString getCompressionModel() {
+        return m_compression;
+    }
+
+
+    /**
+     * Creates the chunk size model.
+     *
+     * @return the chunk size {@link SettingsModelInteger}
+     */
+    static SettingsModelInteger createChunkSizeModel() {
+        return new SettingsModelIntegerBounded(CFG_FILE_CHUNK_SIZE, 1024, 1, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Returns the chunk size model.
+     *
+     * @return the chunkSize
+     */
+    public SettingsModelInteger getChunkSizeModel() {
+        return m_chunkSize;
+    }
+
+
+    /**
+     * Creates the file size model.
+     *
+     * @return the file size {@link SettingsModelLongBounded}
+     */
+    static SettingsModelLong createFileSizeModel() {
+        return new SettingsModelLongBounded(CFG_FILE_SIZE, 1024, 1, Long.MAX_VALUE);
+    }
+
+    /**
+     * Returns the file size model.
+     *
+     * @return the fileSize
+     */
+    public SettingsModelLong getFileSizeModel() {
+        return m_fileSize;
+    }
+
+    /**
+     * Validates the settings and takes care of backward compatibility.
+     *
+     * @param settings {@link NodeSettingsRO} to validate
+     * @throws InvalidSettingsException if a setting is invalid
+     */
+    void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
+        m_fileFormatSelectionModel.validateSettings(settings);
+        m_stageTypeSelectionModel.validateSettings(settings);
+        m_stageNameModel.validateSettings(settings);
+        //the following settings where introduced with 4.5.2
+        if (settings.containsKey(CFG_FILE_COMPRESSION)) {
+            m_compression.validateSettings(settings);
+        }
+        if (settings.containsKey(CFG_FILE_CHUNK_SIZE)) {
+            m_chunkSize.validateSettings(settings);
+        }
+        if (settings.containsKey(CFG_FILE_SIZE)) {
+            m_fileSize.validateSettings(settings);
+        }
+    }
+
+    /**
+     * Loads the settings and takes care of backward compatibility.
+     *
+     * @param settings {@link NodeSettingsRO} to load from
+     * @throws InvalidSettingsException if a setting is invalid
+     */
+    void loadValidatedModelSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
+        m_fileFormatSelectionModel.loadSettingsFrom(settings);
+        final SnowflakeLoaderFileFormat fileFormat =
+                SnowflakeLoaderFileFormat.optionalValueOf(m_fileFormatSelectionModel.getStringValue())
+                .orElseThrow(() -> new InvalidSettingsException("No file format is selected."));
+        m_stageTypeSelectionModel.loadSettingsFrom(settings);
+        m_stageNameModel.loadSettingsFrom(settings);
+        //the following settings where introduced with 4.5.2
+        if (settings.containsKey(CFG_FILE_COMPRESSION)) {
+            m_compression.loadSettingsFrom(settings);
+        } else {
+            //the old implementation used gzip for CSV explicitly and for Parquet implicitly since for Parquet
+            //the auto compress when uploading wasn't disabled
+            m_compression.setStringValue(SnowflakeLoaderFileFormat.GZIP_COMPRESSION);
+        }
+        if (settings.containsKey(CFG_FILE_CHUNK_SIZE)) {
+            m_chunkSize.loadSettingsFrom(settings);
+        } else {
+            m_chunkSize.setIntValue(fileFormat.getDefaultChunkSize());
+        }
+        if (settings.containsKey(CFG_FILE_SIZE)) {
+            m_fileSize.loadSettingsFrom(settings);
+        } else {
+            m_fileSize.setLongValue(fileFormat.getDefaultFileSize());
+        }
     }
 }
