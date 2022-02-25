@@ -43,6 +43,7 @@ try {
                         'knime-ensembles',
                         'knime-expressions',
                         'knime-filehandling',
+                        'knime-h2o',
                         'knime-jep',
                         'knime-jfreechart',
                         'knime-js-base',
