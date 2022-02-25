@@ -727,6 +727,11 @@ license terms applicable to such Node, including when such Node is
 propagated with or for interoperation with KNIME.
    </license>
 
+   <requires>
+      <import feature="org.knime.features.snowflake" version="0.0.0"/>
+      <import feature="org.knime.features.ext.h2o" version="0.0.0"/>
+   </requires>
+
    <plugin
          id="org.knime.ext.h2o.database"
          download-size="0"
