@@ -51,7 +51,6 @@ try {
                         'knime-office365',
                         'knime-pmml-translation',
                         'knime-pmml',
-                        'knime-python',
                         'knime-testing-internal',
                         'knime-textprocessing',
                         'knime-timeseries',
