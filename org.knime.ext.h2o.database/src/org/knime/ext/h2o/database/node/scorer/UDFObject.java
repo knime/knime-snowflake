@@ -71,6 +71,7 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;
+import org.knime.core.data.LongValue;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.vector.doublevector.DoubleVectorCellFactory;
 import org.knime.core.node.InvalidSettingsException;
@@ -89,7 +90,7 @@ import org.osgi.framework.Version;
 public class UDFObject {
 
     /**This needs to be updated whenever a new companion jar version should be used!!!*/
-    private static final String COMPANION_JAR = "lib/org.knime.snowflake.h2o.companion-1.0.0.jar";
+    private static final String COMPANION_JAR = "lib/org.knime.snowflake.h2o.companion-1.0.1.jar";
 
     /** Name of the stage for storing dependencies. */
     static final String FILES_STAGE_NAME = "KNIME_UDF_JARS";
@@ -214,11 +215,12 @@ public class UDFObject {
 
     private static String getSQLType(final DataColumnSpec spec) throws InvalidSettingsException {
         final DataType colType = spec.getType();
-
         if (colType == DoubleVectorCellFactory.TYPE) {
             return "ARRAY";
         } else if (colType.isCompatible(IntValue.class)) {
             return "INTEGER";
+        } else if (colType.isCompatible(LongValue.class)) {
+            return "BIGINT";
         } else if (colType.isCompatible(DoubleValue.class)) {
             return "DOUBLE";
         } else if (colType.isCompatible(StringValue.class)) {
@@ -236,6 +238,8 @@ public class UDFObject {
             return "double[]";
         } else if (colType.isCompatible(IntValue.class)) {
             return "Integer";
+        } else if (colType.isCompatible(LongValue.class)) {
+            return "Long";
         } else if (colType.isCompatible(DoubleValue.class)) {
             return "Double";
         } else if (colType.isCompatible(StringValue.class)) {

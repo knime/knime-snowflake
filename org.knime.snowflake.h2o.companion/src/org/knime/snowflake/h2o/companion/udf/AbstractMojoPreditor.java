@@ -115,7 +115,13 @@ abstract class AbstractMojoPreditor<R> implements MojoPredictor<R> {
 		final RowData result = new RowData();
 		for (int i = 0, length = inputData.length; i < length; i++) {
 			if (inputData[i] != null) {
-				result.put(getInputColumnNames()[i], inputData[i]);
+				if (inputData[i] instanceof Number) {
+					final Number numb = (Number) inputData[i];
+					result.put(getInputColumnNames()[i], numb.doubleValue());
+				} else {
+					// String type
+					result.put(getInputColumnNames()[i], inputData[i]);
+				}
 			}
 		}
 		return result;

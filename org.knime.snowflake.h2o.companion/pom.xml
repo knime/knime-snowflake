@@ -9,7 +9,7 @@
     </parent>
 	<groupId>org.knime.snowflake.h2o</groupId>
 	<artifactId>org.knime.snowflake.h2o.companion</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<resources>
@@ -49,7 +49,7 @@
 								<resource>
 									<directory>target</directory>
 									<includes>
-										<include>org.knime.snowflake.h2o.companion-1.0.0.jar</include>
+										<include>org.knime.snowflake.h2o.companion-1.0.1.jar</include>
 									</includes>
 								</resource>
 							</resources>
