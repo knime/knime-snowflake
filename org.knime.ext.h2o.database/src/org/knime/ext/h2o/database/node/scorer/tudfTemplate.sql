@@ -1,6 +1,3 @@
--- inline function with import and exception
--- temporary function lives as long as the session lives but the model and jar file are not deleted!!!
-
 create or replace temporary function <$functionName$>(<$inSQLArguments$>)
 returns table(<$outSQLArguments$>)
 language java
