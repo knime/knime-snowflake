@@ -217,7 +217,8 @@ public class SnowflakeLoaderNodeComponents extends UnconnectedCsvLoaderNodeCompo
 
     private static DialogComponentStringSelection
         createCompressionComponent(final SettingsModelString compressionModel) {
-        return new DialogComponentStringSelection(compressionModel, "Compression method: ", "<NONE>");
+        return new DialogComponentStringSelection(compressionModel, "Compression method: ",
+            SnowflakeLoaderFileFormat.getDefault().getCompressionFormats());
     }
 
     private static DialogComponentNumber createChunkSizeComponent(final SettingsModelInteger chunkSizeModel) {

@@ -138,6 +138,7 @@ public class SnowflakeLoaderNode extends UnconnectedCsvLoaderNode2
             .setEnabled(optionalFileFormat.isPresent() && optionalFileFormat.get() == SnowflakeLoaderFileFormat.CSV);
 
         final SnowflakeLoaderFileFormat fileFormat;
+        String compressionFormat = components.getCompressionModel().getStringValue();
         if (optionalFileFormat.isEmpty()) {
             //this can happen only during the first loading of the node set the default file format
             //this is necessary to not overwrite any user entered values for chunk and file size
@@ -151,12 +152,13 @@ public class SnowflakeLoaderNode extends UnconnectedCsvLoaderNode2
             //the format has truly changed by the user so we need to update the default sizes
             components.getChunkSizeModel().setIntValue(fileFormat.getDefaultChunkSize());
             components.getFileSizeModel().setLongValue(fileFormat.getDefaultFileSize());
+            compressionFormat = fileFormat.getDefaultCompressionFormat();
         }
 
-        final List<String> compressionFormats = fileFormat.getCompressionFormats();
-        components.getCompressionComponent().replaceListItems(compressionFormats,
-            fileFormat.getDefaultCompressionFormat());
-
+        //always replace the list items to load the possible values but the selected compressionFormat is set before
+        //depending on the state
+        components.getCompressionComponent().replaceListItems(fileFormat.getCompressionFormats(),
+            compressionFormat);
         components.getChunkSizeComponent().setToolTipText(fileFormat.getChunkSizeToolTipText());
         components.getFileSizeComponent().setToolTipText(fileFormat.getFileSizeToolTipText());
 
@@ -362,9 +364,11 @@ public class SnowflakeLoaderNode extends UnconnectedCsvLoaderNode2
         final List<DialogComponent> dialogComponents, final UnconnectedCsvLoaderNodeComponents2 customComponents)
         throws NotConfigurableException {
         m_init = true;
-        super.loadDialogSettingsFrom(settings, specs, dialogComponents, customComponents);
         onFileFormatSelectionChange((SnowflakeLoaderNodeComponents)customComponents);
-        onStageTypeSelectionChange((SnowflakeLoaderNodeComponents)customComponents);
+        super.loadDialogSettingsFrom(settings, specs, dialogComponents, customComponents);
+        final SnowflakeLoaderNodeComponents snowComponents = (SnowflakeLoaderNodeComponents)customComponents;
+        onFileFormatSelectionChange(snowComponents);
+        onStageTypeSelectionChange(snowComponents);
         m_init = false;
     }
 }
