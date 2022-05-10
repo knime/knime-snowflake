@@ -34,7 +34,7 @@
 			<id>snowflake-test</id>
 			<modules>
                 <module>../knime-database/org.knime.database.extensions/lib/h2/fetch_v196_jars</module>
-                <module>../knime-database/org.knime.database.extensions/lib/h2/fetch_v202_jars</module>
+                <module>../knime-database/org.knime.database.extensions/lib/h2/fetch_v21_jars</module>
 				<module>org.knime.snowflake/lib/fetch_jars</module>
 				<module>org.knime.snowflake</module>
 				<module>org.knime.snowflake.tests</module>
