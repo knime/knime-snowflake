@@ -77,7 +77,7 @@ public class SnowflakeDatabaseJanitor extends AbstractDatabaseJanitor {
 
     //Copied from SnowflakeDriverLocator
     private static final String DRIVER_CLASS = "net.snowflake.client.jdbc.SnowflakeDriver";
-    private static final String DRIVER_ID = "built-in-snowflake-3.13.4";
+    private static final String DRIVER_ID = "built-in-snowflake-3.13.22";
 
     /**
      * Constructor.
