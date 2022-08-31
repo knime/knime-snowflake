@@ -45,8 +45,14 @@
 
 package org.knime.database.extension.snowflake;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.sql.JDBCType;
+import java.sql.SQLException;
 import java.sql.SQLType;
+import java.sql.Timestamp;
+import java.time.ZonedDateTime;
+import java.util.TimeZone;
 
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -58,6 +64,7 @@ import org.knime.database.datatype.mapping.DBCellValueConsumerFactory;
 import org.knime.database.datatype.mapping.DBCellValueProducerFactory;
 import org.knime.database.datatype.mapping.DBDestination;
 import org.knime.database.datatype.mapping.DBSource;
+import org.knime.database.driver.DBDriver;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.prefs.BackingStoreException;
 
@@ -89,6 +96,19 @@ public class SnowflakePlugin extends Plugin {
             //need to prevent problems with the time type (see AP-16726)
             ps.setString(parameters.getColumnIndex(), v);
         }));
+        //TIMESTAMP_WITH_TIMEZONE
+        reg.register(new DBCellValueConsumerFactory<>(ZonedDateTime.class, JDBCType.TIMESTAMP_WITH_TIMEZONE,
+            (ps, parameters, v) -> {
+                final DBDriver driver = parameters.getSession().getDriver();
+                final Class<?> c =
+                    driver.getDriverClass("net.snowflake.client.jdbc.SnowflakeTimestampWithTimezone", false)
+                        .orElseThrow(() -> new SQLException("SnowflakeTimestampWithTimezone was not found in driver"));
+                final Constructor<?> constructor = c.getConstructor(Timestamp.class, TimeZone.class);
+                final TimeZone tz = TimeZone.getTimeZone(v.getZone());
+                final Timestamp ts = Timestamp.from(v.toInstant());
+                final Object st = constructor.newInstance(ts, tz);
+                ps.setObject(parameters.getColumnIndex(), st);
+            }));
     }
 
     private static void registerProducers() {
@@ -106,6 +126,18 @@ public class SnowflakePlugin extends Plugin {
             final String value = rs.getString(parameters.getColumnIndex());
             return value == null ? null : value;
         }));
+        //TIMESTAMP_WITH_TIMEZONE
+        reg.register(new DBCellValueProducerFactory<>(JDBCType.TIMESTAMP_WITH_TIMEZONE, ZonedDateTime.class,
+            (rs, parameters) -> {
+                //SnowflakeTimestampWithTimezone object
+                final Object object = rs.getObject(parameters.getColumnIndex());
+                if (rs.wasNull() || object == null) {
+                    return null;
+                }
+                final Method toZoneDateTimeMethod = object.getClass().getMethod("toZonedDateTime");
+                final ZonedDateTime zdt = (ZonedDateTime)toZoneDateTimeMethod.invoke(object);
+                return zdt;
+            }));
     }
 
     /**

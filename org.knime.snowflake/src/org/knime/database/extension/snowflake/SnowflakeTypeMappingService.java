@@ -47,6 +47,7 @@ package org.knime.database.extension.snowflake;
 
 import java.sql.JDBCType;
 import java.sql.SQLType;
+import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -90,7 +91,8 @@ public final class SnowflakeTypeMappingService
         addTriple(defaultConsumptionMap, IntCell.TYPE, Long.class, JDBCType.BIGINT);
         //need to prevent problems with the time type (see AP-16726)
         addTriple(defaultConsumptionMap, LocalTimeCellFactory.TYPE, String.class, JDBCType.TIME);
-        addTriple(defaultConsumptionMap, ZonedDateTimeCellFactory.TYPE, String.class, JDBCType.VARCHAR);
+        addTriple(defaultConsumptionMap, ZonedDateTimeCellFactory.TYPE, ZonedDateTime.class,
+            JDBCType.TIMESTAMP_WITH_TIMEZONE);
         setDefaultConsumptionTriples(defaultConsumptionMap);
 
         // Default production paths
@@ -106,9 +108,9 @@ public final class SnowflakeTypeMappingService
         //https://docs.snowflake.com/en/sql-reference/parameters.html#label-timestamp-type-mapping
         addColumnType(JDBCType.TIMESTAMP, "timestamp(9)");
 
+        //https://docs.snowflake.com/en/sql-reference/data-types-datetime.html#timestamp-ltz-timestamp-ntz-timestamp-tz
+        addColumnType(JDBCType.TIMESTAMP_WITH_TIMEZONE, "timestamp_tz");
 
-//    //https://docs.snowflake.com/en/sql-reference/data-types-datetime.html#timestamp-ltz-timestamp-ntz-timestamp-tz
-//    addColumnType(JDBCType.TIMESTAMP_WITH_TIMEZONE, "timestamp_tz");
         //https://docs.snowflake.com/en/sql-reference/data-types-text.html#varchar
         //If a length is not specified, the default is the maximum length.
         //A column only consumes storage for the amount of actual data stored
