@@ -217,7 +217,10 @@
    <extension point="org.knime.database.Driver">
       <Driver locator="org.knime.database.extension.snowflake.SnowflakeDriverLocator" />
    </extension>
-
+   <extension point="org.knime.database.Driver">
+      <Driver locator="org.knime.database.extension.snowflake.SnowflakeDriverLocator2" />
+   </extension>
+   
    <extension point="org.knime.workbench.repository.nodes">
       <node category-path="/db/connector" deprecated="false"
             factory-class="org.knime.database.extension.snowflake.node.connector.SnowflakeDBConnectorNodeFactory" />

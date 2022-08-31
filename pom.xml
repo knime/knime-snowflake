@@ -19,6 +19,7 @@
 			<modules>
 			    <module>org.knime.snowflake.h2o.companion</module>
 				<module>org.knime.snowflake/lib/fetch_jars</module>
+				<module>org.knime.snowflake/lib/fetch_jars2</module>
 				<module>org.knime.snowflake</module>
 				<module>org.knime.ext.h2o.database</module>
 				<module>org.knime.snowflake.testing.janitor</module>
@@ -36,6 +37,7 @@
                 <module>../knime-database/org.knime.database.extensions/lib/h2/fetch_v196_jars</module>
                 <module>../knime-database/org.knime.database.extensions/lib/h2/fetch_v21_jars</module>
 				<module>org.knime.snowflake/lib/fetch_jars</module>
+                <module>org.knime.snowflake/lib/fetch_jars2</module>
 				<module>org.knime.snowflake</module>
 				<module>org.knime.snowflake.tests</module>
 				<module>org.knime.features.snowflake</module>

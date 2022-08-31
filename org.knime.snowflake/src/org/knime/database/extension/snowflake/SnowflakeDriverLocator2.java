@@ -54,29 +54,12 @@ import static java.util.Arrays.asList;
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
  *
  */
-public class SnowflakeDriverLocator extends SnowflakeAbstractDriverLocator {
+public class SnowflakeDriverLocator2 extends SnowflakeAbstractDriverLocator {
 
     /**
-     * Driver id.
+     * Constructor for {@link SnowflakeDriverLocator2}.
      */
-    public static final String DRIVER_ID = "built-in-snowflake-3.13.4";
-
-
-    /**
-     * Constructor for {@link SnowflakeDriverLocator}.
-     */
-    public SnowflakeDriverLocator() {
-        super("3.13.4", asList("lib/snowflake-jdbc-3.13.4.jar"));
+    public SnowflakeDriverLocator2() {
+        super("3.13.22", asList("lib/snowflake-jdbc-3.13.22.jar"));
     }
-
-    @Override
-    public String getDriverId() {
-        return DRIVER_ID;
-    }
-
-    @Override
-    public String getDriverName() {
-        return "Snowflake 3.13.4";
-    }
-
 }
