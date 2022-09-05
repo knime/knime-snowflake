@@ -3,7 +3,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.knime.snowflake</groupId>
-	<artifactId>snowflake-fetch-jars</artifactId>
+	<artifactId>snowflake2-fetch-jars</artifactId>
 	<version>3.13.22</version>
 	<packaging>pom</packaging>
 
