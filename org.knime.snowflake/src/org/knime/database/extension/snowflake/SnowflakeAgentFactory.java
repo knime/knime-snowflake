@@ -55,7 +55,6 @@ import org.knime.database.agent.sampling.impl.DefaultDBSampling;
 import org.knime.database.attribute.AttributeCollection;
 import org.knime.database.attribute.AttributeCollection.Accessibility;
 import org.knime.database.extension.snowflake.agent.SnowflakeDBLoader;
-import org.knime.database.extension.snowflake.agent.SnowflakeDBMetadataReader;
 import org.knime.database.extension.snowflake.agent.SnowflakeDBSampling;
 
 /**
@@ -89,6 +88,6 @@ public class SnowflakeAgentFactory extends AbstractDBAgentFactory {
         putCreator(DBSampling.class, parameters -> new SnowflakeDBSampling(parameters.getSessionReference()));
         putAttributes(DBMetadataReader.class, METADATA_ATTRIBUTES);
         putCreator(DBMetadataReader.class,
-            parameters -> new SnowflakeDBMetadataReader(parameters.getSessionReference()));
+            parameters -> new DefaultDBMetadataReader(parameters.getSessionReference()));
     }
 }
