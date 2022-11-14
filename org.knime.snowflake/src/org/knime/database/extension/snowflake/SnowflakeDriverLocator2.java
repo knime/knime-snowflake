@@ -60,6 +60,6 @@ public class SnowflakeDriverLocator2 extends SnowflakeAbstractDriverLocator {
      * Constructor for {@link SnowflakeDriverLocator2}.
      */
     public SnowflakeDriverLocator2() {
-        super("3.13.22", asList("lib/snowflake-jdbc-3.13.22.jar"));
+        super("3.13.24", asList("lib/snowflake-jdbc-3.13.24.jar"));
     }
 }
