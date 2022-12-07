@@ -78,7 +78,7 @@ try {
 
 
 def dbTest() {
-    node("maven && java11") {
+    node("maven && java17") {
     
         try {
             // verification
