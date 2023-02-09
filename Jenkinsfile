@@ -66,6 +66,8 @@ try {
     // finally run sonarqube
     stage('Sonarqube analysis') {
         env.lastStage = env.STAGE_NAME
+        configs = workflowTests.ALL_CONFIGURATIONS.collect() + ['snowflake']
+
         workflowTests.runSonar()
     }
 } catch (ex) {
@@ -113,6 +115,7 @@ def dbTest() {
 
                         // Collect test results
                         junit allowEmptyResults: true, testResults: '**/target/surefire-reports/TEST-*.xml'
+                        stash name: 'snowflake', includes: 'jacoco-*.xml'
                     }
                 }
             }
