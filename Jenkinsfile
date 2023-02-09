@@ -1,5 +1,5 @@
 #!groovy
-BN = BRANCH_NAME == "master" || BRANCH_NAME.startsWith("releases/") ? BRANCH_NAME : "master"
+BN = BRANCH_NAME == 'master' || BRANCH_NAME.startsWith('releases/') ? BRANCH_NAME : 'master'
 
 library "knime-pipeline@$BN"
 
@@ -24,10 +24,10 @@ buildConfigurations = [
 
 try {
     // parallel build steps
-   parallel buildConfigurations
+    parallel buildConfigurations
 
     withCredentials([usernamePassword(credentialsId: 'SNOWFLAKE_TESTING_CREDENTIALS', passwordVariable: 'KNIME_SNOWFLAKE_PASSWORD', usernameVariable: 'KNIME_SNOWFLAKE_USER')]) {
-        withEnv([ "KNIME_SNOWFLAKE_ADDRESS=knimepartner.eu-central-1:1234" ]) {
+        withEnv([ 'KNIME_SNOWFLAKE_ADDRESS=knimepartner.eu-central-1:1234' ]) {
             workflowTests.runTests(
                 dependencies: [
                     repositories: [
@@ -63,7 +63,6 @@ try {
         }
     }
 
-
     // finally run sonarqube
     stage('Sonarqube analysis') {
         env.lastStage = env.STAGE_NAME
@@ -73,16 +72,14 @@ try {
     currentBuild.result = 'FAILURE'
     throw ex
 } finally {
-    notifications.notifyBuild(currentBuild.result);
+    notifications.notifyBuild(currentBuild.result)
 }
 
-
 def dbTest() {
-    node("maven && java17") {
-    
+    node('maven && java17') {
         try {
             // verification
-            stage("Testing Snowflake: ") {
+            stage('Testing Snowflake: ') {
                 env.lastStage = env.STAGE_NAME
 
                 checkout([
@@ -98,13 +95,13 @@ def dbTest() {
                     extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'knime-database'], [$class: 'GitLFSPull']],
                     userRemoteConfigs: [[ credentialsId: 'bitbucket-jenkins', url: 'https://bitbucket.org/KNIME/knime-database' ]]
                 ])
-     
+
                 withMaven(options: [artifactsPublisher(disabled: true)]) {
-                    withCredentials([usernamePassword(credentialsId: 'ARTIFACTORY_CREDENTIALS', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_LOGIN'), 
+                    withCredentials([usernamePassword(credentialsId: 'ARTIFACTORY_CREDENTIALS', passwordVariable: 'ARTIFACTORY_PASSWORD', usernameVariable: 'ARTIFACTORY_LOGIN'),
                         usernamePassword(credentialsId: 'SNOWFLAKE_TESTING_CREDENTIALS', passwordVariable: 'KNIME_SNOWFLAKE_PASSWORD', usernameVariable: 'KNIME_SNOWFLAKE_USER')
                     ]) {
                         // define maven properties to override
-                       testParams = "-Dknime.snowflake.enable=true -Dknime.snowflake.account=knimepartner.eu-central-1 -Dknime.snowflake.password=${KNIME_SNOWFLAKE_PASSWORD}"
+                        testParams = "-Dknime.snowflake.enable=true -Dknime.snowflake.account=knimepartner.eu-central-1 -Dknime.snowflake.password=${KNIME_SNOWFLAKE_PASSWORD}"
 
                         // run tests
                         withEnv(["TEST_PARAMS=${testParams}"]) {
