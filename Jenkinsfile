@@ -104,9 +104,11 @@ def dbTest() {
             stage('Testing Snowflake: ') {
                 env.lastStage = env.STAGE_NAME
 
+                def branchName = env.CHANGE_BRANCH ?: env.BRANCH_NAME // use correct branch in PR builds
+
                 checkout([
                     $class: 'GitSCM',
-                    branches: [[name: BRANCH_NAME]],
+                    branches: [[name: branchName]],
                     extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'knime-snowflake'], [$class: 'GitLFSPull']],
                     userRemoteConfigs: [[ credentialsId: 'bitbucket-jenkins', url: 'https://bitbucket.org/KNIME/knime-snowflake' ]]
                 ])
