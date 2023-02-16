@@ -22,6 +22,27 @@ buildConfigurations = [
     }
 ]
 
+void collectCoverageData(String dbName) {
+    withEnv(["DB_NAME=${dbName}"]) {
+        sh(script: '''
+            cd knime-database
+            dirs_with_runs=$(find . -name jacoco*.exec -exec dirname {} \\;)
+
+            # copy coverage.xml to root dir for non-empty reports
+            if [[ -n $dirs_with_runs ]]; then
+                reports=$(find . -name jacoco.xml | grep "${dirs_with_runs}" | cut -c3-)
+
+                for r in $reports
+                do
+                    cp "$r" "jacoco-junit-${DB_NAME}-${r//\\//-}"
+                done
+            fi
+            ''', label: 'collect coverage files')
+    }
+    // stash coverage data
+    stash name: dbName, includes: 'knime-database/jacoco-*.xml'
+}
+
 try {
     // parallel build steps
     parallel buildConfigurations
@@ -38,7 +59,6 @@ try {
                         'knime-database-proprietary',
                         'knime-database',
                         'knime-datageneration',
-                        'knime-distance',
                         'knime-distance',
                         'knime-ensembles',
                         'knime-expressions',
@@ -107,15 +127,15 @@ def dbTest() {
 
                         // run tests
                         withEnv(["TEST_PARAMS=${testParams}"]) {
-                            sh '''
-                               cd knime-snowflake
-                               mvn -Dmaven.test.failure.ignore=true -Dknime.p2.repo=${P2_REPO} ${TEST_PARAMS} clean verify -P snowflake-test -X -e
-                            '''
+                            sh(script: '''
+                                cd knime-snowflake
+                                mvn -Dmaven.test.failure.ignore=true -Dknime.p2.repo=${P2_REPO} ${TEST_PARAMS} clean verify -P snowflake-test,test  -X -e
+                            ''', label: 'run snowflake db tests')
                         }
+                        collectCoverageData('snowflake')
 
                         // Collect test results
                         junit allowEmptyResults: true, testResults: '**/target/surefire-reports/TEST-*.xml'
-                        stash name: 'snowflake', includes: 'jacoco-*.xml'
                     }
                 }
             }

@@ -65,7 +65,7 @@
             <id>p2-knime-bigdata</id>
             <layout>p2</layout>
             <url>${knime.bigdata.p2}</url>
-        </repository>       
+        </repository>
         <repository>
             <id>p2-knime-bigdata-externals</id>
             <layout>p2</layout>
