@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Test janitor for Snowflake
 Bundle-SymbolicName: org.knime.snowflake.testing.janitor;singleton:=true
-Bundle-Version: 5.0.0.qualifier
+Bundle-Version: 5.1.0.qualifier
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.knime.core;bundle-version="[5.0.0,6.0.0)",
