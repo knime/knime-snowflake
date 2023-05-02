@@ -55,6 +55,7 @@ try {
                         'knime-snowflake',
                         'knime-bigdata-externals',
                         'knime-bigdata',
+                        'knime-aws',
                         'knime-cloud',
                         'knime-database-proprietary',
                         'knime-database',
