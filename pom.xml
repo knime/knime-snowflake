@@ -72,6 +72,11 @@
             <url>${knime.p2.repo}/knime-bigdata-externals/${git.branch}</url>
         </repository>
         <repository>
+            <id>p2-knime-aws</id>
+            <layout>p2</layout>
+            <url>${knime.aws.p2}</url>
+        </repository>
+        <repository>
             <id>p2-knime-cloud</id>
             <layout>p2</layout>
             <url>${knime.cloud.p2}</url>
