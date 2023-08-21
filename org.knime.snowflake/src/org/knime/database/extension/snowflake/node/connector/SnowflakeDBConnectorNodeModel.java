@@ -49,7 +49,6 @@ import static org.knime.ext.microsoft.authentication.port.MicrosoftCredential.Ty
 
 import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
@@ -58,7 +57,9 @@ import org.knime.core.node.context.ports.PortsConfiguration;
 import org.knime.core.node.defaultnodesettings.SettingsModelAuthentication;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
-import org.knime.core.node.workflow.CredentialsProvider;
+import org.knime.credentials.base.CredentialPortObject;
+import org.knime.credentials.base.CredentialPortObjectSpec;
+import org.knime.credentials.base.oauth.api.JWTCredential;
 import org.knime.database.connection.DBConnectionController;
 import org.knime.database.connection.UserDBConnectionController;
 import org.knime.database.node.connector.AbstractDBConnectorNodeModel;
@@ -86,10 +87,21 @@ public class SnowflakeDBConnectorNodeModel extends AbstractDBConnectorNodeModel<
     @Override
     protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
         if (m_hasInputPort) {
-            final MicrosoftCredentialPortObjectSpec in = (MicrosoftCredentialPortObjectSpec)inSpecs[0];
-            if (in.getMicrosoftCredential() != null
-                && !OAUTH2_ACCESS_TOKEN.equals(in.getMicrosoftCredential().getType())) {
-                throw new InvalidSettingsException("Supports only OAuth2 access tokens");
+            final var inSpec = inSpecs[0];
+            if (inSpec instanceof CredentialPortObjectSpec) {
+                final var spec = (CredentialPortObjectSpec)inSpec;
+                final var credType = spec.getCredentialType()
+                        .orElseThrow(() -> new InvalidSettingsException("No input connection available"));
+                if (credType != JWTCredential.TYPE) {
+                    throw new InvalidSettingsException("Supports only JWT credentials");
+                }
+            }
+            if (inSpec instanceof MicrosoftCredentialPortObjectSpec) {
+                final var spec = (MicrosoftCredentialPortObjectSpec)inSpec;
+                if (spec.getMicrosoftCredential() != null
+                        && OAUTH2_ACCESS_TOKEN != spec.getMicrosoftCredential().getType()) {
+                    throw new InvalidSettingsException("Supports only OAuth2 access tokens");
+                }
             }
         }
         return super.configure(inSpecs);
@@ -109,13 +121,24 @@ public class SnowflakeDBConnectorNodeModel extends AbstractDBConnectorNodeModel<
     protected DBConnectionController createConnectionController(final List<PortObject> inObjects,
         final SnowflakeDBConnectorSettings sessionSettings, final ExecutionMonitor monitor)
                 throws InvalidSettingsException {
-        if (CollectionUtils.isNotEmpty(inObjects)) {
-            return new MSAuthDBConnectionController(
-                ((MicrosoftCredentialPortObject)inObjects.get(0)).getMicrosoftCredentials(),
-                sessionSettings.getDBUrl());
+        if (m_hasInputPort) {
+            final var inObject = inObjects.get(0);
+            if (inObject instanceof CredentialPortObject) {
+                final var portObject = (CredentialPortObject)inObject;
+                final var credentialOpt = portObject.getCredential(JWTCredential.class);
+                if (credentialOpt.isEmpty()) {
+                    throw new InvalidSettingsException("JWT credential is empty. Please re-execute the node.");
+                }
+                return new MSAuthDBConnectionController(credentialOpt.get(), sessionSettings.getDBUrl());
+            }
+            if (inObject instanceof MicrosoftCredentialPortObject) {
+                final var portObject = (MicrosoftCredentialPortObject)inObject;
+                return new MSAuthDBConnectionController(portObject.getMicrosoftCredentials(),
+                    sessionSettings.getDBUrl());
+            }
         }
         final SettingsModelAuthentication authentication = getSettings().getAuthenticationModel();
-        final CredentialsProvider credentialsProvider = getCredentialsProvider();
+        final var credentialsProvider = getCredentialsProvider();
         return new UserDBConnectionController(sessionSettings.getDBUrl(), authentication.getAuthenticationType(),
             authentication.getUserName(credentialsProvider), authentication.getPassword(credentialsProvider),
             authentication.getCredential(), credentialsProvider);

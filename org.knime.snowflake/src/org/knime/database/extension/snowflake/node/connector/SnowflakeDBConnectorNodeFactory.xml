@@ -154,7 +154,8 @@
         </tab>
     </fullDescription>
 
-    <ports><dynInPort insert-before="0" name="Microsoft Authentication" group-identifier="Microsoft Authentication">
+    <ports>
+        <dynInPort insert-before="0" name="Microsoft Authentication" group-identifier="Microsoft Authentication">
             <p>
             To use this input port, you must enter the scope you want to use into the <i>Others</i> field of the 
             <a href="https://kni.me/n/UZkKlFCxy6dBn1IO">Microsoft Authentication node.</a>

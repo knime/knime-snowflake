@@ -55,6 +55,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.credentials.base.oauth.api.JWTCredential;
 import org.knime.database.VariableContext;
 import org.knime.database.attribute.AttributeValueRepository;
 import org.knime.database.connection.UrlDBConnectionController;
@@ -76,6 +77,8 @@ public class MSAuthDBConnectionController extends UrlDBConnectionController {
     private static final String JDBC_PROPERTY_AUTHENTICATOR = "authenticator";
 
     private static final String JDBC_PROPERTY_TOKEN = "token";
+
+    private final JWTCredential m_jwtCredential;
 
     private final MicrosoftCredential m_credential;
 
@@ -100,7 +103,22 @@ public class MSAuthDBConnectionController extends UrlDBConnectionController {
      */
     public MSAuthDBConnectionController(final MicrosoftCredential credential, final String jdbcUrl) {
         super(jdbcUrl);
+        m_jwtCredential = null;
         m_credential = credential;
+    }
+
+    /**
+     * Constructs a {@link MSAuthDBConnectionController} object.
+     *
+     * @param jwtCredential {@link JWTCredential} to use for authentication
+     * @param jdbcUrl the database connection URL as a {@link String}.
+     * @throws NullPointerException if {@code jdbcUrl} is {@code null}.
+     * @since 5.2
+     */
+    public MSAuthDBConnectionController(final JWTCredential jwtCredential, final String jdbcUrl) {
+        super(jdbcUrl);
+        m_jwtCredential = jwtCredential;
+        m_credential = null;
     }
 
     @Override
@@ -121,15 +139,7 @@ public class MSAuthDBConnectionController extends UrlDBConnectionController {
                 + "input connection information.");
         }
         try {
-            final String token;
-            switch (m_credential.getType()) {
-                case OAUTH2_ACCESS_TOKEN:
-                    final OAuth2Credential oauth2Credential = (OAuth2Credential)m_credential;
-                    token = oauth2Credential.getAccessToken().getToken();
-                    break;
-                default:
-                    throw new UnsupportedOperationException("Unsupported credential type " + m_credential.getType());
-            }
+            final String token = fetchToken();
             jdbcProperties.setProperty(JDBC_PROPERTY_TOKEN, token);
 
             final String userEnteredAuthenticator = jdbcProperties.getProperty(JDBC_PROPERTY_AUTHENTICATOR);
@@ -145,5 +155,22 @@ public class MSAuthDBConnectionController extends UrlDBConnectionController {
         } catch (IOException ex) {
             throw new SQLException("Error getting Micorosft authentication access token: " + ex.getMessage(), ex);
         }
+    }
+
+    private String fetchToken() throws IOException {
+        final String token;
+        if (m_jwtCredential != null) {
+            token = m_jwtCredential.getAccessToken().asString();
+        } else {
+            switch (m_credential.getType()) {
+                case OAUTH2_ACCESS_TOKEN:
+                    final var oauth2Credential = (OAuth2Credential)m_credential;
+                    token = oauth2Credential.getAccessToken().getToken();
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Unsupported credential type " + m_credential.getType());
+            }
+        }
+        return token;
     }
 }

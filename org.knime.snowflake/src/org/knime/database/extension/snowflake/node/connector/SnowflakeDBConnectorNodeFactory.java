@@ -51,6 +51,7 @@ import org.knime.core.node.ConfigurableNodeFactory;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeView;
 import org.knime.core.node.context.NodeCreationConfiguration;
+import org.knime.credentials.base.CredentialPortObject;
 import org.knime.database.port.DBSessionPortObject;
 import org.knime.ext.microsoft.authentication.port.MicrosoftCredentialPortObject;
 
@@ -60,6 +61,8 @@ import org.knime.ext.microsoft.authentication.port.MicrosoftCredentialPortObject
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
  */
 public class SnowflakeDBConnectorNodeFactory extends ConfigurableNodeFactory<SnowflakeDBConnectorNodeModel> {
+
+    private static final String INPUT_AUTH_PORT_GRP_NAME = "Microsoft Authentication";
 
     @Override
     public SnowflakeDBConnectorNodeModel createNodeModel(final NodeCreationConfiguration creationConfig) {
@@ -89,8 +92,9 @@ public class SnowflakeDBConnectorNodeFactory extends ConfigurableNodeFactory<Sno
 
     @Override
     protected Optional<PortsConfigurationBuilder> createPortsConfigBuilder() {
-        final PortsConfigurationBuilder builder = new PortsConfigurationBuilder();
-        builder.addOptionalInputPortGroup("Microsoft Authentication", MicrosoftCredentialPortObject.TYPE);
+        final var builder = new PortsConfigurationBuilder();
+        builder.addOptionalInputPortGroup(INPUT_AUTH_PORT_GRP_NAME, CredentialPortObject.TYPE,
+            MicrosoftCredentialPortObject.TYPE);
         builder.addFixedOutputPortGroup("DB Output", DBSessionPortObject.TYPE);
         return Optional.of(builder);
     }
