@@ -49,8 +49,10 @@ import static java.util.Objects.requireNonNull;
 import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
 import static org.apache.commons.io.FileUtils.sizeOf;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.LinkOption;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -63,6 +65,7 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
+import org.knime.core.util.FileUtil;
 import org.knime.database.agent.loader.DBLoadTableFromFileParameters;
 import org.knime.database.agent.loader.DBLoader;
 import org.knime.database.dialect.DBSQLDialect;
@@ -74,6 +77,7 @@ import org.knime.filehandling.core.connections.FSConnection;
 import org.knime.filehandling.core.connections.FSFileSystem;
 import org.knime.filehandling.core.connections.FSFiles;
 import org.knime.filehandling.core.connections.FSPath;
+import org.knime.filehandling.core.connections.RelativeTo;
 import org.knime.filehandling.core.connections.uriexport.URIExporter;
 import org.knime.filehandling.core.connections.uriexport.URIExporterIDs;
 import org.knime.filehandling.core.connections.uriexport.noconfig.NoConfigURIExporterFactory;
@@ -104,7 +108,8 @@ public class SnowflakeDBLoader implements DBLoader {
         final DBLoadTableFromFileParameters<SnowflakeLoaderSettings> loadParameters =
             (DBLoadTableFromFileParameters<SnowflakeLoaderSettings>)parameters;
         final String filePath = loadParameters.getFilePath();
-        try (FSConnection fsConnection = DefaultFSConnectionFactory.createLocalFSConnection();
+        try (FSConnection fsConnection =
+            DefaultFSConnectionFactory.createRelativeToConnection(RelativeTo.WORKFLOW_DATA);
                 FSFileSystem<?> fs = fsConnection.getFileSystem();) {
             final FSPath tempFile = fs.getPath(filePath);
             final List<FSPath> files;
@@ -142,10 +147,7 @@ public class SnowflakeDBLoader implements DBLoader {
             final int fileCount = tempFiles.size();
             for (FSPath tempFile : tempFiles) {
                 stagedFileNames.add(tempFile.getFileName().toString());
-                final URIExporter exporter =
-                    ((NoConfigURIExporterFactory)fsConnection.getURIExporterFactory(URIExporterIDs.KNIME_FILE))
-                        .getExporter();
-                final String fileURI = URIUtil.toUnencodedString(exporter.toUri(tempFile));
+                final String fileURI = toLocalURI(fsConnection, tempFile);
                 //https://docs.snowflake.com/en/sql-reference/sql/put.html#required-parameters for path specification
                 final String putFileCommand = "PUT '" + fileURI + "' " + "'@" + stageName + "' " + putParameter;
                 subexec.checkCanceled();
@@ -180,6 +182,15 @@ public class SnowflakeDBLoader implements DBLoader {
             }
             throw new SQLException(throwable.getMessage(), throwable);
         }
+    }
+
+    private static String toLocalURI(final FSConnection fsConnection, final FSPath tempFile) throws Exception {
+        final URIExporter exporter =
+            ((NoConfigURIExporterFactory)fsConnection.getURIExporterFactory(URIExporterIDs.LEGACY_KNIME_URL))
+                .getExporter();
+        final URI knimeUri = exporter.toUri(tempFile);
+        final Path localPath = FileUtil.resolveToPath(knimeUri.toURL());
+        return URIUtil.toUnencodedString(localPath.toUri());
     }
 
     private static String createFilesList(final List<String> stagedFileNames) {
