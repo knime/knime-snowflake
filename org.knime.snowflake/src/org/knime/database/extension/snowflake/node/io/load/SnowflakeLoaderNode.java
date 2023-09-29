@@ -51,7 +51,6 @@ import static java.util.Collections.unmodifiableList;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Optional;
@@ -72,7 +71,6 @@ import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.streamable.RowInput;
-import org.knime.core.util.FileUtil;
 import org.knime.database.agent.loader.DBLoadTableFromFileParameters;
 import org.knime.database.agent.loader.DBLoader;
 import org.knime.database.extension.snowflake.agent.SnowflakeLoaderFileFormat;
@@ -91,9 +89,11 @@ import org.knime.database.node.io.load.impl.unconnected.UnconnectedCsvLoaderNode
 import org.knime.database.port.DBDataPortObjectSpec;
 import org.knime.database.port.DBPortObject;
 import org.knime.database.session.DBSession;
-import org.knime.filehandling.core.connections.FSCategory;
-import org.knime.filehandling.core.connections.FSLocation;
+import org.knime.filehandling.core.connections.DefaultFSConnectionFactory;
+import org.knime.filehandling.core.connections.FSFiles;
 import org.knime.filehandling.core.connections.FSPath;
+import org.knime.filehandling.core.connections.RelativeTo;
+import org.knime.filehandling.core.defaultnodesettings.filechooser.writer.SettingsModelWriterFileChooser;
 
 /**
  * Implementation of the loader node for the Snowflake database.
@@ -326,14 +326,19 @@ public class SnowflakeLoaderNode extends UnconnectedCsvLoaderNode2
 
         //write file
         final DBSession session = dbPortObject.getDBSession();
-        final File tempDir = FileUtil.createTempDir("snowflake-");
         try (DBFileWriter<ConnectedSnowflakeLoaderNodeSettings, SnowflakeLoaderSettings> writer =
-            fileFormat.getWriter()) {
+            fileFormat.getWriter();
+                var fs = DefaultFSConnectionFactory.createRelativeToConnection(RelativeTo.WORKFLOW_DATA)) {
             final ConnectedSnowflakeLoaderNodeSettings connectedNodeSettings =
                 new ConnectedSnowflakeLoaderNodeSettings(customSettings);
+
             //set the target folder to a local temporary folder that can be used to upload the data
-            final FSLocation tempLocation =  new FSLocation(FSCategory.LOCAL, tempDir.getAbsolutePath());
-            connectedNodeSettings.getTargetFolderModel().setLocation(tempLocation);
+            @SuppressWarnings("resource")
+            final var rootPath = (FSPath)fs.getFileSystem().getRootDirectories().iterator().next();
+            final var tempDir = FSFiles.createTempDirectory(rootPath, "snowflake-", "");
+            final var realtiveTempDir = (FSPath)rootPath.relativize(tempDir);
+            final SettingsModelWriterFileChooser targetFolderModel = connectedNodeSettings.getTargetFolderModel();
+            targetFolderModel.setLocation(realtiveTempDir.toFSLocation());
             final ExecutionParameters<ConnectedSnowflakeLoaderNodeSettings> connectedParameter =
                 new ExecutionParameters<>(rowInput, dbPortObject, parameters.getSettingsModels(), connectedNodeSettings,
                     exec);
@@ -347,13 +352,6 @@ public class SnowflakeLoaderNode extends UnconnectedCsvLoaderNode2
             exec.checkCanceled();
             session.getAgent(DBLoader.class).load(exec, new DBLoadTableFromFileParameters<>(null, targetFileString,
                 table, writer.getLoadParameter(connectedNodeSettings)));
-        } finally {
-            //cleanup all local temporary files
-            try {
-                FileUtil.deleteRecursively(tempDir);
-            } catch (Exception ex) {
-                LOGGER.warn("Error cleaning up temporary directory", ex);
-            }
         }
         // Output
         return table;
