@@ -1,5 +1,5 @@
 #!groovy
-BN = BRANCH_NAME == 'master' || BRANCH_NAME.startsWith('releases/') ? BRANCH_NAME : 'releases/2023-10'
+BN = BRANCH_NAME == 'master' || BRANCH_NAME.startsWith('releases/') ? BRANCH_NAME : 'releases/2023-12'
 
 library "knime-pipeline@$BN"
 
