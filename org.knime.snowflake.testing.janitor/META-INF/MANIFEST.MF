@@ -5,10 +5,10 @@ Bundle-SymbolicName: org.knime.snowflake.testing.janitor;singleton:=true
 Bundle-Version: 5.2.0.qualifier
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Require-Bundle: org.knime.core;bundle-version="[5.0.0,6.0.0)",
- org.knime.testing;bundle-version="[5.0.0,6.0.0)",
- org.knime.database;bundle-version="[5.0.0,6.0.0)",
- org.knime.database.testing.janitor;bundle-version="[5.0.0,6.0.0)",
- org.knime.snowflake;bundle-version="[5.0.0,6.0.0)"
+Require-Bundle: org.knime.core;bundle-version="[5.2.0,6.0.0)",
+ org.knime.testing;bundle-version="[5.2.0,6.0.0)",
+ org.knime.database;bundle-version="[5.2.0,6.0.0)",
+ org.knime.database.testing.janitor;bundle-version="[5.2.0,6.0.0)",
+ org.knime.snowflake;bundle-version="[5.2.0,6.0.0)"
 Automatic-Module-Name: org.knime.snowflake.testing.janitor
 Bundle-ClassPath: .

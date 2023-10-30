@@ -4,9 +4,9 @@ Bundle-Name: KNIME Snowflake H2O extension
 Bundle-SymbolicName: org.knime.ext.h2o.database;singleton:=true
 Bundle-Version: 5.2.0.qualifier
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
-Require-Bundle: org.knime.database;bundle-version="[5.0.0,6.0.0)",
- org.knime.database.nodes;bundle-version="[5.0.0,6.0.0)",
- org.knime.base;bundle-version="[5.0.0,6.0.0)",
+Require-Bundle: org.knime.database;bundle-version="[5.2.0,6.0.0)",
+ org.knime.database.nodes;bundle-version="[5.2.0,6.0.0)",
+ org.knime.base;bundle-version="[5.2.0,6.0.0)",
  org.knime.ext.h2o.mojo,
  org.knime.workbench.repository,
  org.knime.filehandling.core;bundle-version="[5.0.0,6.0.0)",
