@@ -196,6 +196,7 @@
 		<spotbugs.maxRank>20</spotbugs.maxRank>
 		<spotbugs.xmlOutput>true</spotbugs.xmlOutput>
 		<spotbugs.config.directory>${parent.project.basedir}/preferences/spotbugs</spotbugs.config.directory>
+		<knime.sonar-env>Sonarcloud</knime.sonar-env>
 
 	</properties>
 	<build>
