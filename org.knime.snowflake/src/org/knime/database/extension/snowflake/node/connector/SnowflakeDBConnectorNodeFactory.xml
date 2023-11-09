@@ -155,19 +155,19 @@
     </fullDescription>
 
     <ports>
-        <dynInPort insert-before="0" name="Microsoft Authentication" group-identifier="Microsoft Authentication">
+        <dynInPort insert-before="0" name="Credential (JWT)" group-identifier="Microsoft Authentication">
             <p>
-            To use this input port, you must enter the scope you want to use into the <i>Others</i> field of the 
-            <a href="https://kni.me/n/UZkKlFCxy6dBn1IO">Microsoft Authentication node.</a>
-            The scope is specific to the setup of your Azure Active Directory. 
+            To use this input port, you must attach the Microsoft Authenticator. Choose one of the
+            OAuth2 authentication types and enter the custom scope you want to use. The scope is specific to
+            the setup of your Azure Entra ID (formerly Azure Active Directory). 
             For further details on how to create a scope or where to find it see the 
             <a href="https://docs.snowflake.com/en/user-guide/oauth-azure.html#step-1-configure-the-oauth-resource-in-azure-ad">Snowflake documentation.</a>
             </p><p>
             When available the node will set the
             <a href="https://docs.snowflake.com/en/user-guide/jdbc-parameters.html#authenticator"><i>authenticator</i></a> as well as
             <a href="https://docs.snowflake.com/en/user-guide/jdbc-parameters.html#token"><i>token</i></a>  
-            JDBC parameter automatically based on the information from the connected 
-            <a href="https://kni.me/n/UZkKlFCxy6dBn1IO">Microsoft Authentication node.</a> 
+            JDBC parameter automatically based on the information from the connected  Microsoft Authenticator
+            node.
             Depending on your database setup you might need to specify additional JDBC parameters which are described in the 
             <a href="https://docs.snowflake.com/en/user-guide/jdbc-parameters.html#jdbc-driver-connection-parameter-reference">Snowflake documentation.</a>
             </p>

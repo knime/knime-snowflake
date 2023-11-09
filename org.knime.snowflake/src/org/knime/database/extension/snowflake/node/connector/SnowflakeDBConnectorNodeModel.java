@@ -45,8 +45,6 @@
 
 package org.knime.database.extension.snowflake.node.connector;
 
-import static org.knime.ext.microsoft.authentication.port.MicrosoftCredential.Type.OAUTH2_ACCESS_TOKEN;
-
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -57,14 +55,12 @@ import org.knime.core.node.context.ports.PortsConfiguration;
 import org.knime.core.node.defaultnodesettings.SettingsModelAuthentication;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
-import org.knime.credentials.base.CredentialPortObject;
 import org.knime.credentials.base.CredentialPortObjectSpec;
+import org.knime.credentials.base.NoSuchCredentialException;
 import org.knime.credentials.base.oauth.api.JWTCredential;
 import org.knime.database.connection.DBConnectionController;
 import org.knime.database.connection.UserDBConnectionController;
 import org.knime.database.node.connector.AbstractDBConnectorNodeModel;
-import org.knime.ext.microsoft.authentication.port.MicrosoftCredentialPortObject;
-import org.knime.ext.microsoft.authentication.port.MicrosoftCredentialPortObjectSpec;
 
 /**
  * A node model for the <em>Snowflake connector node</em>.
@@ -87,21 +83,11 @@ public class SnowflakeDBConnectorNodeModel extends AbstractDBConnectorNodeModel<
     @Override
     protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
         if (m_hasInputPort) {
-            final var inSpec = inSpecs[0];
-            if (inSpec instanceof CredentialPortObjectSpec) {
-                final var spec = (CredentialPortObjectSpec)inSpec;
-                final var credType = spec.getCredentialType()
-                        .orElseThrow(() -> new InvalidSettingsException("No input connection available"));
-                if (credType != JWTCredential.TYPE) {
-                    throw new InvalidSettingsException("Supports only JWT credentials");
-                }
-            }
-            if (inSpec instanceof MicrosoftCredentialPortObjectSpec) {
-                final var spec = (MicrosoftCredentialPortObjectSpec)inSpec;
-                if (spec.getMicrosoftCredential() != null
-                        && OAUTH2_ACCESS_TOKEN != spec.getMicrosoftCredential().getType()) {
-                    throw new InvalidSettingsException("Supports only OAuth2 access tokens");
-                }
+            final var spec = (CredentialPortObjectSpec) inSpecs[0];
+            try {
+                spec.resolveCredential(JWTCredential.class);
+            } catch (NoSuchCredentialException ex) {
+                throw new InvalidSettingsException(ex.getMessage(), ex);
             }
         }
         return super.configure(inSpecs);
@@ -110,10 +96,12 @@ public class SnowflakeDBConnectorNodeModel extends AbstractDBConnectorNodeModel<
     @Override
     protected DBConnectionController createConnectionController(final NodeSettingsRO internalSettings)
         throws InvalidSettingsException {
+
         if (m_hasInputPort) {
             return new MSAuthDBConnectionController(internalSettings);
+        } else {
+            return new UserDBConnectionController(internalSettings, getCredentialsProvider());
         }
-        return new UserDBConnectionController(internalSettings, getCredentialsProvider());
     }
 
     @SuppressWarnings("deprecation")
@@ -121,26 +109,21 @@ public class SnowflakeDBConnectorNodeModel extends AbstractDBConnectorNodeModel<
     protected DBConnectionController createConnectionController(final List<PortObject> inObjects,
         final SnowflakeDBConnectorSettings sessionSettings, final ExecutionMonitor monitor)
                 throws InvalidSettingsException {
+
         if (m_hasInputPort) {
-            final var inObject = inObjects.get(0);
-            if (inObject instanceof CredentialPortObject) {
-                final var portObject = (CredentialPortObject)inObject;
-                final var credentialOpt = portObject.getCredential(JWTCredential.class);
-                if (credentialOpt.isEmpty()) {
-                    throw new InvalidSettingsException("JWT credential is empty. Please re-execute the node.");
-                }
-                return new MSAuthDBConnectionController(credentialOpt.get(), sessionSettings.getDBUrl());
+            try {
+                final var spec = (CredentialPortObjectSpec)inObjects.get(0).getSpec();
+                final var jwtCredential = spec.resolveCredential(JWTCredential.class);
+                return new MSAuthDBConnectionController(jwtCredential, sessionSettings.getDBUrl());
+            } catch (NoSuchCredentialException ex) {
+                throw new InvalidSettingsException(ex.getMessage(), ex);
             }
-            if (inObject instanceof MicrosoftCredentialPortObject) {
-                final var portObject = (MicrosoftCredentialPortObject)inObject;
-                return new MSAuthDBConnectionController(portObject.getMicrosoftCredentials(),
-                    sessionSettings.getDBUrl());
-            }
+        } else {
+            final SettingsModelAuthentication authentication = getSettings().getAuthenticationModel();
+            final var credentialsProvider = getCredentialsProvider();
+            return new UserDBConnectionController(sessionSettings.getDBUrl(), authentication.getAuthenticationType(),
+                authentication.getUserName(credentialsProvider), authentication.getPassword(credentialsProvider),
+                authentication.getCredential(), credentialsProvider);
         }
-        final SettingsModelAuthentication authentication = getSettings().getAuthenticationModel();
-        final var credentialsProvider = getCredentialsProvider();
-        return new UserDBConnectionController(sessionSettings.getDBUrl(), authentication.getAuthenticationType(),
-            authentication.getUserName(credentialsProvider), authentication.getPassword(credentialsProvider),
-            authentication.getCredential(), credentialsProvider);
     }
 }

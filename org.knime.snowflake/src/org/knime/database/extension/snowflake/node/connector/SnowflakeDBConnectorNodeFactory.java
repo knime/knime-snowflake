@@ -53,7 +53,6 @@ import org.knime.core.node.NodeView;
 import org.knime.core.node.context.NodeCreationConfiguration;
 import org.knime.credentials.base.CredentialPortObject;
 import org.knime.database.port.DBSessionPortObject;
-import org.knime.ext.microsoft.authentication.port.MicrosoftCredentialPortObject;
 
 /**
  * A node factory for the <em>Snowflake connector node</em>.
@@ -93,8 +92,7 @@ public class SnowflakeDBConnectorNodeFactory extends ConfigurableNodeFactory<Sno
     @Override
     protected Optional<PortsConfigurationBuilder> createPortsConfigBuilder() {
         final var builder = new PortsConfigurationBuilder();
-        builder.addOptionalInputPortGroup(INPUT_AUTH_PORT_GRP_NAME, CredentialPortObject.TYPE,
-            MicrosoftCredentialPortObject.TYPE);
+        builder.addOptionalInputPortGroup(INPUT_AUTH_PORT_GRP_NAME, CredentialPortObject.TYPE);
         builder.addFixedOutputPortGroup("DB Output", DBSessionPortObject.TYPE);
         return Optional.of(builder);
     }
