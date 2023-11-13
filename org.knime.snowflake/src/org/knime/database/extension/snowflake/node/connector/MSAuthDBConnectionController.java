@@ -160,7 +160,7 @@ public class MSAuthDBConnectionController extends UrlDBConnectionController {
     private String fetchToken() throws IOException {
         final String token;
         if (m_jwtCredential != null) {
-            token = m_jwtCredential.getAccessToken().asString();
+            token = m_jwtCredential.getAccessToken();
         } else {
             switch (m_credential.getType()) {
                 case OAUTH2_ACCESS_TOKEN:
