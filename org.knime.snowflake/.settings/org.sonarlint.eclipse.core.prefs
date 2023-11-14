@@ -1,6 +1,7 @@
 autoEnabled=true
+bindingSuggestionsDisabled=false
 eclipse.preferences.version=1
 idePrefixKey=
-projectKey=org.knime\:knime-database
-serverId=sonar.knime.com
-sqPrefixKey=org.knime.database.extensions.snowflake
+projectKey=KNIME_knime-snowflake
+serverId=SonarCloud
+sqPrefixKey=org.knime.snowflake
