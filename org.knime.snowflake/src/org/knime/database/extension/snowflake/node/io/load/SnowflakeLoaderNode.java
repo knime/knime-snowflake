@@ -89,11 +89,7 @@ import org.knime.database.node.io.load.impl.unconnected.UnconnectedCsvLoaderNode
 import org.knime.database.port.DBDataPortObjectSpec;
 import org.knime.database.port.DBPortObject;
 import org.knime.database.session.DBSession;
-import org.knime.filehandling.core.connections.DefaultFSConnectionFactory;
-import org.knime.filehandling.core.connections.FSFiles;
 import org.knime.filehandling.core.connections.FSPath;
-import org.knime.filehandling.core.connections.RelativeTo;
-import org.knime.filehandling.core.defaultnodesettings.filechooser.writer.SettingsModelWriterFileChooser;
 
 /**
  * Implementation of the loader node for the Snowflake database.
@@ -327,18 +323,9 @@ public class SnowflakeLoaderNode extends UnconnectedCsvLoaderNode2
         //write file
         final DBSession session = dbPortObject.getDBSession();
         try (DBFileWriter<ConnectedSnowflakeLoaderNodeSettings, SnowflakeLoaderSettings> writer =
-            fileFormat.getWriter();
-                var fs = DefaultFSConnectionFactory.createRelativeToConnection(RelativeTo.WORKFLOW_DATA)) {
+            fileFormat.getWriter();) {
             final ConnectedSnowflakeLoaderNodeSettings connectedNodeSettings =
                 new ConnectedSnowflakeLoaderNodeSettings(customSettings);
-
-            //set the target folder to a local temporary folder that can be used to upload the data
-            @SuppressWarnings("resource")
-            final var rootPath = (FSPath)fs.getFileSystem().getRootDirectories().iterator().next();
-            final var tempDir = FSFiles.createTempDirectory(rootPath, "snowflake-", "");
-            final var realtiveTempDir = (FSPath)rootPath.relativize(tempDir);
-            final SettingsModelWriterFileChooser targetFolderModel = connectedNodeSettings.getTargetFolderModel();
-            targetFolderModel.setLocation(realtiveTempDir.toFSLocation());
             final ExecutionParameters<ConnectedSnowflakeLoaderNodeSettings> connectedParameter =
                 new ExecutionParameters<>(rowInput, dbPortObject, parameters.getSettingsModels(), connectedNodeSettings,
                     exec);
