@@ -51,12 +51,13 @@ import org.knime.database.extension.snowflake.node.io.load.SnowflakeLoaderNodeSe
 import org.knime.database.node.component.dbrowser.SettingsModelDBMetadata;
 import org.knime.database.node.component.format.file.SettingsModelCsvFileFormat;
 import org.knime.database.node.io.load.impl.fs.ConnectedCsvLoaderNodeSettings2;
+import org.knime.database.node.io.load.impl.unconnected.UnconnectedCsvLoaderNodeSettings2;
 
 /**
  * Converts a {@link SnowflakeLoaderNodeSettings} model into a {@link ConnectedCsvLoaderNodeSettings2} model.
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
  */
-public class ConnectedSnowflakeLoaderNodeSettings extends ConnectedCsvLoaderNodeSettings2 {
+public class ConnectedSnowflakeLoaderNodeSettings extends UnconnectedCsvLoaderNodeSettings2 {
 
     private SnowflakeLoaderNodeSettings m_s;
 

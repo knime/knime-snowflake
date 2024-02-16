@@ -77,7 +77,6 @@ import org.knime.filehandling.core.connections.FSConnection;
 import org.knime.filehandling.core.connections.FSFileSystem;
 import org.knime.filehandling.core.connections.FSFiles;
 import org.knime.filehandling.core.connections.FSPath;
-import org.knime.filehandling.core.connections.RelativeTo;
 import org.knime.filehandling.core.connections.uriexport.URIExporter;
 import org.knime.filehandling.core.connections.uriexport.URIExporterIDs;
 import org.knime.filehandling.core.connections.uriexport.noconfig.NoConfigURIExporterFactory;
@@ -108,8 +107,7 @@ public class SnowflakeDBLoader implements DBLoader {
         final DBLoadTableFromFileParameters<SnowflakeLoaderSettings> loadParameters =
             (DBLoadTableFromFileParameters<SnowflakeLoaderSettings>)parameters;
         final String filePath = loadParameters.getFilePath();
-        try (FSConnection fsConnection =
-            DefaultFSConnectionFactory.createRelativeToConnection(RelativeTo.WORKFLOW_DATA);
+        try (FSConnection fsConnection = DefaultFSConnectionFactory.createLocalFSConnection();
                 FSFileSystem<?> fs = fsConnection.getFileSystem();) {
             final FSPath tempFile = fs.getPath(filePath);
             final List<FSPath> files;
@@ -186,8 +184,7 @@ public class SnowflakeDBLoader implements DBLoader {
 
     private static String toLocalURI(final FSConnection fsConnection, final FSPath tempFile) throws Exception {
         final URIExporter exporter =
-            ((NoConfigURIExporterFactory)fsConnection.getURIExporterFactory(URIExporterIDs.LEGACY_KNIME_URL))
-                .getExporter();
+            ((NoConfigURIExporterFactory)fsConnection.getURIExporterFactory(URIExporterIDs.KNIME_FILE)).getExporter();
         final URI knimeUri = exporter.toUri(tempFile);
         final Path localPath = FileUtil.resolveToPath(knimeUri.toURL());
         return URIUtil.toUnencodedString(localPath.toUri());
