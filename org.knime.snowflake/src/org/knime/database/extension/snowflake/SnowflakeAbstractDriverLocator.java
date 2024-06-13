@@ -150,7 +150,7 @@ public abstract class SnowflakeAbstractDriverLocator extends AbstractDriverLocat
 
     @Override
     public String getDriverName() {
-        return "Driver for Snowflake v. " + getVersion();
+        return DBDriverLocator.createDriverName(getDBType(), getVersion(), isDeprecated());
     }
 
     @Override

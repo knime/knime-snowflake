@@ -74,9 +74,9 @@ public class SnowflakeDriverLocator extends SnowflakeAbstractDriverLocator {
         return DRIVER_ID;
     }
 
-    @Override
-    public String getDriverName() {
-        return "Snowflake 3.13.4";
-    }
 
+    @Override
+    public boolean isDeprecated() {
+        return true;
+    }
 }
