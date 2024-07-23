@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.knime.snowflake.tests;singleton:=true
 Bundle-Version: 5.4.0.qualifier
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Require-Bundle: org.knime.database;bundle-version="[5.3.0,6.0.0)",
- org.knime.snowflake;bundle-version="[5.3.0,6.0.0)",
- org.knime.database.tests.collector;bundle-version="[5.3.0,6.0.0)"
+Require-Bundle: org.knime.database;bundle-version="[5.4.0,6.0.0)",
+ org.knime.snowflake;bundle-version="[5.4.0,6.0.0)",
+ org.knime.database.tests.collector;bundle-version="[5.4.0,6.0.0)"
 Automatic-Module-Name: org.knime.snowflake.tests
