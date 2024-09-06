@@ -50,9 +50,12 @@ import static org.apache.commons.lang3.StringUtils.stripToEmpty;
 import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_DATABASE;
 import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_SCHEMA;
 import static org.knime.database.driver.URLTemplates.resolveDriverUrl;
-import static org.knime.database.extension.snowflake.SnowflakeDriverLocator.VARIABLE_NAME_ACCOUNT_NAME;
-import static org.knime.database.extension.snowflake.SnowflakeDriverLocator.VARIABLE_NAME_ROLE;
-import static org.knime.database.extension.snowflake.SnowflakeDriverLocator.VARIABLE_NAME_WAREHOUSE;
+import static org.knime.database.extension.snowflake.SnowflakeAbstractDriverLocator.ATTRIBUTES;
+import static org.knime.database.extension.snowflake.SnowflakeAbstractDriverLocator.ATTRIBUTE_ACCOUNT_DOMAIN;
+import static org.knime.database.extension.snowflake.SnowflakeAbstractDriverLocator.VARIABLE_NAME_ACCOUNT_DOMAIN;
+import static org.knime.database.extension.snowflake.SnowflakeAbstractDriverLocator.VARIABLE_NAME_ACCOUNT_NAME;
+import static org.knime.database.extension.snowflake.SnowflakeAbstractDriverLocator.VARIABLE_NAME_ROLE;
+import static org.knime.database.extension.snowflake.SnowflakeAbstractDriverLocator.VARIABLE_NAME_WAREHOUSE;
 import static org.knime.database.node.connector.ConnectorMessages.DATABASE_DRIVER_URL_IS_BLANK;
 import static org.knime.database.node.connector.ConnectorMessages.DATABASE_DRIVER_URL_TEMPLATE_IS_INVALID;
 import static org.knime.database.node.connector.ConnectorMessages.DATABASE_NAME_IS_NOT_DEFINED;
@@ -74,9 +77,11 @@ import org.knime.core.node.defaultnodesettings.SettingsModelAuthentication;
 import org.knime.core.node.defaultnodesettings.SettingsModelAuthentication.AuthenticationType;
 import org.knime.database.DBType;
 import org.knime.database.VariableContext;
+import org.knime.database.attribute.AttributeValueRepository;
 import org.knime.database.dialect.DBSQLDialectRegistry;
 import org.knime.database.driver.DBDriverRegistry;
 import org.knime.database.driver.DBDriverWrapper;
+import org.knime.database.extension.snowflake.SnowflakeAbstractDriverLocator;
 import org.knime.database.extension.snowflake.type.Snowflake;
 import org.knime.database.node.connector.DBSessionSettings;
 import org.knime.database.util.BlankTokenValueException;
@@ -137,6 +142,7 @@ public class SnowflakeDBConnectorSettings extends DBSessionSettings {
         }
         final Map<String, String> variableValues = new HashMap<>();
         variableValues.put(VARIABLE_NAME_ACCOUNT_NAME, stripToEmpty(getAccountName()));
+        variableValues.put(VARIABLE_NAME_ACCOUNT_DOMAIN, stripToEmpty(getAccountDomain()));
         variableValues.put(VARIABLE_NAME_WAREHOUSE, stripToEmpty(getWarehouseName()));
         variableValues.put(VARIABLE_NAME_ROLE, stripToEmpty(getRoleName()));
         variableValues.put(VARIABLE_NAME_DATABASE, stripToEmpty(getDatabaseName()));
@@ -191,6 +197,21 @@ public class SnowflakeDBConnectorSettings extends DBSessionSettings {
      */
     public String getAccountName() {
         return m_accountName;
+    }
+
+    /**
+     * Gets the account domain which is typically snowflakecomputing.com.
+     *
+     * @return the domain part of the Snowflake account
+     */
+    private String getAccountDomain() {
+        final AttributeValueRepository valueRepository = AttributeValueRepository.builder()
+            .withAttributeCollection(ATTRIBUTES).withMappings(getAttributeValues()).build();
+        String domain = valueRepository.get(ATTRIBUTE_ACCOUNT_DOMAIN);
+        if (domain == null) {
+            domain = SnowflakeAbstractDriverLocator.DEFAULT_ACCOUNT_DOMAIN.toString();
+        }
+        return domain;
     }
 
     /**

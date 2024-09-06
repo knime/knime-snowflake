@@ -48,9 +48,10 @@ import static java.util.Collections.unmodifiableMap;
 import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_DATABASE;
 import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_SCHEMA;
 import static org.knime.database.driver.URLTemplates.validateDriverUrlTemplate;
-import static org.knime.database.extension.snowflake.SnowflakeDriverLocator.VARIABLE_NAME_ACCOUNT_NAME;
-import static org.knime.database.extension.snowflake.SnowflakeDriverLocator.VARIABLE_NAME_ROLE;
-import static org.knime.database.extension.snowflake.SnowflakeDriverLocator.VARIABLE_NAME_WAREHOUSE;
+import static org.knime.database.extension.snowflake.SnowflakeAbstractDriverLocator.VARIABLE_NAME_ACCOUNT_DOMAIN;
+import static org.knime.database.extension.snowflake.SnowflakeAbstractDriverLocator.VARIABLE_NAME_ACCOUNT_NAME;
+import static org.knime.database.extension.snowflake.SnowflakeAbstractDriverLocator.VARIABLE_NAME_ROLE;
+import static org.knime.database.extension.snowflake.SnowflakeAbstractDriverLocator.VARIABLE_NAME_WAREHOUSE;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -97,6 +98,8 @@ public final class SnowflakeUrlTemplateValidator extends AbstractUrlTemplateVali
     static {
         final Map<String, String> variables = new LinkedHashMap<String, String>();
         variables.put(VARIABLE_NAME_ACCOUNT_NAME, "The Snowflake account name.");
+        variables.put(VARIABLE_NAME_ACCOUNT_DOMAIN,
+                "The domain part of your Snowflake account (e.g. snowflakecomputing.com).");
         variables.put(VARIABLE_NAME_WAREHOUSE, "The virtual warehouse to use once connected.");
         variables.put(VARIABLE_NAME_ROLE,
             "The optional default access control role to use in the Snowflake session initiated by the driver.");

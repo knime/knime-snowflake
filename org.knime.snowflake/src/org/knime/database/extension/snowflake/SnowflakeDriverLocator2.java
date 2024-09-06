@@ -46,6 +46,8 @@
 package org.knime.database.extension.snowflake;
 
 import static java.util.Arrays.asList;
+import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_DATABASE;
+import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_SCHEMA;
 
 /**
  * This class contains a Snowflake driver definition. The definition will be used by Eclipse extensions API to create a
@@ -61,5 +63,13 @@ public class SnowflakeDriverLocator2 extends SnowflakeAbstractDriverLocator {
      */
     public SnowflakeDriverLocator2() {
         super("3.13.24", asList("lib/snowflake-jdbc-3.13.24.jar"));
+    }
+    @Override
+    public String getURLTemplate() {
+        //TODO how to handle VPS installations
+        return "jdbc:snowflake://<" + VARIABLE_NAME_ACCOUNT_NAME + ">.snowflakecomputing.com/" //forced line break
+            + "?warehouse=<" + VARIABLE_NAME_WAREHOUSE + ">" //forced line break
+            + "&role=[" + VARIABLE_NAME_ROLE + "]" + "&db=[" + VARIABLE_NAME_DATABASE + "]" //forced line break
+            + "&schema=[" + VARIABLE_NAME_SCHEMA + "]";
     }
 }

@@ -55,6 +55,7 @@ import org.knime.database.DBType;
 import org.knime.database.attribute.Attribute;
 import org.knime.database.attribute.AttributeCollection;
 import org.knime.database.attribute.AttributeCollection.Accessibility;
+import org.knime.database.attribute.AttributeGroup;
 import org.knime.database.connection.DBConnectionManagerAttributes;
 import org.knime.database.driver.AbstractDriverLocator;
 import org.knime.database.driver.DBDriverLocator;
@@ -77,6 +78,11 @@ public abstract class SnowflakeAbstractDriverLocator extends AbstractDriverLocat
      */
     public static final String VARIABLE_NAME_ACCOUNT_NAME = "account_name";
     /**
+     * Name of the account domain (e.g. snowflakecomputing.com) variable in the JDBC URL template string.
+     * @see #getURLTemplate()
+     */
+    public static final String VARIABLE_NAME_ACCOUNT_DOMAIN = "account_domain";
+    /**
      * Name of the role variable in the JDBC URL template string.
      * @see #getURLTemplate()
      */
@@ -94,6 +100,12 @@ public abstract class SnowflakeAbstractDriverLocator extends AbstractDriverLocat
      * Attribute that contains the JDBC properties.
      */
     public static final Attribute<DerivableProperties> ATTRIBUTE_JDBC_PROPERTIES;
+
+    /**Default account domain.*/
+    public static final String DEFAULT_ACCOUNT_DOMAIN = "snowflakecomputing.com";
+
+    /**The account domain attribute.*/
+    public static final Attribute<String> ATTRIBUTE_ACCOUNT_DOMAIN;
 
     static {
         final AttributeCollection.Builder builder =
@@ -115,7 +127,22 @@ public abstract class SnowflakeAbstractDriverLocator extends AbstractDriverLocat
             ATTR_VAL_JDBC_INITIAL_PARAMETER_SEPARATOR);
         builder.add(Accessibility.HIDDEN, DBConnectionManagerAttributes.ATTRIBUTE_APPEND_JDBC_PARAMETER_SEPARATOR);
         builder.add(Accessibility.HIDDEN, DBConnectionManagerAttributes.ATTRIBUTE_APPEND_JDBC_USER_AND_PASSWORD_TO_URL);
+        // Snowflake needs to be added here for all built-in drivers
+        ATTRIBUTE_ACCOUNT_DOMAIN = addAccountDomainAttribute(builder);
         ATTRIBUTES = builder.build();
+    }
+
+    /**
+     * Adds the account domain attribute to the given builder.
+     *
+     * @param builder {@link AttributeCollection.Builder} to add the account domain attribute
+     * @return the added {@link Attribute}
+     */
+    static Attribute<String> addAccountDomainAttribute(final AttributeCollection.Builder builder) {
+        return builder.setGroup(new AttributeGroup("snowflake", "Snowflake")).add(Accessibility.EDITABLE,
+            "snowflake.account.domain", DEFAULT_ACCOUNT_DOMAIN, "Account domain",
+            "The domain part of your Snowflake account which replaces the &lt;" + VARIABLE_NAME_ACCOUNT_DOMAIN
+            + "&gt; JDBC URL template token.");
     }
 
     private final String m_version;
@@ -171,10 +198,10 @@ public abstract class SnowflakeAbstractDriverLocator extends AbstractDriverLocat
     @Override
     public String getURLTemplate() {
         //TODO how to handle VPS installations
-        return "jdbc:snowflake://<" + VARIABLE_NAME_ACCOUNT_NAME + ">.snowflakecomputing.com/" //forced line break
-            + "?warehouse=<" + VARIABLE_NAME_WAREHOUSE + ">" //forced line break
-            + "&role=[" + VARIABLE_NAME_ROLE + "]" + "&db=[" + VARIABLE_NAME_DATABASE + "]" //forced line break
-            + "&schema=[" + VARIABLE_NAME_SCHEMA + "]";
+        return "jdbc:snowflake://<" + VARIABLE_NAME_ACCOUNT_NAME + ">.<" + VARIABLE_NAME_ACCOUNT_DOMAIN + ">/" //
+                + "?warehouse=<" + VARIABLE_NAME_WAREHOUSE + ">" //forced line break
+                + "&role=[" + VARIABLE_NAME_ROLE + "]" + "&db=[" + VARIABLE_NAME_DATABASE + "]" //forced line break
+                + "&schema=[" + VARIABLE_NAME_SCHEMA + "]";
     }
 
 }

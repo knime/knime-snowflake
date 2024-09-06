@@ -12,7 +12,7 @@
             urlTemplateValidator="org.knime.database.extension.snowflake.SnowflakeUrlTemplateValidator">
           <UrlTemplateExamples>
              <UrlTemplateExample 
-                template="jdbc:snowflake://&lt;account_name&gt;.snowflakecomputing.com/?warehouse=&lt;warehouse&gt;&amp;role=[role]&amp;db=[database]&amp;schema=[schema]"/>
+                template="jdbc:snowflake://&lt;account_name&gt;.&lt;account_domain&gt;/?warehouse=&lt;warehouse&gt;&amp;role=[role]&amp;db=[database]&amp;schema=[schema]"/>
           </UrlTemplateExamples>
       </DBType>
    </extension>

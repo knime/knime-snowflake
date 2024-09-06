@@ -76,8 +76,11 @@ public class SnowflakeDefaultAttributeSupplier extends DefaultAttributeSupplier 
         jdbcProperties.setDerivableProperty("application", ValueType.LITERAL, Snowflake.PARTNER_ID);
         ATTRIBUTE_JDBC_PROPERTIES = builder.add(Accessibility.EDITABLE,
             DBConnectionManagerAttributes.ATTRIBUTE_JDBC_PROPERTIES, jdbcProperties);
+        // Snowflake needs to be added here for all user registered drivers
+        SnowflakeAbstractDriverLocator.addAccountDomainAttribute(builder);
         ATTRIBUTES_CONNECTION = builder.build();
     }
+
 
     @Override
     public AttributeCollection getConnectionAttributes() {
