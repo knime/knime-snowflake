@@ -25,11 +25,21 @@
             <option name="Database Dialect">
                 Choose the registered database dialect here.
             </option>
-            <option name="Driver Name">
-                Choose the registered database driver here.
-                Additional drivers can be registered via KNIME's preference page "KNIME -> Databases".
-                For more details on how to register your own Snowflake driver see the 
+            <option name="Database Driver">
+                <p>
+                Choose the <a href="https://en.wikipedia.org/wiki/JDBC_driver">JDBC driver</a> to connect to the 
+                database here. If you select "Use latest driver version available" upon execution the node will 
+                automatically use the driver with the latest (highest) driver version that is available for the 
+                current database type. This has the advantage that you do not need to touch the workflow after a 
+                driver update. However, the workflow might break in the rare case that the behavior of the driver 
+                e.g. type mapping changes with the newer version.
+                </p>
+                <p>
+                If this option is not enabled, you can select a specific version of the registered drivers via the 
+                drop-down list. Additional drivers can be registered via KNIME's preference 
+                page "KNIME -> Databases". For more details on how to register a new driver see the
                 <a href="https://docs.knime.com/latest/db_extension_guide/index.html#register_jdbc">database documentation</a>.
+                </p>        
             </option>
             <option name="Full account name">
                 Specifies the full name of your account (provided by Snowflake). Note that your full account name 
