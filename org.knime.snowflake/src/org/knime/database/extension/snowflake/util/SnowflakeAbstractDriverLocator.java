@@ -43,7 +43,7 @@
  * ------------------------------------------------------------------------
  */
 
-package org.knime.database.extension.snowflake;
+package org.knime.database.extension.snowflake.util;
 
 import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_DATABASE;
 import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_SCHEMA;
@@ -138,7 +138,7 @@ public abstract class SnowflakeAbstractDriverLocator extends AbstractDriverLocat
      * @param builder {@link AttributeCollection.Builder} to add the account domain attribute
      * @return the added {@link Attribute}
      */
-    static Attribute<String> addAccountDomainAttribute(final AttributeCollection.Builder builder) {
+    public static Attribute<String> addAccountDomainAttribute(final AttributeCollection.Builder builder) {
         return builder.setGroup(new AttributeGroup("snowflake", "Snowflake")).add(Accessibility.EDITABLE,
             "snowflake.account.domain", DEFAULT_ACCOUNT_DOMAIN, "Account domain",
             "The domain part of your Snowflake account which replaces the &lt;" + VARIABLE_NAME_ACCOUNT_DOMAIN

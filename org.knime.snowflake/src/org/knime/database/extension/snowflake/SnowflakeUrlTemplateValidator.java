@@ -48,10 +48,10 @@ import static java.util.Collections.unmodifiableMap;
 import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_DATABASE;
 import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_SCHEMA;
 import static org.knime.database.driver.URLTemplates.validateDriverUrlTemplate;
-import static org.knime.database.extension.snowflake.SnowflakeAbstractDriverLocator.VARIABLE_NAME_ACCOUNT_DOMAIN;
-import static org.knime.database.extension.snowflake.SnowflakeAbstractDriverLocator.VARIABLE_NAME_ACCOUNT_NAME;
-import static org.knime.database.extension.snowflake.SnowflakeAbstractDriverLocator.VARIABLE_NAME_ROLE;
-import static org.knime.database.extension.snowflake.SnowflakeAbstractDriverLocator.VARIABLE_NAME_WAREHOUSE;
+import static org.knime.database.extension.snowflake.util.SnowflakeAbstractDriverLocator.VARIABLE_NAME_ACCOUNT_DOMAIN;
+import static org.knime.database.extension.snowflake.util.SnowflakeAbstractDriverLocator.VARIABLE_NAME_ACCOUNT_NAME;
+import static org.knime.database.extension.snowflake.util.SnowflakeAbstractDriverLocator.VARIABLE_NAME_ROLE;
+import static org.knime.database.extension.snowflake.util.SnowflakeAbstractDriverLocator.VARIABLE_NAME_WAREHOUSE;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;

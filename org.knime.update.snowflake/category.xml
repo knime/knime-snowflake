@@ -12,6 +12,7 @@
    <feature id="org.knime.features.ext.h2o.database.source" version="0.0.0">
       <category name="knime-snowflake"/>
    </feature>
+   <feature id="org.knime.features.snowflake.deprecated" />
    <bundle id="org.knime.snowflake.testing.janitor" version="0.0.0"/>
    <category-def name="knime-snowflake" label="Build artifacts from knime-snowflake">
       <description>

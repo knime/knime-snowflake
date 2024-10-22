@@ -50,6 +50,7 @@ import org.knime.database.attribute.AttributeCollection;
 import org.knime.database.attribute.AttributeCollection.Accessibility;
 import org.knime.database.connection.DBConnectionManagerAttributes;
 import org.knime.database.extension.snowflake.type.Snowflake;
+import org.knime.database.extension.snowflake.util.SnowflakeAbstractDriverLocator;
 import org.knime.database.util.DerivableProperties;
 import org.knime.database.util.DerivableProperties.ValueType;
 

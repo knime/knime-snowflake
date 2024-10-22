@@ -215,7 +215,6 @@
         supplier="org.knime.database.extension.snowflake.SnowflakeTypeMappingServiceSupplier" />
    </extension>
    <extension point="org.knime.database.Driver">
-      <Driver locator="org.knime.database.extension.snowflake.SnowflakeDriverLocator" />
       <Driver locator="org.knime.database.extension.snowflake.SnowflakeDriverLocator2" />
       <Driver locator="org.knime.database.extension.snowflake.SnowflakeDriverLocator3" />
    </extension>

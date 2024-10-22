@@ -49,6 +49,8 @@ import static java.util.Arrays.asList;
 import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_DATABASE;
 import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_SCHEMA;
 
+import org.knime.database.extension.snowflake.util.SnowflakeAbstractDriverLocator;
+
 /**
  * This class contains a Snowflake driver definition. The definition will be used by Eclipse extensions API to create a
  * database driver instance.
