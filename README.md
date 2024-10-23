@@ -1,5 +1,7 @@
 # KNIME Snowflake modules
 
+This repository is maintained by the [KNIME Team Quokkas](mailto:scrum-bd-esi@knime.com).
+
 ## KNIME Snowflake
 
 ### Maven build 
