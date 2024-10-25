@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.knime.features.snowflake.deprecated"
-      label="KNIME Snowflake Deprecated Drivers"
+      label="KNIME Snowflake Drivers (deprecated)"
       version="5.4.0.qualifier"
       provider-name="KNIME AG, Zurich, Switzerland">
 
    <description>
-      This feature contains the deprecated Snowflake JDBC drivers.
-Install this feature only if you need to use these deprecated JDBC
-drivers which are no longer supported by Snowflake and might contain
-security risks.
+      This extension is no longer required since a newer version of
+the driver is now included in the KNIME Snowflake Integration
+extension. Install this extension only to be able to execute
+existing workflows that used older deprecated drivers without 
+altering them. To use the new driver in existing workflows 
+please open the node dialog of the Snowflake Connector node 
+and enable the &quot;Use latest driver version available&quot; option
+or select a newer driver version.
+
+Please note that the drivers in this extension are no longer 
+supported by Snowflake and might contain security risks.
    </description>
 
    <copyright>
