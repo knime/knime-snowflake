@@ -1,76 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.knime.maven</groupId>
-		<artifactId>ap.parent</artifactId>
-		<version>5.4.0</version>
-	</parent>
+    <parent>
+        <groupId>org.knime.maven</groupId>
+        <artifactId>ap.parent</artifactId>
+        <version>5.4.0</version>
+    </parent>
 
 
-	<groupId>org.knime</groupId>
-	<artifactId>knime-snowflake</artifactId>
-	<version>${revision}${changelist}</version>
-	<packaging>pom</packaging>
+    <groupId>org.knime</groupId>
+    <artifactId>knime-snowflake</artifactId>
+    <version>${revision}${changelist}</version>
+    <packaging>pom</packaging>
 
-	<profiles>
-		<profile>
-			<id>build</id>
-			<modules>
-			    <module>org.knime.snowflake.h2o.companion</module>
-				<module>org.knime.snowflake.deprecated/lib/fetch_jars</module>
-				<module>org.knime.snowflake/lib/fetch_jars2</module>
-				<module>org.knime.snowflake/lib/fetch_jars3</module>
-				<module>org.knime.snowflake</module>
-				<module>org.knime.snowflake.deprecated</module>
-				<module>org.knime.ext.h2o.database</module>
-				<module>org.knime.snowflake.testing.janitor</module>
-				<module>org.knime.features.snowflake</module>
-				<module>org.knime.features.snowflake.deprecated</module>
-				<module>org.knime.features.ext.h2o.database</module>
-				<module>org.knime.update.snowflake</module>
-			</modules>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-		</profile>
-		<profile>
-			<id>snowflake-test</id>
-			<modules>
+    <profiles>
+        <profile>
+            <id>build</id>
+            <modules>
+                <module>org.knime.snowflake.h2o.companion</module>
+                <module>org.knime.snowflake.deprecated/lib/fetch_jars</module>
+                <module>org.knime.snowflake/lib/fetch_jars2</module>
+                <module>org.knime.snowflake/lib/fetch_jars3</module>
+                <module>org.knime.snowflake/lib/fetch_jars_3_20</module>
+                <module>org.knime.snowflake</module>
+                <module>org.knime.snowflake.deprecated</module>
+                <module>org.knime.ext.h2o.database</module>
+                <module>org.knime.snowflake.testing.janitor</module>
+                <module>org.knime.features.snowflake</module>
+                <module>org.knime.features.snowflake.deprecated</module>
+                <module>org.knime.features.ext.h2o.database</module>
+                <module>org.knime.update.snowflake</module>
+            </modules>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>snowflake-test</id>
+            <modules>
                 <module>../knime-database/org.knime.database/lib/fetch_jars</module>
                 <module>../knime-database/org.knime.database.extensions/lib/h2/fetch_v196_jars</module>
                 <module>../knime-database/org.knime.database.extensions/lib/h2/fetch_v21_jars</module>
-				<module>org.knime.snowflake.deprecated/lib/fetch_jars</module>
+                <module>org.knime.snowflake.deprecated/lib/fetch_jars</module>
                 <module>org.knime.snowflake/lib/fetch_jars2</module>
                 <module>org.knime.snowflake/lib/fetch_jars3</module>
-				<module>org.knime.snowflake</module>
-				<module>org.knime.snowflake.tests</module>
-				<module>org.knime.features.snowflake</module>
+                <module>org.knime.snowflake/lib/fetch_jars_3_20</module>
+                <module>org.knime.snowflake</module>
+                <module>org.knime.snowflake.tests</module>
+                <module>org.knime.features.snowflake</module>
                 <module>org.knime.features.snowflake.testing</module>
-				<module>../knime-database/org.knime.database</module>
-				<module>../knime-database/org.knime.database.nodes</module>
-				<module>../knime-database/org.knime.workflow.migration</module>
-				<module>../knime-database/org.knime.database.extensions</module>
-				<module>../knime-database/org.knime.database.extensions.oracle</module>
-				<module>../knime-database/org.knime.database.extensions.db2</module>
-				<module>../knime-database/org.knime.database.tests</module>
-				<module>../knime-database/org.knime.database.tests.collector</module>
-			</modules>
-		</profile>
-	</profiles>
+                <module>../knime-database/org.knime.database</module>
+                <module>../knime-database/org.knime.database.nodes</module>
+                <module>../knime-database/org.knime.workflow.migration</module>
+                <module>../knime-database/org.knime.database.extensions</module>
+                <module>../knime-database/org.knime.database.extensions.oracle</module>
+                <module>../knime-database/org.knime.database.extensions.db2</module>
+                <module>../knime-database/org.knime.database.tests</module>
+                <module>../knime-database/org.knime.database.tests.collector</module>
+            </modules>
+        </profile>
+    </profiles>
 
-	<repositories>
-		<repository>
-			<id>p2-knime-base</id>
-			<layout>p2</layout>
-			<url>${knime.base.p2}</url>
-		</repository>
+    <repositories>
+        <repository>
+            <id>p2-knime-base</id>
+            <layout>p2</layout>
+            <url>${knime.base.p2}</url>
+        </repository>
         <repository>
             <id>p2-knime-filehandling-core</id>
             <layout>p2</layout>
             <url>${knime.filehandling.core.p2}</url>
         </repository>
-		<repository>
+        <repository>
             <id>p2-knime-bigdata</id>
             <layout>p2</layout>
             <url>${knime.bigdata.p2}</url>
@@ -95,21 +97,21 @@
             <layout>p2</layout>
             <url>${knime.core.p2}</url>
         </repository>
-		<repository>
-			<id>p2-knime-core-ui</id>
-			<layout>p2</layout>
-			<url>${knime.core.ui.p2}</url>
-		</repository>
+        <repository>
+            <id>p2-knime-core-ui</id>
+            <layout>p2</layout>
+            <url>${knime.core.ui.p2}</url>
+        </repository>
         <repository>
             <id>p2-knime-credentials-base</id>
             <layout>p2</layout>
             <url>${knime.credentials.base.p2}</url>
         </repository>
-		<repository>
-			<id>p2-knime-database</id>
-			<layout>p2</layout>
-			<url>${knime.database.p2}</url>
-		</repository>
+        <repository>
+            <id>p2-knime-database</id>
+            <layout>p2</layout>
+            <url>${knime.database.p2}</url>
+        </repository>
         <repository>
             <id>p2-knime-expressions</id>
             <layout>p2</layout>
@@ -140,11 +142,11 @@
             <layout>p2</layout>
             <url>${knime.json.p2}</url>
         </repository>
-		<repository>
-			<id>p2-knime-kerberos</id>
-			<layout>p2</layout>
-			<url>${knime.kerberos.p2}</url>
-		</repository>
+        <repository>
+            <id>p2-knime-kerberos</id>
+            <layout>p2</layout>
+            <url>${knime.kerberos.p2}</url>
+        </repository>
         <repository>
             <id>p2-knime-office365</id>
             <layout>p2</layout>
@@ -155,139 +157,139 @@
             <layout>p2</layout>
             <url>${knime.product.p2}</url>
         </repository>
-		<repository>
-			<id>p2-knime-shared</id>
-			<layout>p2</layout>
-			<url>${knime.shared.p2}</url>
-		</repository>
+        <repository>
+            <id>p2-knime-shared</id>
+            <layout>p2</layout>
+            <url>${knime.shared.p2}</url>
+        </repository>
         <repository>
             <id>p2-knime-svg</id>
             <layout>p2</layout>
             <url>${knime.svg.p2}</url>
         </repository>
-		<repository>
-			<id>p2-knime-testing-internal</id>
-			<layout>p2</layout>
-			<url>${knime.p2.repo}/knime-testing-internal/${git.branch}</url>
-		</repository>
-		<repository>
-			<id>p2-knime-tp</id>
-			<layout>p2</layout>
-			<url>${knime.tp.p2}</url>
-		</repository>
+        <repository>
+            <id>p2-knime-testing-internal</id>
+            <layout>p2</layout>
+            <url>${knime.p2.repo}/knime-testing-internal/${git.branch}</url>
+        </repository>
+        <repository>
+            <id>p2-knime-tp</id>
+            <layout>p2</layout>
+            <url>${knime.tp.p2}</url>
+        </repository>
         <repository>
             <id>p2-knime-workbench</id>
             <layout>p2</layout>
             <url>${knime.workbench.p2}</url>
         </repository>
-	</repositories>
+    </repositories>
 
-	<properties>
-		<revision>5.4.0</revision>
-		<changelist>-SNAPSHOT</changelist>
-		<feature-branch-extension.branchListProperty>git.branch</feature-branch-extension.branchListProperty>
-		<feature-branch-extension.appendArtifactoryProperties>false</feature-branch-extension.appendArtifactoryProperties>
+    <properties>
+        <revision>5.4.0</revision>
+        <changelist>-SNAPSHOT</changelist>
+        <feature-branch-extension.branchListProperty>git.branch</feature-branch-extension.branchListProperty>
+        <feature-branch-extension.appendArtifactoryProperties>false</feature-branch-extension.appendArtifactoryProperties>
 
-		<parent.project.basedir>${project.basedir}</parent.project.basedir>
+        <parent.project.basedir>${project.basedir}</parent.project.basedir>
 
-		<checkstyle.config.location>${parent.project.basedir}/preferences/checkstyle/Checkstyle.xml</checkstyle.config.location>
-		<checkstyle.console>true</checkstyle.console>
-		<checkstyle.consoleOutput>true</checkstyle.consoleOutput>
-		<checkstyle.includes>*.xml,src/**/*.java,src/**/*.properties,src/**/*.txt,src/**/*.xml</checkstyle.includes>
+        <checkstyle.config.location>${parent.project.basedir}/preferences/checkstyle/Checkstyle.xml</checkstyle.config.location>
+        <checkstyle.console>true</checkstyle.console>
+        <checkstyle.consoleOutput>true</checkstyle.consoleOutput>
+        <checkstyle.includes>*.xml,src/**/*.java,src/**/*.properties,src/**/*.txt,src/**/*.xml</checkstyle.includes>
 
-		<maven.javadoc.skip>true</maven.javadoc.skip>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
 
-		<spotbugs.skip>true</spotbugs.skip>
-		<spotbugs.effort>Max</spotbugs.effort>
-		<spotbugs.threshold>Default</spotbugs.threshold>
-		<spotbugs.maxRank>20</spotbugs.maxRank>
-		<spotbugs.xmlOutput>true</spotbugs.xmlOutput>
-		<spotbugs.config.directory>${parent.project.basedir}/preferences/spotbugs</spotbugs.config.directory>
-		<knime.sonar-env>Sonarcloud</knime.sonar-env>
+        <spotbugs.skip>true</spotbugs.skip>
+        <spotbugs.effort>Max</spotbugs.effort>
+        <spotbugs.threshold>Default</spotbugs.threshold>
+        <spotbugs.maxRank>20</spotbugs.maxRank>
+        <spotbugs.xmlOutput>true</spotbugs.xmlOutput>
+        <spotbugs.config.directory>${parent.project.basedir}/preferences/spotbugs</spotbugs.config.directory>
+        <knime.sonar-env>Sonarcloud</knime.sonar-env>
 
-	</properties>
-	<build>
-		<sourceDirectory>src/</sourceDirectory>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<artifactId>maven-checkstyle-plugin</artifactId>
-					<version>3.0.0</version>
-					<configuration>
-						<propertyExpansion>checkstyle.config.directory=${parent.project.basedir}/preferences/checkstyle</propertyExpansion>
-						<sourceDirectories>${project.basedir}</sourceDirectories>
-						<testSourceDirectories/>
-					</configuration>
-					<dependencies>
-						<dependency>
-							<groupId>com.puppycrawl.tools</groupId>
-							<artifactId>checkstyle</artifactId>
-							<version>8.18</version>
-						</dependency>
-					</dependencies>
-					<executions>
-						<execution>
-							<id>process-resources-check</id>
-							<phase>process-resources</phase>
-							<goals>
-								<goal>check</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.2.0</version>
-					<configuration>
-						<additionalparam>-Xdoclint:none</additionalparam>
-						<quiet>true</quiet>
-						<!-- <links> -->
-						<!-- <link>https://www.knime.com/docs/api</link> -->
-						<!-- </links> -->
-						<tags>
-							<tag>
-								<name>noextend</name>
-								<placement>X</placement>
-							</tag>
-							<tag>
-								<name>noimplement</name>
-								<placement>X</placement>
-							</tag>
-							<tag>
-								<name>noreference</name>
-								<placement>X</placement>
-							</tag>
-						</tags>
-					</configuration>
-					<executions>
-						<execution>
-							<id>process-resources-javadoc</id>
-							<phase>process-resources</phase>
-							<goals>
-								<goal>javadoc</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<groupId>com.github.spotbugs</groupId>
-					<artifactId>spotbugs-maven-plugin</artifactId>
-					<version>4.2.2</version>
-					<configuration>
-						<includeFilterFile>${spotbugs.config.directory}/spotbugs-include.xml</includeFilterFile>
-						<excludeFilterFile>${spotbugs.config.directory}/spotbugs-exclude.xml</excludeFilterFile>
-					</configuration>
-					<executions>
-						<execution>
-							<id>compile-check</id>
-							<phase>compile</phase>
-							<goals>
-								<goal>check</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
+    </properties>
+    <build>
+        <sourceDirectory>src/</sourceDirectory>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <configuration>
+                        <propertyExpansion>checkstyle.config.directory=${parent.project.basedir}/preferences/checkstyle</propertyExpansion>
+                        <sourceDirectories>${project.basedir}</sourceDirectories>
+                        <testSourceDirectories/>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.puppycrawl.tools</groupId>
+                            <artifactId>checkstyle</artifactId>
+                            <version>8.18</version>
+                        </dependency>
+                    </dependencies>
+                    <executions>
+                        <execution>
+                            <id>process-resources-check</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.2.0</version>
+                    <configuration>
+                        <additionalparam>-Xdoclint:none</additionalparam>
+                        <quiet>true</quiet>
+                        <!-- <links> -->
+                        <!-- <link>https://www.knime.com/docs/api</link> -->
+                        <!-- </links> -->
+                        <tags>
+                            <tag>
+                                <name>noextend</name>
+                                <placement>X</placement>
+                            </tag>
+                            <tag>
+                                <name>noimplement</name>
+                                <placement>X</placement>
+                            </tag>
+                            <tag>
+                                <name>noreference</name>
+                                <placement>X</placement>
+                            </tag>
+                        </tags>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>process-resources-javadoc</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>javadoc</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>4.2.2</version>
+                    <configuration>
+                        <includeFilterFile>${spotbugs.config.directory}/spotbugs-include.xml</includeFilterFile>
+                        <excludeFilterFile>${spotbugs.config.directory}/spotbugs-exclude.xml</excludeFilterFile>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>compile-check</id>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 </project>
