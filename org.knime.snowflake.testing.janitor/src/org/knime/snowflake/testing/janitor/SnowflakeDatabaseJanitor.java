@@ -53,6 +53,8 @@ import java.util.List;
 
 import org.knime.core.node.workflow.FlowVariable;
 import org.knime.database.DBType;
+import org.knime.database.driver.DBDriverDefinition;
+import org.knime.database.driver.DBDriverRegistry;
 import org.knime.database.extension.snowflake.type.Snowflake;
 import org.knime.database.testing.janitor.api.AbstractDatabaseJanitor;
 
@@ -73,18 +75,18 @@ public class SnowflakeDatabaseJanitor extends AbstractDatabaseJanitor {
 
     private static final int DB_PORT = -1;
 
-    private static final String DATABASE_TYPE = Snowflake.DB_TYPE.getId();
+    private static final DBType DB_TYPE = Snowflake.DB_TYPE;
 
     //Copied from SnowflakeDriverLocator
-    private static final String DRIVER_CLASS = "net.snowflake.client.jdbc.SnowflakeDriver";
-    private static final String DRIVER_ID = "built-in-snowflake-3.14.1";
+    private static final DBDriverDefinition DRIVER_DEFINITION =
+            DBDriverRegistry.getInstance().getLatestDriver(DB_TYPE).getDriverDefinition();
 
     /**
      * Constructor.
      */
     public SnowflakeDatabaseJanitor() {
-        super(INITIAL_SCHEMA, null, DB_PORT, null, null, DATABASE_TYPE, DATABASE_TYPE,
-            DRIVER_ID, DRIVER_CLASS, createNewSchemaName(), DATABASE);
+        super(INITIAL_SCHEMA, null, DB_PORT, null, null, DB_TYPE.getId(), DB_TYPE.getId(),
+            DRIVER_DEFINITION.getId(), DRIVER_DEFINITION.getDriverClass(), createNewSchemaName(), DATABASE);
     }
 
     private static String createNewSchemaName() {
