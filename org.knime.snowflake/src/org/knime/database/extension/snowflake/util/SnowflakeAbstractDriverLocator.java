@@ -51,6 +51,8 @@ import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_SCHEMA;
 import java.util.Collection;
 import java.util.TimeZone;
 
+import org.knime.core.node.message.Message;
+import org.knime.core.node.message.MessageBuilder;
 import org.knime.database.DBType;
 import org.knime.database.attribute.Attribute;
 import org.knime.database.attribute.AttributeCollection;
@@ -143,6 +145,23 @@ public abstract class SnowflakeAbstractDriverLocator extends AbstractDriverLocat
             "snowflake.account.domain", DEFAULT_ACCOUNT_DOMAIN, "Account domain",
             "The domain part of your Snowflake account which replaces the &lt;" + VARIABLE_NAME_ACCOUNT_DOMAIN
             + "&gt; JDBC URL template token.");
+    }
+
+    /**
+     * Helper method to create a standardized Snowflake driver deprecation message.
+     *
+     * @param deprecationDate the date the driver gets deprecated e.g. February 2025
+     * @return a default deprecated message
+     */
+    protected static Message buildDeprecatedMessage(final String deprecationDate) {
+        final MessageBuilder builder = Message.builder();
+        builder.withSummary("Selected database driver is deprecated.");
+        builder.addTextIssue("As of " + deprecationDate + ", the selected database driver is no longer supported "
+            + "by Snowflake. It will be moved to a separate extension that requires manual installation with one "
+            + "of the next releases.");
+        builder.addResolutions("Enable the 'Use latest driver version available' option in the node dialog.",
+            "Select a new version of the driver in the node dialog.");
+        return builder.build().get();
     }
 
     private final String m_version;
