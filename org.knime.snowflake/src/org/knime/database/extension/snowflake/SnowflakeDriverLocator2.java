@@ -49,6 +49,9 @@ import static java.util.Arrays.asList;
 import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_DATABASE;
 import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_SCHEMA;
 
+import java.util.Optional;
+
+import org.knime.core.node.message.Message;
 import org.knime.database.extension.snowflake.util.SnowflakeAbstractDriverLocator;
 
 /**
@@ -60,6 +63,9 @@ import org.knime.database.extension.snowflake.util.SnowflakeAbstractDriverLocato
  */
 public class SnowflakeDriverLocator2 extends SnowflakeAbstractDriverLocator {
 
+    private static final Optional<Message> DEPRECATED_MESSAGE =
+            Optional.of(SnowflakeAbstractDriverLocator.buildDeprecatedMessage("February 2025"));
+
     /**
      * Constructor for {@link SnowflakeDriverLocator2}.
      */
@@ -68,10 +74,19 @@ public class SnowflakeDriverLocator2 extends SnowflakeAbstractDriverLocator {
     }
     @Override
     public String getURLTemplate() {
-        //TODO how to handle VPS installations
         return "jdbc:snowflake://<" + VARIABLE_NAME_ACCOUNT_NAME + ">.snowflakecomputing.com/" //forced line break
             + "?warehouse=<" + VARIABLE_NAME_WAREHOUSE + ">" //forced line break
             + "&role=[" + VARIABLE_NAME_ROLE + "]" + "&db=[" + VARIABLE_NAME_DATABASE + "]" //forced line break
             + "&schema=[" + VARIABLE_NAME_SCHEMA + "]";
+    }
+
+    @Override
+    public Optional<Message> getDeprecatedMessage() {
+        return DEPRECATED_MESSAGE;
+    }
+
+    @Override
+    public boolean isDeprecated() {
+        return true;
     }
 }
