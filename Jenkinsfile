@@ -118,7 +118,7 @@ def dbTest() {
 
                 checkout([
                     $class: 'GitSCM',
-                    branches: [[name: BN ]],
+                    branches: [[name: branchName ]],
                     extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'knime-database'], [$class: 'GitLFSPull']],
                     userRemoteConfigs: [[ credentialsId: 'bitbucket-jenkins', url: 'https://bitbucket.org/KNIME/knime-database' ]]
                 ])
