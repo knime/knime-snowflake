@@ -55,52 +55,52 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.credentials.base.oauth.api.JWTCredential;
+import org.knime.credentials.base.oauth.api.AccessTokenAccessor;
 import org.knime.database.VariableContext;
 import org.knime.database.attribute.AttributeValueRepository;
 import org.knime.database.connection.UrlDBConnectionController;
 
 /**
- * {@link UrlDBConnectionController} that uses a given {@link JWTCredential} as login information.
+ * {@link UrlDBConnectionController} that uses a given OAuth {@link AccessTokenAccessor} as login information.
  *
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
  * @since 4.5
  */
-public class MSAuthDBConnectionController extends UrlDBConnectionController {
+public class SnowflakeOAuthDBConnectionController extends UrlDBConnectionController {
 
     private static final String JDBC_PROPERTY_AUTHENTICATOR_OAUTH = "oauth";
 
-    private static final NodeLogger LOGGER = NodeLogger.getLogger(MSAuthDBConnectionController.class);
+    private static final NodeLogger LOGGER = NodeLogger.getLogger(SnowflakeOAuthDBConnectionController.class);
 
     private static final String JDBC_PROPERTY_AUTHENTICATOR = "authenticator";
 
     private static final String JDBC_PROPERTY_TOKEN = "token";
 
-    private final JWTCredential m_jwtCredential;
+    private final AccessTokenAccessor m_tokenAccessor;
 
     /**
-     * Constructs a {@link MSAuthDBConnectionController} object.
+     * Constructs a {@link SnowflakeOAuthDBConnectionController} object.
      *
      * @param internalSettings {@link NodeSettingsRO} to read from
      * @throws InvalidSettingsException if the credential can not be loaded
      */
-    public MSAuthDBConnectionController(final NodeSettingsRO internalSettings) throws InvalidSettingsException {
+    public SnowflakeOAuthDBConnectionController(final NodeSettingsRO internalSettings) throws InvalidSettingsException {
         super(internalSettings);
         throw new InvalidSettingsException(
             "Restoring of database connection not supported. Please re-execute the node.");
     }
 
     /**
-     * Constructs a {@link MSAuthDBConnectionController} object.
+     * Constructs a {@link SnowflakeOAuthDBConnectionController} object.
      *
-     * @param jwtCredential {@link JWTCredential} to use for authentication
+     * @param tokenAccessor {@link AccessTokenAccessor} to use for authentication
      * @param jdbcUrl the database connection URL as a {@link String}.
      * @throws NullPointerException if {@code jdbcUrl} is {@code null}.
      * @since 5.2
      */
-    public MSAuthDBConnectionController(final JWTCredential jwtCredential, final String jdbcUrl) {
+    public SnowflakeOAuthDBConnectionController(final AccessTokenAccessor tokenAccessor, final String jdbcUrl) {
         super(jdbcUrl);
-        m_jwtCredential = jwtCredential;
+        m_tokenAccessor = tokenAccessor;
     }
 
     @Override
@@ -122,7 +122,7 @@ public class MSAuthDBConnectionController extends UrlDBConnectionController {
                 + "input connection information.");
         }
         try {
-            final String token =  m_jwtCredential.getAccessToken();
+            final String token =  m_tokenAccessor.getAccessToken();
             jdbcProperties.setProperty(JDBC_PROPERTY_TOKEN, token);
 
             final String userEnteredAuthenticator = jdbcProperties.getProperty(JDBC_PROPERTY_AUTHENTICATOR);
@@ -133,10 +133,10 @@ public class MSAuthDBConnectionController extends UrlDBConnectionController {
             }
             jdbcProperties.setProperty(JDBC_PROPERTY_AUTHENTICATOR, JDBC_PROPERTY_AUTHENTICATOR_OAUTH);
             monitor.checkCanceled();
-            LOGGER.debug("Using Microsoft access token to establish database connection");
+            LOGGER.debug("Using OAuth access token to establish database connection");
             return jdbcProperties;
         } catch (IOException ex) {
-            throw new SQLException("Error retrieving access token: " + ex.getMessage(), ex);
+            throw new SQLException("Error retrieving OAuth access token: " + ex.getMessage(), ex);
         }
     }
 }

@@ -57,7 +57,7 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.credentials.base.CredentialPortObjectSpec;
 import org.knime.credentials.base.NoSuchCredentialException;
-import org.knime.credentials.base.oauth.api.JWTCredential;
+import org.knime.credentials.base.oauth.api.AccessTokenAccessor;
 import org.knime.database.connection.DBConnectionController;
 import org.knime.database.connection.UserDBConnectionController;
 import org.knime.database.node.connector.AbstractDBConnectorNodeModel;
@@ -84,10 +84,12 @@ public class SnowflakeDBConnectorNodeModel extends AbstractDBConnectorNodeModel<
     protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
         if (m_hasInputPort) {
             final var spec = (CredentialPortObjectSpec) inSpecs[0];
-            try {
-                spec.resolveCredential(JWTCredential.class);
-            } catch (NoSuchCredentialException ex) {
-                throw new InvalidSettingsException(ex.getMessage(), ex);
+            if (spec.isPresent()) {
+                try {
+                    spec.toAccessor(AccessTokenAccessor.class);
+                } catch (NoSuchCredentialException ex) {
+                    throw new InvalidSettingsException(ex.getMessage(), ex);
+                }
             }
         }
         return super.configure(inSpecs);
@@ -98,7 +100,7 @@ public class SnowflakeDBConnectorNodeModel extends AbstractDBConnectorNodeModel<
         throws InvalidSettingsException {
 
         if (m_hasInputPort) {
-            return new MSAuthDBConnectionController(internalSettings);
+            return new SnowflakeOAuthDBConnectionController(internalSettings);
         } else {
             return new UserDBConnectionController(internalSettings, getCredentialsProvider());
         }
@@ -113,8 +115,8 @@ public class SnowflakeDBConnectorNodeModel extends AbstractDBConnectorNodeModel<
         if (m_hasInputPort) {
             try {
                 final var spec = (CredentialPortObjectSpec)inObjects.get(0).getSpec();
-                final var jwtCredential = spec.resolveCredential(JWTCredential.class);
-                return new MSAuthDBConnectionController(jwtCredential, sessionSettings.getDBUrl());
+                final AccessTokenAccessor tokenAccessor = spec.toAccessor(AccessTokenAccessor.class);
+                return new SnowflakeOAuthDBConnectionController(tokenAccessor, sessionSettings.getDBUrl());
             } catch (NoSuchCredentialException ex) {
                 throw new InvalidSettingsException(ex.getMessage(), ex);
             }
