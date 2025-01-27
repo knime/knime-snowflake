@@ -102,19 +102,33 @@ try {
 
 def dbTest() {
     node('maven && java17') {
-        try {
-            // verification
-            stage('Testing Snowflake: ') {
-                env.lastStage = env.STAGE_NAME
-
-                def branchName = env.CHANGE_BRANCH ?: env.BRANCH_NAME // use correct branch in PR builds
-
+        try {            
+            stage('Checkout Sources') {
+                def branchName = env.CHANGE_BRANCH ?: env.BRANCH_NAME
                 checkout([
                     $class: 'GitSCM',
                     branches: [[name: branchName]],
                     extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'knime-snowflake'], [$class: 'GitLFSPull']],
                     userRemoteConfigs: [[ credentialsId: 'bitbucket-jenkins', url: 'https://bitbucket.org/KNIME/knime-snowflake' ]]
                 ])
+            }
+
+            // verification
+            stage('Testing Snowflake: ') {
+                def branchName = env.CHANGE_BRANCH ?: env.BRANCH_NAME ?: 'master'
+                def branchExists = false
+                def knimeDatabaseRepoUrl = 'https://bitbucket.org/KNIME/knime-database'
+                env.lastStage = env.STAGE_NAME               
+
+                branchExists = sh(
+                                script: "git ls-remote --heads ${knimeDatabaseRepoUrl} ${branchName}",
+                                returnStatus: true
+                            ) == 0
+
+                if (!branchExists) {
+                    echo "Branch '${branchName}' does not exist. Falling back to 'master'."
+                    branchName = 'master'
+                }
 
                 checkout([
                     $class: 'GitSCM',
