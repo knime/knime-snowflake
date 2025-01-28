@@ -8,8 +8,15 @@
     <fullDescription>
         <intro>
             This node creates a connection to a Snowflake database using the selected Snowflake JDBC driver. 
-            For further information about Snowflake see the <a href="https://docs.snowflake.com/en/">Snowflake documentation</a>.
             <p>
+            To get started with Snowflake in KNIME have a look at the 
+            <a href="https://hub.knime.com/knime/collections/KNIME%20for%20Snowflake%20Users~1sIkhkwhAvlptfBj">KNIME for Snowflake Users collection</a>
+            that provides you with links to important KNIME nodes, example workflows and further resources such as the 
+            <a href="https://docs.knime.com/latest/snowflake_extension_guide/index.html">KNIME Snowflake Extension Guide.</a>
+             </p><p>
+             For further information about Snowflake in general see the 
+            <a href="https://docs.snowflake.com/en/">Snowflake documentation.</a>
+            </p><p>
             This node uses the selected driver's 
             <a href="https://docs.knime.com/latest/db_extension_guide/index.html#url_template">JDBC URL template</a> 
             to create the concrete database URL. Field validation in the dialog depends on whether the (included) 
@@ -131,7 +138,9 @@
         <tab name="Advanced">
             <description>
                 This tab allows you to define KNIME framework properties such as connection handling,
-                advanced SQL dialect settings or logging options.
+                advanced SQL dialect settings or logging options. In addition the Snowflake account domain can be
+                specified such as snowflakecomputing.cn for the China region. For details see the 
+                <a href="https://docs.snowflake.com/en/user-guide/intro-regions#asia-pacific-china">Snowflake supported cloud regions.</a>
             </description>
             <option name="Advanced Parameters">
                 For more information about the supported parameters see the 
@@ -165,21 +174,32 @@
     </fullDescription>
 
     <ports>
-        <dynInPort insert-before="0" name="Credential (JWT)" group-identifier="Microsoft Authentication">
+        <dynInPort insert-before="0" name="Credential" group-identifier="Microsoft Authentication">
             <p>
-            To use this input port, you must attach the Microsoft Authenticator. Choose one of the
-            OAuth2 authentication types and enter the custom scope you want to use. The scope is specific to
-            the setup of your Azure Entra ID (formerly Azure Active Directory). 
+            This input port allows you to connect a credential port with an 
+            <a href="https://docs.snowflake.com/en/user-guide/oauth-intro">OAuth access token</a> for authentication.
+            </p><p>
+            To use <a href="https://docs.snowflake.com/en/user-guide/oauth-snowflake-overview">Snowflake OAuth</a>
+            you can use the <a href="https://hub.knime.com/n/a5e7aaUxN7A9akSp">OAuth2 Authenticator</a> node.
+            </p><p>
+            For <a href="https://docs.snowflake.com/en/user-guide/oauth-ext-overview">External OAuth</a> the predecessor 
+            node depends on the configured identity provider e.g. for Microsoft Entra ID, you can attach the 
+            <a href="https://hub.knime.com/n/f__YQsR0VpxoU5I3">Microsoft Authenticator</a> node. In the 
+            Authenticator node choose one of the OAuth2 authentication types and enter the custom scope you want to use. 
+            The scope is specific to the setup of your Azure Entra ID (formerly Azure Active Directory). 
             For further details on how to create a scope or where to find it see the 
             <a href="https://docs.snowflake.com/en/user-guide/oauth-azure.html#step-1-configure-the-oauth-resource-in-azure-ad">Snowflake documentation.</a>
             </p><p>
             When available the node will set the
             <a href="https://docs.snowflake.com/en/user-guide/jdbc-parameters.html#authenticator"><i>authenticator</i></a> as well as
             <a href="https://docs.snowflake.com/en/user-guide/jdbc-parameters.html#token"><i>token</i></a>  
-            JDBC parameter automatically based on the information from the connected  Microsoft Authenticator
-            node.
+            JDBC parameter automatically based on the information from the connected Authenticator node.
             Depending on your database setup you might need to specify additional JDBC parameters which are described in the 
             <a href="https://docs.snowflake.com/en/user-guide/jdbc-parameters.html#jdbc-driver-connection-parameter-reference">Snowflake documentation.</a>
+            </p><p>
+            For further details on how to configure the connector node for the different supported authentication 
+            methods see the <a href="https://docs.knime.com/latest/snowflake_extension_guide/index.html#authentication">Authentication</a> section of the 
+            <a href="https://docs.knime.com/latest/snowflake_extension_guide/index.html">KNIME Snowflake Extension Guide.</a>
             </p>
         </dynInPort>
         <outPort index="0" name="DB Connection">Snowflake DB Connection.</outPort>
