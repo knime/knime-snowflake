@@ -43,7 +43,7 @@
  * ------------------------------------------------------------------------
  */
 
-package org.knime.database.extension.snowflake;
+package org.knime.database.extension.snowflake.driver;
 
 import static java.util.Arrays.asList;
 import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_DATABASE;
