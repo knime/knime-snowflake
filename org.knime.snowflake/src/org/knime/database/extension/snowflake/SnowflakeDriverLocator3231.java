@@ -47,10 +47,6 @@ package org.knime.database.extension.snowflake;
 
 import static java.util.Arrays.asList;
 
-import java.util.Optional;
-
-import org.knime.core.node.message.Message;
-import org.knime.core.node.message.MessageBuilder;
 import org.knime.database.extension.snowflake.util.SnowflakeAbstractDriverLocator;
 
 /**
@@ -60,36 +56,12 @@ import org.knime.database.extension.snowflake.util.SnowflakeAbstractDriverLocato
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
  *
  */
-public class SnowflakeDriverLocator320 extends SnowflakeAbstractDriverLocator {
-
-    private static final Optional<Message> DEPRECATED_MESSAGE = Optional.of(buildDeprecatedMessage());
-
-    private static Message buildDeprecatedMessage() {
-        final MessageBuilder builder = Message.builder();
-        builder.withSummary("Selected database driver is deprecated.");
-        builder.addTextIssue("The selected database driver is no longer supported since it contains a bug that "
-            + "causes several database nodes such as the DB Loader and the Snowflake H2O nodes to fail on Windows. "
-            + "It will be moved to a separate extension that requires manual installation with one "
-            + "of the next releases.");
-        builder.addResolutions("Enable the 'Use latest driver version available' option in the node dialog.",
-            "Select a new version of the driver in the node dialog.");
-        return builder.build().get();
-    }
+public class SnowflakeDriverLocator3231 extends SnowflakeAbstractDriverLocator {
 
     /**
-     * Constructor for {@link SnowflakeDriverLocator320}.
+     * Constructor for {@link SnowflakeDriverLocator3231}.
      */
-    public SnowflakeDriverLocator320() {
-        super("3.20.0", asList("lib/snowflake-jdbc-3.20.0.jar"));
-    }
-
-    @Override
-    public Optional<Message> getDeprecatedMessage() {
-        return DEPRECATED_MESSAGE;
-    }
-
-    @Override
-    public boolean isDeprecated() {
-        return true;
+    public SnowflakeDriverLocator3231() {
+        super("3.23.1", asList("lib/snowflake-jdbc-3.23.1.jar"));
     }
 }
