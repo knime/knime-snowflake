@@ -49,6 +49,9 @@ import static java.util.Arrays.asList;
 import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_DATABASE;
 import static org.knime.database.driver.URLTemplates.VARIABLE_NAME_SCHEMA;
 
+import java.util.Optional;
+
+import org.knime.core.node.message.Message;
 import org.knime.database.extension.snowflake.util.SnowflakeAbstractDriverLocator;
 
 /**
@@ -59,6 +62,9 @@ import org.knime.database.extension.snowflake.util.SnowflakeAbstractDriverLocato
  *
  */
 public class SnowflakeDriverLocator3 extends SnowflakeAbstractDriverLocator {
+
+    private static final Optional<Message> DEPRECATED_MESSAGE =
+            Optional.of(SnowflakeAbstractDriverLocator.buildDeprecatedMessage("August 2025"));
 
     /**
      * Constructor for {@link SnowflakeDriverLocator3}.
@@ -74,5 +80,15 @@ public class SnowflakeDriverLocator3 extends SnowflakeAbstractDriverLocator {
             + "?warehouse=<" + VARIABLE_NAME_WAREHOUSE + ">" //forced line break
             + "&role=[" + VARIABLE_NAME_ROLE + "]" + "&db=[" + VARIABLE_NAME_DATABASE + "]" //forced line break
             + "&schema=[" + VARIABLE_NAME_SCHEMA + "]";
+    }
+
+    @Override
+    public Optional<Message> getDeprecatedMessage() {
+        return DEPRECATED_MESSAGE;
+    }
+
+    @Override
+    public boolean isDeprecated() {
+        return true;
     }
 }
