@@ -29,4 +29,4 @@ Automatic-Module-Name: org.knime.snowflake
 Export-Package: org.knime.database.extension.snowflake.dialect,
  org.knime.database.extension.snowflake.type,
  org.knime.database.extension.snowflake.util
-Bundle-ClassPath: knime-snowflake.jar
+Bundle-ClassPath: .
