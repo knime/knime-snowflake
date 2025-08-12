@@ -102,7 +102,7 @@ try {
 
 def dbTest() {
     node('maven && java17') {
-        try {            
+        try {
             stage('Checkout Sources') {
                 def branchName = env.CHANGE_BRANCH ?: env.BRANCH_NAME
                 checkout([
@@ -116,14 +116,11 @@ def dbTest() {
             // verification
             stage('Testing Snowflake: ') {
                 def branchName = env.CHANGE_BRANCH ?: env.BRANCH_NAME ?: 'master'
-                def branchExists = false
-                def knimeDatabaseRepoUrl = 'https://bitbucket.org/KNIME/knime-database'
-                env.lastStage = env.STAGE_NAME               
 
-                branchExists = sh(
-                                script: "git ls-remote --heads ${knimeDatabaseRepoUrl} ${branchName}",
-                                returnStatus: true
-                            ) == 0
+                def repoName = 'knime-database'
+                env.lastStage = env.STAGE_NAME
+
+                def branchExists = knimetools.checkIfBranchExistsInRemote(repoName: repoName, branchName: branchName)
 
                 if (!branchExists) {
                     echo "Branch '${branchName}' does not exist. Falling back to 'master'."
