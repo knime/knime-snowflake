@@ -23,7 +23,7 @@ Require-Bundle: org.knime.database;bundle-version="[5.7.0,6.0.0)",
  org.apache.commons.commons-io;bundle-version="[2.15.1,3.0.0)",
  bcprov;bundle-version="[1.77.0,2.0.0)",
  bcpkix;bundle-version="[1.77.0,2.0.0)"
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: org.knime.snowflake
 Export-Package: org.knime.database.extension.snowflake.dialect,
