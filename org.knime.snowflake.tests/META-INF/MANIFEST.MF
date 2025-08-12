@@ -4,7 +4,7 @@ Bundle-Name: Snowflake database provider for unit-tests.
 Bundle-SymbolicName: org.knime.snowflake.tests;singleton:=true
 Bundle-Version: 5.6.0.qualifier
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: org.knime.database;bundle-version="[5.6.0,6.0.0)",
  org.knime.snowflake;bundle-version="[5.6.0,6.0.0)",
  org.knime.database.tests.collector;bundle-version="[5.6.0,6.0.0)"
