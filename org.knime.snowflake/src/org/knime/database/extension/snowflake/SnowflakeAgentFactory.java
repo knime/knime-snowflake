@@ -47,6 +47,8 @@ package org.knime.database.extension.snowflake;
 
 import org.knime.database.agent.AbstractDBAgentFactory;
 import org.knime.database.agent.DBAgentFactory;
+import org.knime.database.agent.ddl.DBStructureManipulator;
+import org.knime.database.agent.ddl.impl.DefaultDBStructureManipulator;
 import org.knime.database.agent.loader.DBLoader;
 import org.knime.database.agent.metadata.DBMetadataReader;
 import org.knime.database.agent.metadata.impl.DefaultDBMetadataReader;
@@ -79,15 +81,33 @@ public class SnowflakeAgentFactory extends AbstractDBAgentFactory {
         SAMPLING_ATTRIBUTES = builder.build();
     }
 
+    private static final AttributeCollection STRUCTURE_MANIPULATION_ATTRIBUTES;
+    static {
+        final AttributeCollection.Builder builder =
+            AttributeCollection.builder(DefaultDBStructureManipulator.ATTRIBUTES);
+        builder.add(Accessibility.HIDDEN, DefaultDBStructureManipulator.ATTRIBUTE_CAPABILITY_FETCH_STATEMENT_RESULT,
+            false);
+        STRUCTURE_MANIPULATION_ATTRIBUTES = builder.build();
+    }
+
     /**
      * Constructs a {@link SnowflakeAgentFactory}.
      */
     public SnowflakeAgentFactory() {
+
+//      DON'T FORGET TO REGISTER NEW AGENTS ALSO IN PLUGIN.XML!
+
         putCreator(DBLoader.class, parameters -> new SnowflakeDBLoader(parameters.getSessionReference()));
+
         putAttributes(DBSampling.class, SAMPLING_ATTRIBUTES);
         putCreator(DBSampling.class, parameters -> new SnowflakeDBSampling(parameters.getSessionReference()));
+
         putAttributes(DBMetadataReader.class, METADATA_ATTRIBUTES);
         putCreator(DBMetadataReader.class,
             parameters -> new DefaultDBMetadataReader(parameters.getSessionReference()));
+
+        putAttributes(DBStructureManipulator.class, STRUCTURE_MANIPULATION_ATTRIBUTES);
+        putCreator(DBStructureManipulator.class,
+            parameters -> new DefaultDBStructureManipulator(parameters.getSessionReference()));
     }
 }
