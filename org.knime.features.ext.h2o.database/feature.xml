@@ -2,7 +2,7 @@
 <feature
       id="org.knime.features.ext.h2o.database"
       label="KNIME H2O Snowflake Integration"
-      version="5.6.0.qualifier"
+      version="5.7.0.qualifier"
       provider-name="KNIME AG, Zurich, Switzerland">
 
    <description>
@@ -728,8 +728,8 @@ propagated with or for interoperation with KNIME.
    </license>
 
    <requires>
-      <import feature="org.knime.features.snowflake" version="0.0.0"/>
-      <import feature="org.knime.features.ext.h2o" version="0.0.0"/>
+      <import feature="org.knime.features.snowflake" version="5.7.0"/>
+      <import feature="org.knime.features.ext.h2o" version="5.6.0"/>
    </requires>
 
    <plugin
