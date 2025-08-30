@@ -25,11 +25,15 @@
       <Agent
             dbTypes="snowflake"
             factory="org.knime.database.extension.snowflake.SnowflakeAgentFactory"
+            interface="org.knime.database.agent.sampling.DBSampling"/>
+      <Agent
+            dbTypes="snowflake"
+            factory="org.knime.database.extension.snowflake.SnowflakeAgentFactory"
             interface="org.knime.database.agent.metadata.DBMetadataReader"/>
       <Agent
             dbTypes="snowflake"
             factory="org.knime.database.extension.snowflake.SnowflakeAgentFactory"
-            interface="org.knime.database.agent.sampling.DBSampling"/>
+            interface="org.knime.database.agent.ddl.DBStructureManipulator"/>
     </extension>
 
    <!-- ********************************** DB Aggregation Functions ********************************** -->
