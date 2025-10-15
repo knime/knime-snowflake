@@ -52,16 +52,20 @@ import static org.knime.database.extension.snowflake.util.SnowflakeAbstractDrive
 import static org.knime.database.extension.snowflake.util.SnowflakeAbstractDriverLocator.ATTRIBUTE_ACCOUNT_DOMAIN;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.webui.node.dialog.defaultdialog.setting.credentials.AuthenticationFromInPortUtil.AuthenticationManagedByPortMessage;
+import org.knime.core.webui.node.dialog.defaultdialog.setting.credentials.AuthenticationFromInPortUtil.HasCredentialPort;
 import org.knime.core.webui.node.dialog.defaultdialog.setting.credentials.AuthenticationSettings;
 import org.knime.core.webui.node.dialog.defaultdialog.setting.credentials.AuthenticationSettings.AuthenticationType;
 import org.knime.core.webui.node.dialog.defaultdialog.setting.credentials.BaseAuthenticationSettings.AuthenticationTypeModification;
 import org.knime.core.webui.node.dialog.defaultdialog.widget.Modification;
+import org.knime.credentials.base.CredentialPortObjectSpec;
 import org.knime.database.attribute.AttributeValueRepository;
 import org.knime.database.driver.DBDriverDefinition;
 import org.knime.database.driver.DBDriverRegistry;
@@ -76,9 +80,14 @@ import org.knime.database.node.connector.SpecificDBConnectorNodeSettings;
 import org.knime.node.parameters.NodeParametersInput;
 import org.knime.node.parameters.Widget;
 import org.knime.node.parameters.layout.Layout;
+import org.knime.node.parameters.updates.Effect;
+import org.knime.node.parameters.updates.Effect.EffectType;
+import org.knime.node.parameters.updates.EffectPredicate;
+import org.knime.node.parameters.updates.EffectPredicateProvider;
 import org.knime.node.parameters.widget.choices.EnumChoicesProvider;
 import org.knime.node.parameters.widget.choices.StringChoice;
 import org.knime.node.parameters.widget.credentials.Credentials;
+import org.knime.node.parameters.widget.message.TextMessage;
 
 /**
  *
@@ -91,9 +100,6 @@ final class SnowflakeDBConnectorNodeSettings2 extends SpecificDBConnectorNodeSet
         super(Snowflake.DB_TYPE);
     }
 
-    @Layout(AuthenticationSection.class)
-    @Modification(ChangeAvailableAuthenticationModification.class)
-    AuthenticationSettings m_authentication = new AuthenticationSettings(AuthenticationType.NONE, new Credentials());
 
     @Layout(ConnectionSection.class)
     @Widget(title = "Full account name", description = """
@@ -140,7 +146,7 @@ final class SnowflakeDBConnectorNodeSettings2 extends SpecificDBConnectorNodeSet
             can be executed with the <a href="https://kni.me/n/eh-RgddvYOj-B0uz">DB SQL Executor</a> node to set
             a different database for the session.
             """)
-    Optional<String> m_defaultDatabase;
+    Optional<String> m_defaultDatabase = Optional.empty();
 
     @Layout(ConnectionSection.class)
     @Widget(title = "Default schema", description = """
@@ -152,7 +158,41 @@ final class SnowflakeDBConnectorNodeSettings2 extends SpecificDBConnectorNodeSet
             can be executed with the <a href="https://kni.me/n/eh-RgddvYOj-B0uz">DB SQL Executor</a> node to set
             a different schema for the session.
             """)
-    Optional<String> m_defaultSchema;
+    Optional<String> m_defaultSchema = Optional.empty();
+
+    @Layout(AuthenticationSection.class)
+    @Modification(ChangeAvailableAuthenticationModification.class)
+    @Effect(predicate = HasCredentialPortPredicate.class, type = EffectType.HIDE)
+    AuthenticationSettings m_authentication =
+        new AuthenticationSettings(AuthenticationType.USER_PWD, new Credentials());
+
+
+    @TextMessage(AuthByCredentialsPortMessage.class)
+    @Layout(AuthenticationSection.class)
+    Void m_authenticationFromInPortInfo;
+
+    static final class AuthByCredentialsPortMessage extends AuthenticationManagedByPortMessage {
+
+        @Override
+        protected boolean hasCredentialPort(final NodeParametersInput input) {
+            return SnowflakeDBConnectorNodeSettings2.hasCredentialPort(input);
+        }
+
+    }
+
+    static final class HasCredentialPortPredicate extends HasCredentialPort {
+
+        @Override
+        protected boolean hasCredentialPort(final NodeParametersInput input) {
+            return SnowflakeDBConnectorNodeSettings2.hasCredentialPort(input);
+        }
+
+    }
+
+    private static boolean hasCredentialPort(final NodeParametersInput input) {
+        return Arrays.stream(input.getInPortTypes())
+            .anyMatch(inPortType -> CredentialPortObjectSpec.class.equals(inPortType.getPortObjectSpecClass()));
+    }
 
     static final class ChangeAvailableAuthenticationModification extends AuthenticationTypeModification {
         @Override
@@ -160,7 +200,26 @@ final class SnowflakeDBConnectorNodeSettings2 extends SpecificDBConnectorNodeSet
             return AvailableAuthenticationTypesProvider.class;
         }
 
+        @Override
+        protected Optional<Class<? extends EffectPredicateProvider>> getRequiresCredentialsEffectProvider() {
+            return Optional.of(RequiresCredentialsEffectProvider.class);
+        }
+
+
+        static final class RequiresCredentialsEffectProvider implements EffectPredicateProvider {
+
+            @Override
+            public EffectPredicate init(final PredicateInitializer i) {
+                return and(//
+                    i.getPredicate(AuthenticationTypeModification.getDefaultRequiresCredentialsEffectProvider()),
+                    not(i.getPredicate(HasCredentialPortPredicate.class))//
+                );
+            }
+
+        }
+
         static class AvailableAuthenticationTypesProvider implements EnumChoicesProvider<AuthenticationType> {
+            @Override
             public List<AuthenticationType> choices(final NodeParametersInput context) {
                 return List.of( //
                     AuthenticationType.NONE, //
