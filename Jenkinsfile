@@ -76,6 +76,7 @@ try {
                         'knime-office365',
                         'knime-pmml-translation',
                         'knime-pmml',
+                        'knime-scripting-editor',
                         'knime-testing-internal',
                         'knime-textprocessing',
                         'knime-timeseries',
