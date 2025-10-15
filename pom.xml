@@ -52,6 +52,7 @@
                 <module>org.knime.features.snowflake</module>
                 <module>org.knime.features.snowflake.testing</module>
                 <module>../knime-database/org.knime.database</module>
+                <module>../knime-database/org.knime.database.nodes/js-src</module>
                 <module>../knime-database/org.knime.database.nodes</module>
                 <module>../knime-database/org.knime.workflow.migration</module>
                 <module>../knime-database/org.knime.database.extensions</module>
