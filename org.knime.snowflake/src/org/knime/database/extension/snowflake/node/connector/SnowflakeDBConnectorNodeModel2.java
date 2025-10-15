@@ -42,7 +42,6 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ------------------------------------------------------------------------
  */
-
 package org.knime.database.extension.snowflake.node.connector;
 
 import java.util.List;
@@ -88,7 +87,7 @@ public class SnowflakeDBConnectorNodeModel2 extends SpecificDBConnectorNodeModel
                 }
             }
         }
-        return super.configure(inSpecs);
+        return super.configure(inSpecs, s);
     }
 
     @Override
