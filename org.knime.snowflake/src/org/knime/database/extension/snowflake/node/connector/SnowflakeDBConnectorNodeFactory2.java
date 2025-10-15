@@ -175,16 +175,19 @@ public class SnowflakeDBConnectorNodeFactory2 extends ConfigurableNodeFactory<Sn
                     This node creates a connection to a Snowflake database using the selected Snowflake JDBC driver.
                     <p>
                     To get started with Snowflake in KNIME have a look at the
-                    <a href="https://hub.knime.com/knime/collections/KNIME%20for%20Snowflake%20Users~1sIkhkwhAvlptfBj">KNIME for Snowflake Users collection</a>
-                    that provides you with links to important KNIME nodes, example workflows and further resources such as the
-                    <a href="https://docs.knime.com/latest/snowflake_extension_guide/index.html">KNIME Snowflake Extension Guide.</a>
+                    <a href="https://hub.knime.com/knime/collections/KNIME%20for%20Snowflake%20Users~1sIkhkwhAvlptfBj">
+                    KNIME for Snowflake Users collection</a> that provides you with links to important KNIME nodes,
+                    example workflows and further resources such as the
+                    <a href="https://docs.knime.com/latest/snowflake_extension_guide/index.html">
+                    KNIME Snowflake Extension Guide.</a>
                      </p><p>
                      For further information about Snowflake in general see the
                     <a href="https://docs.snowflake.com/en/">Snowflake documentation.</a>
                     </p><p>
                     This node uses the selected driver's
-                    <a href="https://docs.knime.com/latest/db_extension_guide/index.html#url_template">JDBC URL template</a>
-                    to create the concrete database URL. Field validation in the dialog depends on whether the (included)
+                    <a href="https://docs.knime.com/latest/db_extension_guide/index.html#url_template">
+                    JDBC URL template</a> to create the concrete database URL. Field validation in the dialog
+                    depends on whether the (included)
                     tokens referencing them are mandatory or optional in the template.
                     </p>
                     """) //
