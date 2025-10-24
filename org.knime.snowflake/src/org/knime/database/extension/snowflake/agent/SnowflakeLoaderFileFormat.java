@@ -57,6 +57,7 @@ import org.knime.database.extension.snowflake.node.io.load.writer.ConnectedSnowf
 import org.knime.database.extension.snowflake.node.io.load.writer.SnowflakeCsvWriter;
 import org.knime.database.extension.snowflake.node.io.load.writer.SnowflakeParquetWriter;
 import org.knime.database.node.io.load.impl.fs.util.DBFileWriter;
+import org.knime.node.parameters.widget.choices.Label;
 
 /**
  * The intermediate file formats supported by the Snowflake data loader node.
@@ -70,14 +71,20 @@ import org.knime.database.node.io.load.impl.fs.util.DBFileWriter;
  */
 @SuppressWarnings("deprecation")
 public enum SnowflakeLoaderFileFormat implements ButtonGroupEnumInterface {
-        /** CSV file format. */
+        /**
+         * CSV file format.
+         */
+        @Label(value = "CSV", description = "Comma-separated values")
         CSV("CSV", "Comma-separated values", ".csv") {
-        @Override
-        public boolean isDefault() {
-            return true;
-        }
+            @Override
+            public boolean isDefault() {
+                return true;
+            }
         },
-        /** Apache Parquet file format. */
+        /**
+         * Apache Parquet file format.
+         */
+        @Label(value = "Parquet", description = "Apache Parquet")
         PARQUET("Parquet", "Apache Parquet", ".parquet");
 
     private static final String SNAPPY_COMPRESSION = CompressionCodecName.SNAPPY.name();
