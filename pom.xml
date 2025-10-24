@@ -62,6 +62,21 @@
                 <module>../knime-database/org.knime.database.tests.collector</module>
             </modules>
         </profile>
+        <profile>
+            <id>test</id>
+            <modules>
+            <module>../knime-database/org.knime.database/lib/fetch_jars</module>
+                <module>../knime-database/org.knime.database.extensions/lib/h2/fetch_v196_jars</module>
+                <module>../knime-database/org.knime.database.extensions/lib/h2/fetch_v21_jars</module>
+                <module>org.knime.snowflake.deprecated/lib/fetch_jars</module>
+                <module>org.knime.snowflake/lib/fetch_jars2</module>
+                <module>org.knime.snowflake/lib/fetch_jars3</module>
+                <module>org.knime.snowflake/lib/fetch_jars_3_20</module>
+                <module>org.knime.snowflake/lib/fetch_jars_3_23</module>
+            	<module>org.knime.snowflake</module>
+            	<module>org.knime.snowflake.unittests</module>
+            </modules>
+        </profile>
     </profiles>
 
     <repositories>

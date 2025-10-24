@@ -81,6 +81,7 @@ import org.knime.database.model.DBTable;
 import org.knime.database.node.component.PreferredHeightPanel;
 import org.knime.database.node.io.load.DBLoaderNode2;
 import org.knime.database.node.io.load.DBLoaderNode2Factory;
+import org.knime.database.node.io.load.DBLoaderParameters;
 import org.knime.database.node.io.load.ExecutionParameters;
 import org.knime.database.node.io.load.impl.fs.util.DBFileWriter;
 import org.knime.database.node.io.load.impl.unconnected.UnconnectedCsvLoaderNode2;
@@ -100,7 +101,6 @@ public class SnowflakeLoaderNode extends UnconnectedCsvLoaderNode2
     implements DBLoaderNode2Factory<UnconnectedCsvLoaderNodeComponents2, UnconnectedCsvLoaderNodeSettings2> {
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(SnowflakeLoaderNode.class);
-
 
     private static final List<Charset> CHARSETS = unmodifiableList(asList(UTF_8, ISO_8859_1));
 
@@ -153,8 +153,7 @@ public class SnowflakeLoaderNode extends UnconnectedCsvLoaderNode2
 
         //always replace the list items to load the possible values but the selected compressionFormat is set before
         //depending on the state
-        components.getCompressionComponent().replaceListItems(fileFormat.getCompressionFormats(),
-            compressionFormat);
+        components.getCompressionComponent().replaceListItems(fileFormat.getCompressionFormats(), compressionFormat);
         components.getChunkSizeComponent().setToolTipText(fileFormat.getChunkSizeToolTipText());
         components.getFileSizeComponent().setToolTipText(fileFormat.getFileSizeToolTipText());
 
@@ -203,7 +202,7 @@ public class SnowflakeLoaderNode extends UnconnectedCsvLoaderNode2
         csvPanel.setBorder(BorderFactory.createTitledBorder(" CSV Settings "));
         advancedBox.add(csvPanel);
         final JPanel orcParquetPanel = createPanel();
-        orcParquetPanel .setBorder(BorderFactory.createTitledBorder(" Parquet Settings "));
+        orcParquetPanel.setBorder(BorderFactory.createTitledBorder(" Parquet Settings "));
         orcParquetPanel.add(cc.getChunkSizeComponent().getComponentPanel());
         orcParquetPanel.add(cc.getFileSizeComponent().getComponentPanel());
         advancedBox.add(orcParquetPanel);
@@ -355,5 +354,10 @@ public class SnowflakeLoaderNode extends UnconnectedCsvLoaderNode2
         onFileFormatSelectionChange(snowComponents);
         onStageTypeSelectionChange(snowComponents);
         m_init = false;
+    }
+
+    @Override
+    public Class<? extends DBLoaderParameters> getParametersClass() {
+        return SnowflakeLoaderNodeParameters.class;
     }
 }

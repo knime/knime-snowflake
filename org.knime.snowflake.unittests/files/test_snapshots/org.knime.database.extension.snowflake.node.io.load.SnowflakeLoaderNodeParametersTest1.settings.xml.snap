@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns="http://www.knime.org/2008/09/XMLConfig" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.knime.org/2008/09/XMLConfig http://www.knime.org/XMLConfig_2008_09.xsd" key="test">
+    <config key="tableName_Internals">
+        <entry key="SettingsModelID" type="xstring" value="SMID_dbmetadata"/>
+        <entry key="EnabledStatus" type="xboolean" value="true"/>
+    </config>
+    <config key="tableName">
+        <entry key="database" type="xstring" value="KNIME_JENKINS"/>
+        <entry key="schema" type="xstring" value="KNIME_TESTING_20220215174647_ca1db090"/>
+        <entry key="table" type="xstring" value="uploadTestParquetSnappy"/>
+    </config>
+    <entry key="stageTypeSelection" type="xstring" value="USER"/>
+    <entry key="stageName" type="xstring" value=""/>
+    <entry key="fileFormatSelection" type="xstring" value="PARQUET"/>
+    <entry key="fileCompression" type="xstring" value="SNAPPY"/>
+    <entry key="withinFileChunkSize" type="xint" value="128"/>
+    <entry key="fileSize" type="xlong" value="1024"/>
+    <config key="fileFormat">
+        <entry key="colSeparator" type="xstring" value=","/>
+        <entry key="missing" type="xstring" value="NULL"/>
+        <entry key="quoteBegin" type="xstring" value="&quot;"/>
+        <entry key="quoteEnd" type="xstring" value="&quot;"/>
+        <entry key="quoteMode" type="xstring" value="STRINGS"/>
+        <entry key="quoteReplacement" type="xstring" value=""/>
+        <entry key="sepReplacePattern" type="xstring" value=""/>
+        <entry key="ReplSepInStrings" type="xboolean" value="false"/>
+        <entry key="writeColHeader" type="xboolean" value="false"/>
+        <entry key="writeRowHeader" type="xboolean" value="false"/>
+        <entry key="decimalSeparator" type="xchar" value="."/>
+        <entry key="lineEndingMode" type="xstring" value="SYST"/>
+        <entry key="charSet" type="xstring" value="UTF-8"/>
+        <entry key="scientificExtrema" type="xboolean" value="true"/>
+    </config>
+</config>

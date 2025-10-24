@@ -47,6 +47,7 @@ package org.knime.database.extension.snowflake.agent;
 import java.util.Optional;
 
 import org.knime.core.node.util.ButtonGroupEnumInterface;
+import org.knime.node.parameters.widget.choices.Label;
 
 /**
  * The stage types supported by the Snowflake data loader node.
@@ -55,21 +56,38 @@ import org.knime.core.node.util.ButtonGroupEnumInterface;
  */
 public enum SnowflakeLoaderStageType implements ButtonGroupEnumInterface {
         //Stage descriptions: https://docs.snowflake.com/en/user-guide/data-load-local-file-system-create-stage.html
-        /** User stage. */
-        USER("User stage", "This stage is a convenient option if your files will only be accessed by a single user, "
-            + "but need to be copied into multiple tables.") {
+        /**
+         * User stage.
+         */
+        @Label(value = "User stage",
+            description = "This stage is a convenient option if your files will only be accessed by a single user, "
+                + "but need to be copied into multiple tables.")
+        USER("User stage",
+            "This stage is a convenient option if your files will only be accessed by a single user, "
+                + "but need to be copied into multiple tables.") {
         @Override
         public boolean isDefault() {
             return true;
         }
         },
-        /** Table stage. */
+        /**
+         * Table stage.
+         */
+        @Label(value = "Table stage",
+            description = "This stage is a convenient option if your files need to be accessible to multiple "
+                + "users and only need to be copied into a single table.")
         TABLE("Table stage",
             "This stage is a convenient option if your files need to be accessible to multiple "
                 + "users and only need to be copied into a single table."),
-        /** Internal named stage. */
-        INTERNAL("Internal named stage", "Named internal stages are optional but recommended when you plan regular "
-            + "data loads that could involve multiple users and/or tables.");
+        /**
+         * Internal named stage.
+         */
+        @Label(value = "Internal named stage",
+            description = "Named internal stages are optional but recommended when you plan regular "
+                + "data loads that could involve multiple users and/or tables.")
+        INTERNAL("Internal named stage",
+            "Named internal stages are optional but recommended when you plan regular "
+                + "data loads that could involve multiple users and/or tables.");
 
     /**
      * Gets the {@link SnowflakeLoaderStageType} constant with the specified name.

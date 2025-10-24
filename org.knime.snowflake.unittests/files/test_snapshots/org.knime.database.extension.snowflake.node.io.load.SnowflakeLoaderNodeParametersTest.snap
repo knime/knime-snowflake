@@ -1,0 +1,479 @@
+{
+  "data" : {
+    "model" : {
+      "tableName" : {
+        "catalogName" : "",
+        "tableName" : ""
+      },
+      "stageType" : "USER",
+      "stageName" : "",
+      "fileFormatSelection" : "CSV",
+      "compression" : "GZIP",
+      "chunkSize" : 128,
+      "fileSize" : 1024,
+      "fileFormat" : {
+        "columnSeparator" : ",",
+        "missingValue" : "",
+        "quoteBegin" : "\"",
+        "quoteEnd" : "\"",
+        "quoteMode" : "STRINGS",
+        "quoteReplacement" : "",
+        "sepReplacePattern" : "",
+        "replaceSepInStrings" : false,
+        "writeColumnHeader" : false,
+        "writeRowHeader" : false,
+        "decimalSeparator" : ".",
+        "lineEndingMode" : "SYST",
+        "characterSet" : "UTF-8",
+        "scientificExtrema" : true
+      }
+    }
+  },
+  "schema" : {
+    "type" : "object",
+    "properties" : {
+      "model" : {
+        "type" : "object",
+        "properties" : {
+          "chunkSize" : {
+            "type" : "integer",
+            "format" : "int32",
+            "title" : "Within file chunk size",
+            "description" : "Within file chunk size (MB) for Parquet files.",
+            "default" : 128
+          },
+          "compression" : {
+            "type" : "string",
+            "title" : "Compression",
+            "description" : "The compression method to use for staging files.",
+            "default" : "GZIP"
+          },
+          "fileFormat" : {
+            "type" : "object",
+            "properties" : {
+              "characterSet" : {
+                "type" : "string",
+                "title" : "Character set",
+                "description" : "The character set used to encode the CSV file.",
+                "default" : "UTF-8"
+              },
+              "columnSeparator" : {
+                "type" : "string",
+                "title" : "Column separator",
+                "description" : "The character(s) used to separate columns in the CSV file.",
+                "default" : ","
+              },
+              "decimalSeparator" : {
+                "type" : "string",
+                "default" : "."
+              },
+              "lineEndingMode" : {
+                "oneOf" : [ {
+                  "const" : "SYST",
+                  "title" : "Syst"
+                }, {
+                  "const" : "LF",
+                  "title" : "Lf"
+                }, {
+                  "const" : "CRLF",
+                  "title" : "Crlf"
+                }, {
+                  "const" : "CR",
+                  "title" : "Cr"
+                } ],
+                "title" : "Line ending mode",
+                "description" : "The line ending characters used in the CSV file.",
+                "default" : "SYST"
+              },
+              "missingValue" : {
+                "type" : "string",
+                "title" : "Missing value pattern",
+                "description" : "The pattern that represents missing values in the CSV file.",
+                "default" : ""
+              },
+              "quoteBegin" : {
+                "type" : "string",
+                "title" : "Quote begin",
+                "description" : "The character(s) used to begin quoted strings in the CSV file.",
+                "default" : "\""
+              },
+              "quoteEnd" : {
+                "type" : "string",
+                "title" : "Quote end",
+                "description" : "The character(s) used to end quoted strings in the CSV file.",
+                "default" : "\""
+              },
+              "quoteMode" : {
+                "type" : "string",
+                "default" : "STRINGS"
+              },
+              "quoteReplacement" : {
+                "type" : "string",
+                "title" : "Quote replacement",
+                "description" : "The character(s) that replace quotes inside quoted strings in the CSV file.",
+                "default" : ""
+              },
+              "replaceSepInStrings" : {
+                "type" : "boolean",
+                "default" : false
+              },
+              "scientificExtrema" : {
+                "type" : "boolean",
+                "default" : true
+              },
+              "sepReplacePattern" : {
+                "type" : "string",
+                "default" : ""
+              },
+              "writeColumnHeader" : {
+                "type" : "boolean",
+                "default" : false
+              },
+              "writeRowHeader" : {
+                "type" : "boolean",
+                "default" : false
+              }
+            },
+            "default" : {
+              "columnSeparator" : ",",
+              "missingValue" : "",
+              "quoteBegin" : "\"",
+              "quoteEnd" : "\"",
+              "quoteMode" : "STRINGS",
+              "quoteReplacement" : "",
+              "sepReplacePattern" : "",
+              "replaceSepInStrings" : false,
+              "writeColumnHeader" : false,
+              "writeRowHeader" : false,
+              "decimalSeparator" : ".",
+              "lineEndingMode" : "SYST",
+              "characterSet" : "UTF-8",
+              "scientificExtrema" : true
+            }
+          },
+          "fileFormatSelection" : {
+            "oneOf" : [ {
+              "const" : "CSV",
+              "title" : "CSV"
+            }, {
+              "const" : "PARQUET",
+              "title" : "Parquet"
+            } ],
+            "title" : "File Format",
+            "description" : "The file format used to stage data before loading into Snowflake.\n<ul>\n<li><b>CSV</b>: Comma-separated values</li>\n<li><b>Parquet</b>: Apache Parquet</li>\n</ul>",
+            "default" : "CSV"
+          },
+          "fileSize" : {
+            "type" : "integer",
+            "format" : "int64",
+            "title" : "File Size",
+            "description" : "Split data into files of size (MB) for Parquet files.",
+            "default" : 1024
+          },
+          "stageName" : {
+            "type" : "string",
+            "title" : "Internal stage name",
+            "description" : "The name of the internal Snowflake stage.",
+            "default" : ""
+          },
+          "stageType" : {
+            "oneOf" : [ {
+              "const" : "USER",
+              "title" : "User stage"
+            }, {
+              "const" : "TABLE",
+              "title" : "Table stage"
+            }, {
+              "const" : "INTERNAL",
+              "title" : "Internal named stage"
+            } ],
+            "title" : "Stage Type",
+            "description" : "The type of Snowflake stage to use for staging data files.\n<ul>\n<li><b>User stage</b>: This stage is a convenient option if your files will only be accessed by a single user, but need to be copied into multiple tables.</li>\n<li><b>Table stage</b>: This stage is a convenient option if your files need to be accessible to multiple users and only need to be copied into a single table.</li>\n<li><b>Internal named stage</b>: Named internal stages are optional but recommended when you plan regular data loads that could involve multiple users and/or tables.</li>\n</ul>",
+            "default" : "USER"
+          },
+          "tableName" : {
+            "type" : "object",
+            "properties" : {
+              "catalogName" : {
+                "type" : "string",
+                "title" : "Database name",
+                "description" : "The name of the database (or catalogue) to use.",
+                "default" : ""
+              },
+              "schemaName" : {
+                "type" : "string",
+                "title" : "Schema name",
+                "description" : "The database schema to read the table from. If not provided, the default schema of the database will be used.\n"
+              },
+              "tableName" : {
+                "type" : "string",
+                "title" : "Table name",
+                "description" : "Name of the database table to read data from. Must match the table name as it appears in the selected schema.\n",
+                "default" : ""
+              }
+            },
+            "default" : {
+              "catalogName" : "",
+              "tableName" : ""
+            }
+          }
+        }
+      }
+    }
+  },
+  "ui_schema" : {
+    "elements" : [ {
+      "type" : "Control",
+      "scope" : "#/properties/model/properties/tableName",
+      "options" : {
+        "format" : "dbTableChooser",
+        "dbConnectionError" : "No database is currently connected. To proceed, connect a database to the input port, or re-execute any upstream connector nodes.",
+        "validateSchema" : true,
+        "validateTable" : true
+      }
+    }, {
+      "type" : "Control",
+      "scope" : "#/properties/model/properties/stageType"
+    }, {
+      "type" : "Control",
+      "scope" : "#/properties/model/properties/stageName",
+      "rule" : {
+        "effect" : "SHOW",
+        "condition" : {
+          "scope" : "#/properties/model/properties/stageType",
+          "schema" : {
+            "oneOf" : [ {
+              "const" : "INTERNAL"
+            } ]
+          }
+        }
+      }
+    }, {
+      "type" : "Control",
+      "scope" : "#/properties/model/properties/fileFormatSelection"
+    }, {
+      "type" : "Control",
+      "scope" : "#/properties/model/properties/compression",
+      "options" : {
+        "format" : "dropDown"
+      },
+      "providedOptions" : [ "possibleValues" ]
+    }, {
+      "type" : "Control",
+      "scope" : "#/properties/model/properties/chunkSize",
+      "options" : {
+        "validation" : {
+          "max" : {
+            "errorMessage" : "The value must not exceed 2147483647.",
+            "parameters" : {
+              "isExclusive" : false,
+              "max" : 2.147483647E9
+            }
+          },
+          "min" : {
+            "errorMessage" : "The value must be at least 1.",
+            "parameters" : {
+              "isExclusive" : false,
+              "min" : 1.0
+            }
+          }
+        }
+      },
+      "rule" : {
+        "effect" : "SHOW",
+        "condition" : {
+          "scope" : "#/properties/model/properties/fileFormatSelection",
+          "schema" : {
+            "oneOf" : [ {
+              "const" : "PARQUET"
+            } ]
+          }
+        }
+      }
+    }, {
+      "type" : "Control",
+      "scope" : "#/properties/model/properties/fileSize",
+      "options" : {
+        "validation" : {
+          "max" : {
+            "errorMessage" : "Value too large to process without risking precision loss (> 9007199254740991).",
+            "parameters" : {
+              "isExclusive" : false,
+              "max" : 9.007199254740991E15
+            }
+          },
+          "min" : {
+            "errorMessage" : "The value must be at least 1.",
+            "parameters" : {
+              "isExclusive" : false,
+              "min" : 1.0
+            }
+          }
+        }
+      },
+      "rule" : {
+        "effect" : "SHOW",
+        "condition" : {
+          "scope" : "#/properties/model/properties/fileFormatSelection",
+          "schema" : {
+            "oneOf" : [ {
+              "const" : "PARQUET"
+            } ]
+          }
+        }
+      }
+    }, {
+      "label" : "CSV Format Settings",
+      "type" : "Section",
+      "options" : {
+        "isAdvanced" : true
+      },
+      "rule" : {
+        "effect" : "SHOW",
+        "condition" : {
+          "scope" : "#/properties/model/properties/fileFormatSelection",
+          "schema" : {
+            "oneOf" : [ {
+              "const" : "CSV"
+            } ]
+          }
+        }
+      },
+      "elements" : [ {
+        "type" : "Control",
+        "scope" : "#/properties/model/properties/fileFormat/properties/columnSeparator"
+      }, {
+        "type" : "Control",
+        "scope" : "#/properties/model/properties/fileFormat/properties/missingValue"
+      }, {
+        "type" : "Control",
+        "scope" : "#/properties/model/properties/fileFormat/properties/quoteBegin"
+      }, {
+        "type" : "Control",
+        "scope" : "#/properties/model/properties/fileFormat/properties/quoteEnd"
+      }, {
+        "type" : "Control",
+        "scope" : "#/properties/model/properties/fileFormat/properties/quoteReplacement"
+      }, {
+        "type" : "Control",
+        "scope" : "#/properties/model/properties/fileFormat/properties/lineEndingMode"
+      }, {
+        "type" : "Control",
+        "scope" : "#/properties/model/properties/fileFormat/properties/characterSet",
+        "options" : {
+          "format" : "dropDown"
+        },
+        "providedOptions" : [ "possibleValues" ]
+      } ]
+    } ]
+  },
+  "persist" : {
+    "type" : "object",
+    "properties" : {
+      "model" : {
+        "type" : "object",
+        "properties" : {
+          "tableName" : {
+            "configPaths" : [ [ "tableName", "table" ], [ "tableName", "schema" ], [ "tableName", "database" ] ]
+          },
+          "stageType" : {
+            "configKey" : "stageTypeSelection"
+          },
+          "stageName" : {
+            "configKey" : "stageName"
+          },
+          "fileFormatSelection" : { },
+          "compression" : {
+            "configKey" : "fileCompression"
+          },
+          "chunkSize" : {
+            "configKey" : "withinFileChunkSize"
+          },
+          "fileSize" : {
+            "configKey" : "fileSize"
+          },
+          "fileFormat" : {
+            "type" : "object",
+            "properties" : {
+              "columnSeparator" : {
+                "configKey" : "colSeparator"
+              },
+              "missingValue" : {
+                "configKey" : "missing"
+              },
+              "quoteBegin" : {
+                "configKey" : "quoteBegin"
+              },
+              "quoteEnd" : {
+                "configKey" : "quoteEnd"
+              },
+              "quoteMode" : {
+                "configKey" : "quoteMode"
+              },
+              "quoteReplacement" : {
+                "configKey" : "quoteReplacement"
+              },
+              "sepReplacePattern" : {
+                "configKey" : "sepReplacePattern"
+              },
+              "replaceSepInStrings" : {
+                "configKey" : "ReplSepInStrings"
+              },
+              "writeColumnHeader" : {
+                "configKey" : "writeColHeader"
+              },
+              "writeRowHeader" : {
+                "configKey" : "writeRowHeader"
+              },
+              "decimalSeparator" : {
+                "configKey" : "decimalSeparator"
+              },
+              "lineEndingMode" : {
+                "configKey" : "lineEndingMode"
+              },
+              "characterSet" : {
+                "configKey" : "charSet"
+              },
+              "scientificExtrema" : {
+                "configKey" : "scientificExtrema"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "initialUpdates" : [ {
+    "scope" : "#/properties/model/properties/compression",
+    "providedOptionName" : "possibleValues",
+    "values" : [ {
+      "indices" : [ ],
+      "value" : [ {
+        "id" : "NONE",
+        "text" : "NONE"
+      }, {
+        "id" : "GZIP",
+        "text" : "GZIP"
+      } ]
+    } ]
+  }, {
+    "scope" : "#/properties/model/properties/fileFormat/properties/characterSet",
+    "providedOptionName" : "possibleValues",
+    "values" : [ {
+      "indices" : [ ],
+      "value" : [ {
+        "id" : "UTF-8",
+        "text" : "UTF-8"
+      }, {
+        "id" : "ISO-8859-1",
+        "text" : "ISO-8859-1"
+      } ]
+    } ]
+  } ],
+  "globalUpdates" : [ {
+    "trigger" : {
+      "scope" : "#/properties/model/properties/fileFormatSelection"
+    },
+    "dependencies" : [ "#/properties/model/properties/fileFormatSelection" ]
+  } ]
+}
