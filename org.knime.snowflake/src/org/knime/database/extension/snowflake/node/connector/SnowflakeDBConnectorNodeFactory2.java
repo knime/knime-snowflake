@@ -122,8 +122,10 @@ public class SnowflakeDBConnectorNodeFactory2 extends ConfigurableNodeFactory<Sn
                   the setup of your Azure Entra ID (formerly Azure Active Directory). For
                   further details on how to create a scope or where to find it see the
                   <a
-                    href="https://docs.snowflake.com/en/user-guide/oauth-azure.html#step-1-configure-the-oauth-resource-in-azure-ad"
-                  >
+                  """
+                  + "href='https://docs.snowflake.com/en/user-guide/oauth-azure.html#"
+                  + "step-1-configure-the-oauth-resource-in-azure-ad'>"
+                  + """
                     Snowflake documentation.
                   </a>
                 </p>
@@ -143,9 +145,11 @@ public class SnowflakeDBConnectorNodeFactory2 extends ConfigurableNodeFactory<Sn
                   JDBC parameter automatically based on the information from the connected
                   Authenticator node. Depending on your database setup you might need to
                   specify additional JDBC parameters which are described in the
-                  <a
-                    href="https://docs.snowflake.com/en/user-guide/jdbc-parameters.html#jdbc-driver-connection-parameter-reference"
-                  >
+                  <a href=
+                  """
+                  + "'https://docs.snowflake.com/en/user-guide/jdbc-parameters.html"
+                  + "#jdbc-driver-connection-parameter-reference'>"
+                  + """
                     Snowflake documentation.
                   </a>
                 </p>
@@ -172,10 +176,12 @@ public class SnowflakeDBConnectorNodeFactory2 extends ConfigurableNodeFactory<Sn
         .shortDescription("Create a database connection to Snowflake.") //
         .fullDescription(
             """
-                    This node creates a connection to a Snowflake database using the selected Snowflake JDBC driver.
+                    This node creates a connection to a Snowflake database using the selected Snowflake JDBC
+                    driver.
                     <p>
                     To get started with Snowflake in KNIME have a look at the
-                    <a href="https://hub.knime.com/knime/collections/KNIME%20for%20Snowflake%20Users~1sIkhkwhAvlptfBj">
+                    <a href=
+                    "https://hub.knime.com/knime/collections/KNIME%20for%20Snowflake%20Users~1sIkhkwhAvlptfBj">
                     KNIME for Snowflake Users collection</a> that provides you with links to important KNIME nodes,
                     example workflows and further resources such as the
                     <a href="https://docs.knime.com/latest/snowflake_extension_guide/index.html">
