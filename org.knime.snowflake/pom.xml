@@ -18,7 +18,17 @@
         <sourceDirectory>src/</sourceDirectory>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.3.0</version>  <!-- or later -->
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>10.12.1</version> <!-- example version
+                        supporting modern features -->
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -26,7 +36,7 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-            </plugin>             
+            </plugin>
         </plugins>
     </build>
 </project>
