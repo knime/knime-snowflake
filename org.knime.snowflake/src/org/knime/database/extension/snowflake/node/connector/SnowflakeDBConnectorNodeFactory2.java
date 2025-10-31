@@ -82,7 +82,7 @@ public class SnowflakeDBConnectorNodeFactory2 extends ConfigurableNodeFactory<Sn
                 <p>
                   This input port allows you to connect a credential port with an
                   <a
-                    href="https://docs.snowflake.com/en/user-guide/oauth-intro"
+                    href='https://docs.snowflake.com/en/user-guide/oauth-intro'
                   >
                     OAuth access token
                   </a>
@@ -91,13 +91,13 @@ public class SnowflakeDBConnectorNodeFactory2 extends ConfigurableNodeFactory<Sn
                 <p>
                   To use
                   <a
-                    href="https://docs.snowflake.com/en/user-guide/oauth-snowflake-overview"
+                    href=#https://docs.snowflake.com/en/user-guide/oauth-snowflake-overview'
                   >
                     Snowflake OAuth
                   </a>
                   you can use the
                   <a
-                    href="https://hub.knime.com/n/a5e7aaUxN7A9akSp"
+                    href='https://hub.knime.com/n/a5e7aaUxN7A9akSp'
                   >
                     OAuth2 Authenticator
                   </a>
@@ -106,14 +106,14 @@ public class SnowflakeDBConnectorNodeFactory2 extends ConfigurableNodeFactory<Sn
                 <p>
                   For
                   <a
-                    href="https://docs.snowflake.com/en/user-guide/oauth-ext-overview"
+                    href='https://docs.snowflake.com/en/user-guide/oauth-ext-overview'
                   >
                     External OAuth
                   </a>
                   the predecessor node depends on the configured identity provider e.g. for
                   Microsoft Entra ID, you can attach the
                   <a
-                    href="https://hub.knime.com/n/f__YQsR0VpxoU5I3"
+                    href='https://hub.knime.com/n/f__YQsR0VpxoU5I3'
                   >
                     Microsoft Authenticator
                   </a>
@@ -132,13 +132,13 @@ public class SnowflakeDBConnectorNodeFactory2 extends ConfigurableNodeFactory<Sn
                 <p>
                   When available the node will set the
                   <a
-                    href="https://docs.snowflake.com/en/user-guide/jdbc-parameters.html#authenticator"
+                    href='https://docs.snowflake.com/en/user-guide/jdbc-parameters.html#authenticator'
                   >
                     <i>authenticator</i>
                   </a>
                   as well as
                   <a
-                    href="https://docs.snowflake.com/en/user-guide/jdbc-parameters.html#token"
+                    href='https://docs.snowflake.com/en/user-guide/jdbc-parameters.html#token'
                   >
                     <i>token</i>
                   </a>
@@ -157,13 +157,13 @@ public class SnowflakeDBConnectorNodeFactory2 extends ConfigurableNodeFactory<Sn
                   For further details on how to configure the connector node for the
                   different supported authentication methods see the
                   <a
-                    href="https://docs.knime.com/latest/snowflake_extension_guide/index.html#authentication"
+                    href='https://docs.knime.com/latest/snowflake_extension_guide/index.html#authentication'
                   >
                     Authentication
                   </a>
                   section of the
                   <a
-                    href="https://docs.knime.com/latest/snowflake_extension_guide/index.html"
+                    href='https://docs.knime.com/latest/snowflake_extension_guide/index.html'
                   >
                     KNIME Snowflake Extension Guide.
                   </a>
