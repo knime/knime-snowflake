@@ -228,8 +228,15 @@
    <extension point="org.knime.workbench.repository.nodes">
       <node category-path="/db/connector" deprecated="false"
             factory-class="org.knime.database.extension.snowflake.node.connector.SnowflakeDBConnectorNodeFactory" />
+      <node category-path="/db/connector" deprecated="false"
+            factory-class="org.knime.database.extension.snowflake.node.connector.SnowflakeDBConnectorNodeFactory2" hidden="true" />
    </extension>
    
+<!-- Node migration rules are removed until they are properly supported see UIEXT-2974   
+   <extension point="org.knime.workflow.migration.NodeMigrationRule">
+      <Rule class="org.knime.database.extension.snowflake.node.connector.SnowflakeDBConnectorNodeMigrationRule" />
+   </extension>
+-->   
 </plugin>
 
 

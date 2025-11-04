@@ -101,28 +101,40 @@ public class SnowflakeDBConnectorSettings extends DBSessionSettings {
     private static final DBType DB_TYPE = Snowflake.DB_TYPE;
 
     private static final String CONFIG_NAME = "snowflake-connection";
+
     private static final String KEY_ACCOUNT_NAME = "account_name";
+
     private static final String KEY_WAREHOUSE_NAME = "warehouse_name";
+
     private static final String KEY_ROLE_NAME = "role_name";
+
     private static final String KEY_DATABASE_NAME = "database_name";
+
     private static final String KEY_SCHEMA_NAME = "schema_name";
+
     private static final String CONFIG_AUTHENTICATION = "authentication";
 
-    /**Message when account name was not defined.*/
+    /** Message when account name was not defined. */
     public static final String ACCOUNT_NAME_IS_NOT_DEFINED = "Account name is not defined.";
-    /**Message when warehouse name was not defined.*/
+
+    /** Message when warehouse name was not defined. */
     public static final String WAREHOUSE_NAME_IS_NOT_DEFINED = "Warehouse name is not defined.";
-    /**Message when role name was not defined.*/
+
+    /** Message when role name was not defined. */
     public static final String ROLE_NAME_IS_NOT_DEFINED = "Role name is not defined.";
 
     private String m_accountName;
+
     private String m_warehouseName;
+
     private String m_roleName = "PUBLIC";
+
     private String m_databaseName;
+
     private String m_schemaName;
 
     private final SettingsModelAuthentication m_authentication =
-            new SettingsModelAuthentication(CONFIG_AUTHENTICATION, AuthenticationType.USER_PWD);
+        new SettingsModelAuthentication(CONFIG_AUTHENTICATION, AuthenticationType.USER_PWD);
 
     /**
      * Constructs an {@link SnowflakeDBConnectorSettings} object.
@@ -134,19 +146,20 @@ public class SnowflakeDBConnectorSettings extends DBSessionSettings {
         setDriver(defaultDriver == null ? null : defaultDriver.getDriverDefinition().getId());
     }
 
-    @Override
-    public String getDBUrl() throws InvalidSettingsException {
-        final Optional<DBDriverWrapper> driver = DBDriverRegistry.getInstance().getDriver(getDriver());
+    static String getDBUrl(final String driverName, final String accountName, final String accountDomain,
+        final String warehouseName, final String roleName, final String databaseName, final String schemaName)
+        throws InvalidSettingsException {
+        final Optional<DBDriverWrapper> driver = DBDriverRegistry.getInstance().getDriver(driverName);
         if (!driver.isPresent()) {
             return null;
         }
         final Map<String, String> variableValues = new HashMap<>();
-        variableValues.put(VARIABLE_NAME_ACCOUNT_NAME, stripToEmpty(getAccountName()));
-        variableValues.put(VARIABLE_NAME_ACCOUNT_DOMAIN, stripToEmpty(getAccountDomain()));
-        variableValues.put(VARIABLE_NAME_WAREHOUSE, stripToEmpty(getWarehouseName()));
-        variableValues.put(VARIABLE_NAME_ROLE, stripToEmpty(getRoleName()));
-        variableValues.put(VARIABLE_NAME_DATABASE, stripToEmpty(getDatabaseName()));
-        variableValues.put(VARIABLE_NAME_SCHEMA, stripToEmpty(getSchemaName()));
+        variableValues.put(VARIABLE_NAME_ACCOUNT_NAME, stripToEmpty(accountName));
+        variableValues.put(VARIABLE_NAME_ACCOUNT_DOMAIN, stripToEmpty(accountDomain));
+        variableValues.put(VARIABLE_NAME_WAREHOUSE, stripToEmpty(warehouseName));
+        variableValues.put(VARIABLE_NAME_ROLE, stripToEmpty(roleName));
+        variableValues.put(VARIABLE_NAME_DATABASE, stripToEmpty(databaseName));
+        variableValues.put(VARIABLE_NAME_SCHEMA, stripToEmpty(schemaName));
         try {
             return resolveDriverUrl(driver.get().getURLTemplate(), Collections.emptyMap(), variableValues);
         } catch (final BlankTokenValueException exception) {
@@ -188,6 +201,13 @@ public class SnowflakeDBConnectorSettings extends DBSessionSettings {
         } catch (final StringTokenException exception) {
             throw new InvalidSettingsException(DATABASE_DRIVER_URL_TEMPLATE_IS_INVALID, exception);
         }
+
+    }
+
+    @Override
+    public String getDBUrl() throws InvalidSettingsException {
+        return getDBUrl(getDriver(), getAccountName(), getAccountDomain(), getWarehouseName(), getRoleName(),
+            getDatabaseName(), getSchemaName());
     }
 
     /**
@@ -375,4 +395,3 @@ public class SnowflakeDBConnectorSettings extends DBSessionSettings {
     }
 
 }
-
