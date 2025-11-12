@@ -148,7 +148,7 @@ def dbTest() {
                         withEnv(["TEST_PARAMS=${testParams}"]) {
                             sh(script: '''
                                 cd knime-snowflake
-                                mvn -Dmaven.test.failure.ignore=true -Dknime.p2.repo=${P2_REPO} ${TEST_PARAMS} clean verify -P snowflake-test,test  -X -e
+                                mvn -Dmaven.test.failure.ignore=true -Dknime.p2.repo=${P2_REPO} ${TEST_PARAMS} clean verify -P snowflake-test,test
                             ''', label: 'run snowflake db tests')
                         }
                         collectCoverageData('snowflake')
