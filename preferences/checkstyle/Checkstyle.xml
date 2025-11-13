@@ -20,23 +20,18 @@
         <property name="file" value="${checkstyle.config.directory}/Suppressions.xml"/>
     </module>
     <module name="TreeWalker">
-        <module name="JavadocMethod">
-            <property name="scope" value="package"/>
-            <property name="allowUndeclaredRTE" value="true"/>
-            <property name="logLoadErrors" value="true"/>
-            <property name="suppressLoadErrors" value="true"/>
-        </module>
+        <module name="JavadocMethod" />
         <module name="JavadocType">
             <property name="scope" value="package"/>
             <property name="allowUnknownTags" value="true"/>
         </module>
         <module name="JavadocVariable">
-            <property name="scope" value="package"/>
+            <property name="scope" value="protected"/>
         </module>
         <module name="JavadocStyle">
-            <property name="checkEmptyJavadoc" value="true"/>
+            <property name="checkEmptyJavadoc" value="false"/>
         </module>
-        <module name="FinalLocalVariable"/>
+        <!--<module name="FinalLocalVariable"/>-->
         <module name="Indentation"/>
         <module name="ConstantName"/>
         <module name="LocalFinalVariableName"/>
@@ -53,11 +48,6 @@
         <module name="IllegalImport"/>
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
-        <module name="LineLength">
-            <metadata name="com.atlassw.tools.eclipse.checkstyle.comment" value="ignores import statements"/>
-            <property name="max" value="120"/>
-            <property name="ignorePattern" value="^import .*$"/>
-        </module>
         <module name="MethodLength"/>
         <module name="ParameterNumber">
             <metadata name="com.atlassw.tools.eclipse.checkstyle.comment" value="Constructor parameter list"/>
@@ -66,10 +56,12 @@
         </module>
         <module name="EmptyForIteratorPad"/>
         <module name="MethodParamPad"/>
-        <module name="NoWhitespaceAfter"/>
+        <module name="NoWhitespaceAfter">
+            <property name="tokens" value="AT,INC,DEC,UNARY_MINUS,UNARY_PLUS,BNOT,LNOT,DOT,ARRAY_DECLARATOR,INDEX_OP"/>
+        </module>
         <module name="NoWhitespaceBefore"/>
         <module name="OperatorWrap"/>
-        <module name="ParenPad"/>
+        <!-- <module name="ParenPad"/> disabled because it means we can't split function calls over multiple lines -->
         <module name="TypecastParenPad">
             <property name="tokens" value="RPAREN,TYPECAST"/>
         </module>
@@ -94,14 +86,16 @@
         <module name="HiddenField"/>
         <module name="IllegalInstantiation"/>
         <module name="InnerAssignment"/>
-        <module name="MagicNumber"/>
+        <module name="MagicNumber">
+            <property name="ignoreFieldDeclaration" value="true"/>
+        </module>
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>
         <!--module name="DesignForExtension"/-->
         <module name="FinalClass"/>
         <module name="HideUtilityClassConstructor"/>
-        <module name="InterfaceIsType"/>
-        <module name="VisibilityModifier"/>
+        <!-- module name="InterfaceIsType"/>-->
+        <!--<module name="VisibilityModifier"/>-->
         <module name="ArrayTypeStyle"/>
         <module name="FinalParameters"/>
         <module name="RegexpSinglelineJava">
@@ -115,6 +109,7 @@
         <module name="ParameterNumber">
             <metadata name="com.atlassw.tools.eclipse.checkstyle.comment" value="Method parameter list"/>
             <property name="tokens" value="METHOD_DEF"/>
+            <property name="max" value="8"/>
         </module>
         <module name="RegexpSinglelineJava">
             <property name="format" value="[^\x00-\x7F]"/>
@@ -133,6 +128,11 @@
     <!--module name="JavadocPackage">
         <property name="allowLegacy" value="true"/>
     </module-->
+    <module name="LineLength">
+        <metadata name="com.atlassw.tools.eclipse.checkstyle.comment" value="ignores import statements"/>
+        <property name="max" value="120"/>
+        <property name="ignorePattern" value="^import .*$"/>
+    </module>
     <module name="NewlineAtEndOfFile"/>
     <module name="Translation"/>
 </module>

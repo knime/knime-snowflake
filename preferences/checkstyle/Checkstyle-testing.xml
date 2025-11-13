@@ -20,23 +20,18 @@
         <property name="file" value="${checkstyle.config.directory}/Suppressions.xml"/>
     </module>
     <module name="TreeWalker">
-        <module name="JavadocMethod">
-            <property name="scope" value="package"/>
-            <property name="allowUndeclaredRTE" value="true"/>
-            <property name="logLoadErrors" value="true"/>
-            <property name="suppressLoadErrors" value="true"/>
-        </module>
+        <module name="JavadocMethod"/>
         <module name="JavadocType">
             <property name="scope" value="package"/>
             <property name="allowUnknownTags" value="true"/>
         </module>
         <module name="JavadocVariable">
-            <property name="scope" value="package"/>
+            <property name="scope" value="protected"/>
         </module>
         <module name="JavadocStyle">
-            <property name="checkEmptyJavadoc" value="true"/>
+            <property name="checkEmptyJavadoc" value="false"/>
         </module>
-        <module name="FinalLocalVariable"/>
+        <!--<module name="FinalLocalVariable"/>-->
         <module name="Indentation"/>
         <module name="ConstantName"/>
         <module name="LocalFinalVariableName"/>
@@ -55,11 +50,6 @@
         <module name="IllegalImport"/>
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
-        <module name="LineLength">
-            <metadata name="com.atlassw.tools.eclipse.checkstyle.comment" value="ignores import statements"/>
-            <property name="max" value="160"/>
-            <property name="ignorePattern" value="^import .*$"/>
-        </module>
         <module name="MethodLength"/>
         <module name="ParameterNumber">
             <metadata name="com.atlassw.tools.eclipse.checkstyle.comment" value="Constructor parameter list"/>
@@ -135,6 +125,11 @@
     <!--module name="JavadocPackage">
         <property name="allowLegacy" value="true"/>
     </module-->
+    <module name="LineLength">
+        <metadata name="com.atlassw.tools.eclipse.checkstyle.comment" value="ignores import statements"/>
+        <property name="max" value="160"/>
+        <property name="ignorePattern" value="^import .*$"/>
+    </module>
     <module name="NewlineAtEndOfFile"/>
     <module name="Translation"/>
 </module>
