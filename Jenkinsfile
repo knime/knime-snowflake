@@ -111,7 +111,7 @@ def dbTest() {
                     $class: 'GitSCM',
                     branches: [[name: branchName]],
                     extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'knime-snowflake'], [$class: 'GitLFSPull']],
-                    userRemoteConfigs: [[ credentialsId: 'bitbucket-jenkins', url: 'https://bitbucket.org/KNIME/knime-snowflake' ]]
+                    userRemoteConfigs: [[ credentialsId: 'jenkins-github', url: 'https://github.com/knime/knime-snowflake.git' ]]
                 ])
             }
 
@@ -133,7 +133,7 @@ def dbTest() {
                     $class: 'GitSCM',
                     branches: [[name: branchName ]],
                     extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'knime-database'], [$class: 'GitLFSPull']],
-                    userRemoteConfigs: [[ credentialsId: 'bitbucket-jenkins', url: 'https://bitbucket.org/KNIME/knime-database' ]]
+                    userRemoteConfigs: [[ credentialsId: 'jenkins-github', url: 'https://github.com/knime/knime-database.git' ]]
                 ])
 
                 withMaven(options: [artifactsPublisher(disabled: true)]) {
