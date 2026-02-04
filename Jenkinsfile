@@ -103,7 +103,7 @@ try {
 }
 
 def dbTest() {
-    node('maven && java21') {
+    node('maven && java21 && medium') {
         try {
             stage('Checkout Sources') {
                 def branchName = env.CHANGE_BRANCH ?: env.BRANCH_NAME
