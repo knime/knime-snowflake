@@ -125,8 +125,13 @@ def dbTest() {
                 def branchExists = knimetools.checkIfBranchExistsInRemote(repoName: repoName, branchName: branchName)
 
                 if (!branchExists) {
-                    echo "Branch '${branchName}' does not exist. Falling back to 'master'."
-                    branchName = 'master'
+                    if (env.CHANGE_TARGET) {
+                        echo "Branch '${branchName}' does not exist. Falling back to PR target branch '${env.CHANGE_TARGET}'."
+                        branchName = env.CHANGE_TARGET
+                    } else {
+                        echo "Branch '${branchName}' does not exist. Falling back to 'master'."
+                        branchName = 'master'
+                    }
                 }
 
                 checkout([
