@@ -118,13 +118,18 @@ def dbTest() {
                 def branchName = env.CHANGE_BRANCH ?: env.BRANCH_NAME ?: 'master'
 
                 def repoName = 'knime-database'
-                env.lastStage = env.STAGE_NAME               
+                env.lastStage = env.STAGE_NAME
 
                 def branchExists = knimetools.checkIfBranchExistsInRemote(repoName: repoName, branchName: branchName)
 
                 if (!branchExists) {
-                    echo "Branch '${branchName}' does not exist. Falling back to 'master'."
-                    branchName = 'master'
+                    if (env.CHANGE_TARGET) {
+                        echo "Branch '${branchName}' does not exist. Falling back to PR target branch '${env.CHANGE_TARGET}'."
+                        branchName = env.CHANGE_TARGET
+                    } else {
+                        echo "Branch '${branchName}' does not exist. Falling back to 'master'."
+                        branchName = 'master'
+                    }
                 }
 
                 checkout([
