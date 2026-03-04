@@ -3,6 +3,9 @@
 <plugin>
    <extension point="org.knime.database.Driver">
       <Driver locator="org.knime.database.extension.snowflake.SnowflakeDriverLocator" />
+      <Driver locator="org.knime.database.extension.snowflake.driver.SnowflakeDriverLocator2" />
+      <Driver locator="org.knime.database.extension.snowflake.driver.SnowflakeDriverLocator3" />
+      <Driver locator="org.knime.database.extension.snowflake.driver.SnowflakeDriverLocator320" />
    </extension>
 </plugin>
 
