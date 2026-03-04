@@ -69,8 +69,7 @@ public class SnowflakeDriverLocator320 extends SnowflakeAbstractDriverLocator {
         builder.withSummary("Selected database driver is deprecated.");
         builder.addTextIssue("The selected database driver is no longer supported since it contains a bug that "
             + "causes several database nodes such as the DB Loader and the Snowflake H2O nodes to fail on Windows. "
-            + "It will be moved to a separate extension that requires manual installation with one "
-            + "of the next releases.");
+            + "It has been moved to a separate extension that requires manual installation.");
         builder.addResolutions("Enable the 'Use latest driver version available' option in the node dialog.",
             "Select a new version of the driver in the node dialog.");
         return builder.build().get();
