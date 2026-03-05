@@ -81,7 +81,10 @@ try {
                         'knime-timeseries',
                         'knime-virtual',
                     ],
-                    ius: [ 'org.knime.snowflake.testing.janitor']
+                    ius: [ 'org.knime.snowflake.testing.janitor',
+                           // containing deprecated drivers
+                           'org.knime.features.snowflake.deprecated.feature.group'
+                         ]
                 ],
 
             )
