@@ -78,8 +78,6 @@ import org.knime.node.parameters.Widget;
 import org.knime.node.parameters.layout.Layout;
 import org.knime.node.parameters.updates.Effect;
 import org.knime.node.parameters.updates.Effect.EffectType;
-import org.knime.node.parameters.updates.EffectPredicate;
-import org.knime.node.parameters.updates.EffectPredicateProvider;
 import org.knime.node.parameters.widget.choices.EnumChoicesProvider;
 import org.knime.node.parameters.widget.choices.StringChoice;
 import org.knime.node.parameters.widget.credentials.Credentials;
@@ -198,24 +196,6 @@ final class SnowflakeDBConnectorNodeSettings2 extends SpecificDBConnectorNodeSet
         @Override
         protected Class<? extends EnumChoicesProvider<AuthenticationType>> getAuthenticationTypeChoicesProvider() {
             return AvailableAuthenticationTypesProvider.class;
-        }
-
-        @Override
-        protected Optional<Class<? extends EffectPredicateProvider>> getRequiresCredentialsEffectProvider() {
-            return Optional.of(RequiresCredentialsEffectProvider.class);
-        }
-
-
-        static final class RequiresCredentialsEffectProvider implements EffectPredicateProvider {
-
-            @Override
-            public EffectPredicate init(final PredicateInitializer i) {
-                return and(//
-                    i.getPredicate(AuthenticationTypeModification.getDefaultRequiresCredentialsEffectProvider()),
-                    not(i.getPredicate(HasCredentialPortPredicate.class))//
-                );
-            }
-
         }
 
         static class AvailableAuthenticationTypesProvider implements EnumChoicesProvider<AuthenticationType> {
