@@ -40,8 +40,17 @@
             <id>snowflake-test</id>
             <modules>
                 <module>../knime-database/org.knime.database/lib/fetch_jars</module>
-                <module>../knime-database/org.knime.database.extensions/lib/h2/fetch_v196_jars</module>
-                <module>../knime-database/org.knime.database.extensions/lib/h2/fetch_v21_jars</module>
+                <module>../knime-database/org.knime.database.extensions/lib/h2/fetch_v22_jars</module>
+                <module>../knime-database/org.knime.database.extensions.deprecated/lib/h2/fetch_v14_jars</module>
+                <module>../knime-database/org.knime.database.extensions.deprecated/lib/h2/fetch_v21_jars</module>
+                <module>../knime-database/org.knime.database.extensions.deprecated/lib/jtds/fetch_jars</module>
+                <module>../knime-database/org.knime.database.extensions.deprecated/lib/msaccess/fetch_jars</module>
+                <module>../knime-database/org.knime.database.extensions.deprecated/lib/mysql5/fetch_jars</module>
+                <module>../knime-database/org.knime.database.extensions.deprecated/lib/mysql8/fetch_jars</module>
+                <module>../knime-database/org.knime.database.extensions.deprecated/lib/postgresql/fetch_v422_jars</module>
+                <module>../knime-database/org.knime.database.extensions.deprecated/lib/postgresql/fetch_jars</module>
+                <module>../knime-database/org.knime.database.extensions.deprecated/lib/sqlite/fetch_v323_jars</module>
+                <module>../knime-database/org.knime.database.extensions.deprecated/lib/sqlite/fetch_v36_jars</module>
                 <module>org.knime.snowflake.deprecated/lib/fetch_jars</module>
                 <module>org.knime.snowflake.deprecated/lib/fetch_jars_3_13_24</module>
                 <module>org.knime.snowflake.deprecated/lib/fetch_jars_3_14_1</module>
@@ -58,6 +67,7 @@
                 <module>../knime-database/org.knime.database.extensions</module>
                 <module>../knime-database/org.knime.database.extensions.oracle</module>
                 <module>../knime-database/org.knime.database.extensions.db2</module>
+                <module>../knime-database/org.knime.database.extensions.deprecated</module>
                 <module>../knime-database/org.knime.database.tests</module>
                 <module>../knime-database/org.knime.database.tests.collector</module>
             </modules>
@@ -65,9 +75,8 @@
         <profile>
             <id>test</id>
             <modules>
-            <module>../knime-database/org.knime.database/lib/fetch_jars</module>
-                <module>../knime-database/org.knime.database.extensions/lib/h2/fetch_v196_jars</module>
-                <module>../knime-database/org.knime.database.extensions/lib/h2/fetch_v21_jars</module>
+	            <module>../knime-database/org.knime.database/lib/fetch_jars</module>
+                <module>../knime-database/org.knime.database.extensions/lib/h2/fetch_v22_jars</module>
                 <module>org.knime.snowflake.deprecated/lib/fetch_jars</module>
                 <module>org.knime.snowflake.deprecated/lib/fetch_jars_3_13_24</module>
                 <module>org.knime.snowflake.deprecated/lib/fetch_jars_3_14_1</module>
