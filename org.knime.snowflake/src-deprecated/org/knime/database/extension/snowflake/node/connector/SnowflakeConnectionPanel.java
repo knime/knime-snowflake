@@ -68,8 +68,10 @@ import org.knime.database.node.util.HistoryPanelHelper;
 /**
  * A panel for selecting all Snowflake connection related information such as account name, warehouse, role etc.
  *
+ * @deprecated This class is deprecated.
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
  */
+@Deprecated
 public class SnowflakeConnectionPanel extends JPanel {
 
     private static final long serialVersionUID = 2319121561117354700L;

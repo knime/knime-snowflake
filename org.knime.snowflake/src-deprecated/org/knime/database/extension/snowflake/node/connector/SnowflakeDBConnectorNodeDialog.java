@@ -77,8 +77,10 @@ import org.knime.database.node.connector.domain.DBTypeUI;
 /**
  * A node dialog for the <em>Snowflake connector node</em>.
  *
+ * @deprecated This class is deprecated.
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
  */
+@Deprecated
 public class SnowflakeDBConnectorNodeDialog extends AbstractDBConnectorNodeDialog<SnowflakeDBConnectorSettings> {
 
     private static final DBTypeUI DB_TYPE = new DBTypeUI(Snowflake.DB_TYPE);
