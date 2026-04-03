@@ -223,10 +223,10 @@
    </extension>
    
    <extension point="org.knime.workbench.repository.nodes">
-      <node category-path="/db/connector" deprecated="false"
+      <node category-path="/db/connector" deprecated="true"
             factory-class="org.knime.database.extension.snowflake.node.connector.SnowflakeDBConnectorNodeFactory" />
       <node category-path="/db/connector" deprecated="false"
-            factory-class="org.knime.database.extension.snowflake.node.connector.SnowflakeDBConnectorNodeFactory2" hidden="true" />
+            factory-class="org.knime.database.extension.snowflake.node.connector.SnowflakeDBConnectorNodeFactory2" />
    </extension>
    
 <!-- Node migration rules are removed until they are properly supported see UIEXT-2974   

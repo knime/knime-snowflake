@@ -63,8 +63,10 @@ import org.knime.workflow.migration.util.NodeSettingsMigrationVariablesUtilities
 /**
  * Migration rule from classic UI to modern UI Snowflake Connector node.
  *
+ * @deprecated This class is deprecated.
  * @author Tobias Koetter
  */
+@Deprecated
 public class SnowflakeDBConnectorNodeMigrationRule
     extends SpecificDBConnectorNodeMigrationRule<SnowflakeDBConnectorNodeSettings2, SnowflakeDBConnectorSettings> {
 

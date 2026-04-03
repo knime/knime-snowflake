@@ -65,8 +65,10 @@ import org.knime.database.node.connector.AbstractDBConnectorNodeModel;
 /**
  * A node model for the <em>Snowflake connector node</em>.
  *
+ * @deprecated This class is deprecated.
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
  */
+@Deprecated
 public class SnowflakeDBConnectorNodeModel extends AbstractDBConnectorNodeModel<SnowflakeDBConnectorSettings> {
 
     private final boolean m_hasInputPort;

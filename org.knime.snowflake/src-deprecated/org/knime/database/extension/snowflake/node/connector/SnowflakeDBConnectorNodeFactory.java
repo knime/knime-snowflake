@@ -57,8 +57,10 @@ import org.knime.database.port.DBSessionPortObject;
 /**
  * A node factory for the <em>Snowflake connector node</em>.
  *
+ * @deprecated This class is deprecated.
  * @author Tobias Koetter, KNIME GmbH, Konstanz, Germany
  */
+@Deprecated
 public class SnowflakeDBConnectorNodeFactory extends ConfigurableNodeFactory<SnowflakeDBConnectorNodeModel> {
 
     private static final String INPUT_AUTH_PORT_GRP_NAME = "Microsoft Authentication";
